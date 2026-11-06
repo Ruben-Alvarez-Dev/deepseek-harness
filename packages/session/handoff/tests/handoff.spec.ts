@@ -142,6 +142,9 @@ describe('handoff command', () => {
     expect(injected).toContain('Handoff checkpoint')
     expect(injected).toContain('finish the migration and keep the API stable')
     expect(injected).toContain('handoff-parent')
+    // The loop commits the delivered messages to the surface; the projection
+    // then records delivery, so no later step offers the checkpoint again.
+    for (const message of delivered.messages) child.append('user/message', message, { surfaceOp: 'append' })
     const second = await agentEvents(ctx, { session: child, status: 'running', options: {} } as unknown as Agent).waterfall(
       'agent/pre-step',
       { messages: [], turn: 1, step: 2, signal: new AbortController().signal },
@@ -149,6 +152,38 @@ describe('handoff command', () => {
     )
     expect(second.kind === 'enter' ? second.messages : []).toHaveLength(0)
     expect(parent.deriveMessages()).toHaveLength(before)
+  })
+
+  it('delivers the durable checkpoint after a resume-style remount', async () => {
+    const ctx = context = new Context()
+    await ctx.plugin(CommandRuntime)
+    await ctx.plugin(AgentRegistry)
+    await ctx.plugin(SessionStore)
+    await ctx.plugin(SessionProjectionRegistry)
+    await ctx.plugin(TokenMeter)
+    const child = ctx.sessions.create(SessionId('handoff-resume-child'))
+    child.append('handoff/checkpoint', {
+      parentSession: 'handoff-resume-parent',
+      goal: 'finish the migration',
+      tokens: 42,
+      text: '## Handoff checkpoint (from the previous session)\n\nresumed checkpoint body',
+    })
+    // A resumed process mounts the plugin after the child's log already exists.
+    await ctx.plugin(handoff, {})
+    const delivered = await agentEvents(ctx, { session: child, status: 'running', options: {} } as unknown as Agent).waterfall(
+      'agent/pre-step',
+      { messages: [], turn: 1, step: 1, signal: new AbortController().signal },
+      () => Promise.resolve({ kind: 'enter' as const, messages: [] }),
+    )
+    if (delivered.kind !== 'enter') throw new Error('expected an enter decision')
+    expect(JSON.stringify(delivered.messages)).toContain('resumed checkpoint body')
+    for (const message of delivered.messages) child.append('user/message', message, { surfaceOp: 'append' })
+    const second = await agentEvents(ctx, { session: child, status: 'running', options: {} } as unknown as Agent).waterfall(
+      'agent/pre-step',
+      { messages: [], turn: 1, step: 2, signal: new AbortController().signal },
+      () => Promise.resolve({ kind: 'enter' as const, messages: [] }),
+    )
+    expect(second.kind === 'enter' ? second.messages : []).toHaveLength(0)
   })
 
   it('rejects a handoff without a goal', async () => {
