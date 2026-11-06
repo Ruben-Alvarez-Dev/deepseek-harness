@@ -263,6 +263,43 @@ Host service backing `ctx.remote.skills` without activating a cold Agent.
 
 Source: [`packages/api/session-controller/src/skill-catalog.ts`](../../packages/api/session-controller/src/skill-catalog.ts)
 
+<a id="ctxskillrouter--skillmcprouter"></a>
+
+### `ctx.skillRouter` — `SkillMcpRouter`
+
+FTS5-backed zero-embedding router for skills and MCP tool metadata.
+
+```ts cordis-catalog
+/**
+ * Index the model-invocable skill catalog summary.
+ * @param skills - summaries from `ctx.skills.snapshot()`.
+ * @returns completion once the partition is current.
+ */
+async indexSkills(skills: readonly SkillSummary[]): Promise<void>
+
+/**
+ * Index the visible MCP tool schemas; non-MCP tools are ignored.
+ * @param tools - model-visible tool schemas for one agent scope.
+ * @returns completion once the partition is current.
+ */
+async indexTools(tools: readonly ToolSchema[]): Promise<void>
+
+/**
+ * Rank indexed entries for one task query.
+ * @param query - natural-language task or keywords.
+ * @param options - optional family filter and result limit.
+ * @returns ranked entries, most relevant first; empty for a query with no terms.
+ */
+async search(query: string, options: SearchOptions = {}): Promise<RankedEntry[]>
+
+/** Close the index; the service is unusable afterwards. */
+async close(): Promise<void>
+```
+
+Types: [ToolSchema](tools.md)
+
+Source: [`packages/skill/skill-mcp-router/src/index.ts`](../../packages/skill/skill-mcp-router/src/index.ts)
+
 <a id="ctxskills--skillregistry"></a>
 
 ### `ctx.skills` — `SkillRegistry`

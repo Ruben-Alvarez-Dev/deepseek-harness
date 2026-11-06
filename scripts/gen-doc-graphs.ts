@@ -177,6 +177,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Rewrites oversized current tool results through replayable single-node surface replacements before summary compaction.',
   },
   {
+    key: 'skillRouter',
+    pkg: 'skill-mcp-router',
+    title: 'Zero-embedding skill and MCP catalog ranking',
+    mode: 'core',
+    consumers: ['tool-skill'],
+    note: 'Ranks registered skills and MCP tool metadata with FTS5 when mounted; tool-skill keeps the lexical catalog when the service is absent.',
+  },
+  {
     key: 'sessions',
     pkg: 'session',
     title: 'In-memory session store',

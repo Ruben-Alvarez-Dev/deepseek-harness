@@ -115,6 +115,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   systemPrompt: 'system-prompt.md',
   jobs: 'jobs.md',
   sessionTelemetry: 'session-telemetry.md',
+  skillRouter: 'skills.md',
   agentTeams: 'agent-team.md',
   tokenMeter: 'token-meter.md',
   toolResultPruner: 'compaction.md',
@@ -800,6 +801,10 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   TerminalAttachmentId: 'Browser terminal input ownership is owned by packages/api/terminal-controller/README.md',
   TerminalFrame: 'Browser terminal stream frames are owned by packages/api/terminal-controller/README.md',
   WebTerminalId: 'Browser terminal identity is owned by packages/api/terminal-controller/README.md',
+  PruneSessionOptions:
+    'service-local pruner input is owned by packages/compaction/compaction-tool-result-pruner/src/types.ts',
+  RankedEntry: 'service-local router result record is owned by packages/skill/skill-mcp-router/src/index.ts',
+  SearchOptions: 'service-local router search input is owned by packages/skill/skill-mcp-router/src/index.ts',
 }
 
 /** Repository data policy consumed by the Cordis catalog projector. */

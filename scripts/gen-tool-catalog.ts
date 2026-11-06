@@ -656,8 +656,19 @@ interface CatalogPackage {
 export type ToolCatalog = CatalogPackage[]
 
 /**
+ * `tool-*` leaves that register no tool schema and therefore cannot be
+ * catalogued: guards and other packages that act on tool calls without adding
+ * model-visible tools. Every entry carries its reason; the completeness scan
+ * below ignores them, and any other unlisted `tool-*` leaf still fails.
+ */
+export const TOOL_CATALOG_EXEMPT_LEAVES: ReadonlyMap<string, string> = new Map([
+  ['tool-dispatch-gate', 'Guard on tools/pre-execute: allowlist decisions only, no tool schema.'],
+])
+
+/**
  * Assert the boot manifest covers every shipped tool package on disk (a
- * `tool-*` leaf under `packages/`).
+ * `tool-*` leaf under `packages/`, except the documented
+ * {@link TOOL_CATALOG_EXEMPT_LEAVES}).
  * Booting has no source declaration to enumerate, so this glob restores the
  * "a new tool cannot be silently undocumented" guarantee: an unlisted package
  * fails the generator (and the freshness gate) until it is added to
@@ -666,7 +677,10 @@ export type ToolCatalog = CatalogPackage[]
  * `scanRoot` defaults to the repo root; a test may point it at a fixture tree.
  */
 export function assertManifestComplete(packages: ToolPackage[] = TOOL_PACKAGES, scanRoot: string = root): void {
-  const onDisk = globSync('packages/*/tool-*', { cwd: scanRoot }).map(p => basename(p)).sort()
+  const onDisk = globSync('packages/*/tool-*', { cwd: scanRoot })
+    .map(p => basename(p))
+    .filter(dir => !TOOL_CATALOG_EXEMPT_LEAVES.has(dir))
+    .sort()
   const listed = new Set(packages.map(p => p.dir))
   const missing = onDisk.filter(dir => !listed.has(dir))
   if (missing.length > 0) {

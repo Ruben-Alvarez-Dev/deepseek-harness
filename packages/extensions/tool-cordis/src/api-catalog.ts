@@ -2202,6 +2202,41 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'skillRouter',
+    summary: 'FTS5-backed zero-embedding router for skills and MCP tool metadata.',
+    description: 'FTS5-backed zero-embedding router for skills and MCP tool metadata.',
+    methods: [
+      {
+        signature: 'readonly config: ResolvedConfig',
+        description: 'Resolved immutable configuration.',
+        parameters: [],
+      },
+      {
+        signature: 'async indexSkills(skills: readonly SkillSummary[]): Promise<void>',
+        description: 'Index the model-invocable skill catalog summary.',
+        parameters: [{ name: 'skills', description: 'summaries from `ctx.skills.snapshot()`.' }],
+        returns: 'completion once the partition is current.',
+      },
+      {
+        signature: 'async indexTools(tools: readonly ToolSchema[]): Promise<void>',
+        description: 'Index the visible MCP tool schemas; non-MCP tools are ignored.',
+        parameters: [{ name: 'tools', description: 'model-visible tool schemas for one agent scope.' }],
+        returns: 'completion once the partition is current.',
+      },
+      {
+        signature: 'async search(query: string, options: SearchOptions = {}): Promise<RankedEntry[]>',
+        description: 'Rank indexed entries for one task query.',
+        parameters: [{ name: 'query', description: 'natural-language task or keywords.' }, { name: 'options', description: 'optional family filter and result limit.' }],
+        returns: 'ranked entries, most relevant first; empty for a query with no terms.',
+      },
+      {
+        signature: 'async close(): Promise<void>',
+        description: 'Close the index; the service is unusable afterwards.',
+        parameters: [],
+      },
+    ],
+  },
+  {
     key: 'skills',
     summary: 'Layered registry of skill providers, the host+per-scope shape the tools registry established.',
     description: 'Layered registry of skill providers, the host+per-scope shape the tools registry established. A registration files into the layer of its calling context\'s scope (scopeOf): host rows and repository plugins land in the global layer, while a plugin mounted by an agent preset\'s standing composition lands in that preset\'s layer. A read merges the global layer with the viewing scope\'s chain — the nearest layer\'s entry wins a duplicate name outright, and the rank order decides duplicates only within one layer. It exposes sorted invocation-neutral summaries and loads full skill bodies on demand.',
@@ -2723,17 +2758,23 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'total Unicode code points across text blocks.',
       },
       {
-        signature: 'pruneContent(blocks: readonly ContentBlock[]): ContentBlock[] | null',
+        signature: 'pruneContent(blocks: readonly ContentBlock[], thresholdChars: number = this.config.thresholdChars): ContentBlock[] | null',
         description: 'Replace an over-budget text middle while retaining rich-block order. Text slicing is by Unicode code point, not UTF-16 code unit, so a retained boundary cannot split a surrogate pair. Grapheme clusters may still split.',
-        parameters: [{ name: 'blocks', description: 'original tool-result content.' }],
+        parameters: [{ name: 'blocks', description: 'original tool-result content.' }, { name: 'thresholdChars', description: 'threshold for this pass; defaults to the configured one.' }],
         returns: 'pruned content, or `null` when the text is within budget.',
       },
       {
-        signature: 'pruneSession(session: Session): PruneResult',
+        signature: 'pruneSession(session: Session, options: PruneSessionOptions = {}): PruneResult',
         description: 'Prune every over-budget tool result from one stable current-surface snapshot. Each replacement preserves the complete event data except for `content`, cites the shadowed node so replay can recover the replacement input, and is immediately preceded by a `compaction/prune` shadow-price event pricing the shadowed node through the injected token meter, so pure consumers can subtract it without per-node state.',
-        parameters: [{ name: 'session', description: 'session whose current surface is rewritten.' }],
+        parameters: [{ name: 'session', description: 'session whose current surface is rewritten.' }, { name: 'options', description: 'optional threshold override for this pass.' }],
         returns: 'landed replacements and aggregate Unicode-code-point savings.',
         throws: ['when the session rejects a replacement; replacements committed earlier in the pass remain durable.'],
+      },
+      {
+        signature: 'pruneForPressure(session: Session): PruneResult | undefined',
+        description: 'Apply the configured per-turn pressure trigger to one session.\n\nMeasures the session with the injected token meter and, only when the measured context exceeds `pressure.maxContextTokens`, prunes current tool-result surface nodes over `pressure.pruneThresholdChars` through the ordinary replacement path (originals stay in the log).',
+        parameters: [{ name: 'session', description: 'session entering the next model step.' }],
+        returns: 'the pruning result, or undefined when below the pressure threshold or without a configured trigger.',
       },
     ],
   },
@@ -4995,6 +5036,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface PruneResult {\n    readonly pruned: readonly PrunedEntry[];\n    readonly charsRemoved: number;\n}',
   },
   {
+    name: 'PruneSessionOptions',
+    declaration: 'export interface PruneSessionOptions {\n    thresholdChars?: number;\n}',
+  },
+  {
     name: 'PtcBindingErrorClass',
     declaration: 'export interface PtcBindingErrorClass {\n    name: string;\n    memberNameProperty: string;\n}',
   },
@@ -5033,6 +5078,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'PtcRunSpec',
     declaration: 'export interface PtcRunSpec extends PtcRunRequest {\n    cwd: string;\n    timeoutMs: number | null;\n}',
+  },
+  {
+    name: 'RankedEntry',
+    declaration: 'export interface RankedEntry {\n    readonly kind: RouterEntryKind;\n    readonly name: string;\n    readonly score: number;\n}',
   },
   {
     name: 'ReadFileLine',
@@ -5127,6 +5176,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ResumeAgentOptions {\n    readonly resumeSessionId: SessionId;\n    readonly parentAgent?: Agent;\n    readonly agentOptions?: AgentOptions;\n    readonly signal?: AbortSignal;\n    readonly setup?: AgentSetup;\n}',
   },
   {
+    name: 'RouterEntryKind',
+    declaration: 'export type RouterEntryKind = \'skill\' | \'tool\';',
+  },
+  {
     name: 'RunnerFailureRule',
     declaration: 'export interface RunnerFailureRule {\n    allowedExitCodes?: readonly number[];\n    fatalSignatures: readonly string[];\n    informationalLines?: readonly string[];\n}',
   },
@@ -5193,6 +5246,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'SearchMatchesResultView',
     declaration: 'export interface SearchMatchesResultView {\n    card: \'search\';\n    shape: \'matches\';\n    title?: string;\n    files: SearchFileMatches[];\n    truncated: boolean;\n    total: number;\n}',
+  },
+  {
+    name: 'SearchOptions',
+    declaration: 'export interface SearchOptions {\n    readonly kind?: RouterEntryKind;\n    readonly limit?: number;\n}',
   },
   {
     name: 'SearchPathsResultView',

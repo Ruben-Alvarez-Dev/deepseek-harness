@@ -228,9 +228,10 @@ measureContent(blocks: readonly ContentBlock[]): number
  * Text slicing is by Unicode code point, not UTF-16 code unit, so a retained
  * boundary cannot split a surrogate pair. Grapheme clusters may still split.
  * @param blocks - original tool-result content.
+ * @param thresholdChars - threshold for this pass; defaults to the configured one.
  * @returns pruned content, or `null` when the text is within budget.
  */
-pruneContent(blocks: readonly ContentBlock[]): ContentBlock[] | null
+pruneContent(blocks: readonly ContentBlock[], thresholdChars: number = this.config.thresholdChars): ContentBlock[] | null
 
 /**
  * Prune every over-budget tool result from one stable current-surface snapshot.
@@ -240,11 +241,25 @@ pruneContent(blocks: readonly ContentBlock[]): ContentBlock[] | null
  * shadowed node through the injected token meter, so pure consumers can
  * subtract it without per-node state.
  * @param session - session whose current surface is rewritten.
+ * @param options - optional threshold override for this pass.
  * @returns landed replacements and aggregate Unicode-code-point savings.
  * @throws when the session rejects a replacement; replacements committed
  * earlier in the pass remain durable.
  */
-pruneSession(session: Session): PruneResult
+pruneSession(session: Session, options: PruneSessionOptions = {}): PruneResult
+
+/**
+ * Apply the configured per-turn pressure trigger to one session.
+ *
+ * Measures the session with the injected token meter and, only when the
+ * measured context exceeds `pressure.maxContextTokens`, prunes current
+ * tool-result surface nodes over `pressure.pruneThresholdChars` through the
+ * ordinary replacement path (originals stay in the log).
+ * @param session - session entering the next model step.
+ * @returns the pruning result, or undefined when below the pressure threshold
+ *   or without a configured trigger.
+ */
+pruneForPressure(session: Session): PruneResult | undefined
 ```
 
 Types: [ContentBlock](llm-streaming.md) · [Session](session.md)
