@@ -316,6 +316,120 @@ describe('dsh-tool-skill', () => {
     expect(renderPrompt(await ctx.systemPrompt.assemble({ agent: agentForCwd('/workspace') }))).not.toContain('<available_skills>')
   })
 
+  it('keeps full descriptions for the top-K and one-line summaries for the rest', async () => {
+    const home = await tempDir('tool-catalog-topk')
+    const ctx = await setup(home, {
+      catalogTopK: 1,
+      catalogDescriptionMaxLength: 200,
+      catalogSummaryDescriptionMaxLength: 24,
+    })
+    ctx.skills.register({
+      name: 'alpha-skill',
+      description: 'Handles alpha workflows end to end.',
+      source: 'runtime',
+      provider: 'runtime',
+      content: 'Alpha body.',
+    })
+    ctx.skills.register({
+      name: 'beta-skill',
+      description: 'Handles the beta deployment pipeline with rollbacks.',
+      source: 'runtime',
+      provider: 'runtime',
+      content: 'Beta body.',
+    })
+    ctx.skills.register({
+      name: 'gamma-skill',
+      description: 'Handles gamma reporting and dashboards.',
+      source: 'runtime',
+      provider: 'runtime',
+      content: 'Gamma body.',
+    })
+    const agent = agentForCwd('/workspace')
+    agent.session.append('turn/start', { turn: 1 })
+    agent.session.append('user/message', createUserMessage({
+      content: [{ type: 'text', text: 'please run the beta deployment pipeline' }],
+      source: { kind: 'user' },
+    }), { surfaceOp: 'append' })
+
+    const prefix = await composePrefixForAgent(ctx, agent)
+    const catalog = prefix.find(message => message.source.kind === 'skill-catalog')
+    if (catalog === undefined || catalog.source.kind !== 'skill-catalog') throw new Error('expected a skill catalog')
+    expect(catalog.source.entries.map(entry => entry.name)).toEqual(['alpha-skill', 'beta-skill', 'gamma-skill'])
+    expect(catalog.source.entries.find(entry => entry.name === 'beta-skill')?.description)
+      .toBe('Handles the beta deployment pipeline with rollbacks.')
+    for (const name of ['alpha-skill', 'gamma-skill']) {
+      const description = catalog.source.entries.find(entry => entry.name === name)?.description ?? ''
+      expect(description.length).toBe(24)
+      expect(description.endsWith('...')).toBe(true)
+    }
+    const text = catalog.content.map(block => block.type === 'text' ? block.text : '').join('')
+    for (const name of ['alpha-skill', 'beta-skill', 'gamma-skill']) expect(text).toContain(name)
+  })
+
+  it('ignores the top-K cap when the request has no lexical overlap with any skill', async () => {
+    const home = await tempDir('tool-catalog-topk-no-query')
+    const ctx = await setup(home, { catalogTopK: 1, catalogSummaryDescriptionMaxLength: 12 })
+    for (const name of ['alpha-skill', 'beta-skill']) {
+      ctx.skills.register({
+        name,
+        description: `${name} full description text.`,
+        source: 'runtime',
+        provider: 'runtime',
+        content: `${name} body.`,
+      })
+    }
+    const agent = agentForCwd('/workspace')
+    agent.session.append('turn/start', { turn: 1 })
+    agent.session.append('user/message', createUserMessage({
+      content: [{ type: 'text', text: 'hello' }],
+      source: { kind: 'user' },
+    }), { surfaceOp: 'append' })
+
+    const prefix = await composePrefixForAgent(ctx, agent)
+    const catalog = prefix.find(message => message.source.kind === 'skill-catalog')
+    if (catalog === undefined || catalog.source.kind !== 'skill-catalog') throw new Error('expected a skill catalog')
+    for (const entry of catalog.source.entries) {
+      expect(entry.description).toBe(`${entry.name} full description text.`)
+    }
+  })
+
+  it('always keeps a user-invoked skill in full, even outside the top-K cap', async () => {
+    const home = await tempDir('tool-catalog-topk-gesture')
+    const ctx = await setup(home, {
+      catalogTopK: 1,
+      catalogDescriptionMaxLength: 200,
+      catalogSummaryDescriptionMaxLength: 16,
+    })
+    ctx.skills.register({
+      name: 'alpha-skill',
+      description: 'Alpha workflow instructions.',
+      source: 'runtime',
+      provider: 'runtime',
+      content: 'Alpha body.',
+    })
+    ctx.skills.register({
+      name: 'beta-skill',
+      description: 'Beta deployment instructions.',
+      source: 'runtime',
+      provider: 'runtime',
+      content: 'Beta body.',
+    })
+    const agent = agentForCwd('/workspace')
+    agent.session.append('turn/start', { turn: 1 })
+    agent.session.append('user/message', createUserMessage({
+      content: [{ type: 'text', text: '/alpha-skill run the beta deployment' }],
+      source: { kind: 'user' },
+    }), { surfaceOp: 'append' })
+
+    const prefix = await composePrefixForAgent(ctx, agent)
+    const catalog = prefix.find(message => message.source.kind === 'skill-catalog')
+    if (catalog === undefined || catalog.source.kind !== 'skill-catalog') throw new Error('expected a skill catalog')
+    const alpha = catalog.source.entries.find(entry => entry.name === 'alpha-skill')
+    const beta = catalog.source.entries.find(entry => entry.name === 'beta-skill')
+    expect(alpha?.description).toBe('Alpha workflow instructions.')
+    expect(beta?.description.length).toBe(16)
+  })
+
   it('does not inject a catalog when no model-invocable skills are available', async () => {
     const home = await tempDir('tool-empty-catalog')
     const ctx = await setup(home)

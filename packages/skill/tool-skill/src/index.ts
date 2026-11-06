@@ -25,6 +25,7 @@ export const name = 'tool-skill'
 export const inject = ['agents', 'tools', 'skills']
 
 const DEFAULT_CATALOG_DESCRIPTION_MAX_LENGTH = 500
+const DEFAULT_CATALOG_SUMMARY_DESCRIPTION_MAX_LENGTH = 64
 /**
  * Durable provider and item records for one published session skill catalog. The catalog is a
  * `catalog`-form context, so it records the entries it published beside the
@@ -49,23 +50,133 @@ declare module '@deepseek-ai/dsh-llm' {
 /** Durable entry list mirroring the rendered catalog lines, for non-model consumers. */
 function catalogSourceEntries(
   skills: SkillSummary[],
-  descriptionMaxLength: number,
+  descriptionMaxLengthFor: (name: string) => number,
 ): SkillCatalogSource['entries'] {
   return skills.map(skill => ({
     name: skill.name,
-    description: catalogDescription(skill.description, descriptionMaxLength),
+    description: catalogDescription(skill.description, descriptionMaxLengthFor(skill.name)),
   }))
+}
+
+interface CatalogSelectionLimits {
+  /** Skills rendered with the full description; 0 renders every skill in full. */
+  readonly topK: number
+  readonly fullLength: number
+  readonly summaryLength: number
+}
+
+/**
+ * Pick which catalog entries keep their full description. Ranking is a
+ * zero-embedding lexical overlap between the current request and each skill's
+ * name and description; every skill stays listed so nothing becomes
+ * undiscoverable. User-invoked skills always keep the full description and
+ * count toward the budget, which is what makes the `skill` loader a working
+ * escape hatch for the summarized remainder.
+ * @param skills - model-invocable skills in catalog order.
+ * @param queryText - the current request text used for ranking.
+ * @param invokedNames - skill names claimed by a user `/name` gesture.
+ * @param limits - configured full/summary lengths and top-K size.
+ * @returns durable catalog entries in unchanged catalog order.
+ */
+function selectCatalogEntries(
+  skills: SkillSummary[],
+  queryText: string,
+  invokedNames: readonly string[],
+  limits: CatalogSelectionLimits,
+): SkillCatalogSource['entries'] {
+  if (limits.topK === 0 || skills.length <= limits.topK) {
+    return catalogSourceEntries(skills, () => limits.fullLength)
+  }
+  const queryTokens = tokenizeCatalogText(queryText)
+  const known = new Set(skills.map(skill => skill.name))
+  const chosen = new Set(invokedNames.filter(name => known.has(name)))
+  if (queryTokens.size === 0) {
+    return catalogSourceEntries(skills, () => limits.fullLength)
+  }
+  const ranked = skills
+    .filter(skill => !chosen.has(skill.name))
+    .map(skill => ({ name: skill.name, score: catalogRelevance(skill, queryTokens) }))
+    .sort((left, right) => right.score - left.score || compareNames(left.name, right.name))
+  // No lexical signal means no honest ranking: keep every description intact
+  // rather than degrading an arbitrary subset.
+  if (ranked.every(entry => entry.score === 0)) {
+    return catalogSourceEntries(skills, () => limits.fullLength)
+  }
+  for (const entry of ranked) {
+    if (chosen.size >= limits.topK) break
+    chosen.add(entry.name)
+  }
+  return catalogSourceEntries(skills, name => chosen.has(name) ? limits.fullLength : limits.summaryLength)
+}
+
+/** Code-unit name order: deterministic across hosts, unlike locale collation. */
+function compareNames(left: string, right: string): number {
+  if (left === right) return 0
+  return left < right ? -1 : 1
+}
+
+/** Lowercased letter/digit tokens of length >= 2; keeps CJK runs intact. */
+function tokenizeCatalogText(value: string): Set<string> {
+  const tokens = new Set<string>()
+  for (const match of value.toLowerCase().matchAll(/[\p{L}\p{N}]{2,}/gu)) tokens.add(match[0])
+  return tokens
+}
+
+/** Lexical relevance: a name hit weighs three description hits. */
+function catalogRelevance(skill: SkillSummary, query: Set<string>): number {
+  let score = 0
+  for (const token of tokenizeCatalogText(skill.name)) if (query.has(token)) score += 3
+  for (const token of tokenizeCatalogText(skill.description)) if (query.has(token)) score += 1
+  return score
+}
+
+/**
+ * Text of the request the catalog is being published for: the last claimed
+ * direct user message, else the last direct user message in the durable log.
+ * Non-user sources cannot steer selection, mirroring the gesture rule.
+ */
+function catalogQueryText(claimed: readonly UserMessage[], agent: Agent): string {
+  const direct = claimed.filter(message => (message.source as { kind?: unknown }).kind === 'user')
+  let message: UserMessage | undefined = direct[direct.length - 1]
+  if (message === undefined) {
+    for (let index = agent.session.seq - 1; index >= 0; index -= 1) {
+      // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
+      const event = agent.session.eventAt(SessionSeq(index))
+      if (event === undefined) {
+        throw new Error(`skill catalog cannot read seq ${String(index)} below the current Session length`)
+      }
+      if (event.type !== 'user/message') continue
+      if ((event.data.source as { kind?: unknown }).kind !== 'user') continue
+      message = event.data
+      break
+    }
+  }
+  if (message === undefined) return ''
+  return message.content
+    .flatMap(block => block.type === 'text' ? [block.text] : [])
+    .join('\n')
 }
 
 /** Model-facing skill catalog configuration. */
 export interface Config {
   /** Maximum normalized description length rendered in the session catalog; minimum 3. */
   catalogDescriptionMaxLength?: number
+  /**
+   * Number of skills rendered with the full description. Every other skill
+   * stays listed under its name with a one-line summary, so all names remain
+   * discoverable through the catalog and the `skill` tool. `0` renders every
+   * skill with the full description (default, previous behavior).
+   */
+  catalogTopK?: number
+  /** Summary description length for skills outside the top-K; minimum 3. */
+  catalogSummaryDescriptionMaxLength?: number
 }
 
 /** Validate and default the model-facing skill catalog configuration. */
 export const Config: z<Config> = z.object({
   catalogDescriptionMaxLength: z.number().default(DEFAULT_CATALOG_DESCRIPTION_MAX_LENGTH),
+  catalogTopK: z.number().default(0),
+  catalogSummaryDescriptionMaxLength: z.number().default(DEFAULT_CATALOG_SUMMARY_DESCRIPTION_MAX_LENGTH),
 })
 
 /**
@@ -76,7 +187,12 @@ export const Config: z<Config> = z.object({
  */
 export function apply(ctx: Context, config: Config = {}): void {
   const catalogDescriptionMaxLength = config.catalogDescriptionMaxLength ?? DEFAULT_CATALOG_DESCRIPTION_MAX_LENGTH
+  const catalogTopK = config.catalogTopK ?? 0
+  const catalogSummaryDescriptionMaxLength = config.catalogSummaryDescriptionMaxLength
+    ?? DEFAULT_CATALOG_SUMMARY_DESCRIPTION_MAX_LENGTH
   assertPositiveInteger('catalogDescriptionMaxLength', catalogDescriptionMaxLength, 3)
+  assertNonNegativeInteger('catalogTopK', catalogTopK)
+  assertPositiveInteger('catalogSummaryDescriptionMaxLength', catalogSummaryDescriptionMaxLength, 3)
 
   const skillTool = defineTool({
     name: 'skill',
@@ -224,7 +340,18 @@ export function apply(ctx: Context, config: Config = {}): void {
     signal.throwIfAborted()
     if (!snapshot.complete) return decision
     const skills = snapshot.skills.filter(isModelInvocable)
-    const entries = catalogSourceEntries(skills, catalogDescriptionMaxLength)
+    const queryText = catalogQueryText(decision.messages, agent)
+    const invoked = [...invokedSkillNames(decision.messages), ...skillGestureNames(queryText)]
+    const entries = selectCatalogEntries(
+      skills,
+      queryText,
+      invoked,
+      {
+        topK: catalogTopK,
+        fullLength: catalogDescriptionMaxLength,
+        summaryLength: catalogSummaryDescriptionMaxLength,
+      },
+    )
     const digest = digestCatalogEntries(entries)
     const history = catalogHistory(agent)
     const existing = catalogMessage(decision.messages)
@@ -399,6 +526,12 @@ function assertPositiveInteger(name: string, value: number, minimum = 1): void {
   }
 }
 
+function assertNonNegativeInteger(name: string, value: number): void {
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error(`tool-skill: ${name} must be an integer greater than or equal to 0`)
+  }
+}
+
 /**
  * A whitespace-bounded `/name` token (the public skill-name grammar) anywhere
  * in the text — the same word-boundary shape the transcript chip decoration
@@ -426,6 +559,22 @@ function invokedSkillNames(messages: readonly UserMessage[]): string[] {
         if (name !== undefined && !names.includes(name)) names.push(name)
       }
     }
+  }
+  return names
+}
+
+/**
+ * `/name` gestures in already-extracted direct user text. Used together with
+ * the claimed-message scan so a step whose claim batch is empty still protects
+ * the skills the user explicitly invoked in the durable log.
+ * @param text - direct user text from the current request.
+ * @returns skill names in first-seen order.
+ */
+function skillGestureNames(text: string): string[] {
+  const names: string[] = []
+  for (const match of text.matchAll(SKILL_GESTURE)) {
+    const name = match[2]
+    if (name !== undefined && !names.includes(name)) names.push(name)
   }
   return names
 }
