@@ -34631,7 +34631,7 @@
         "event:handoff/checkpoint.data"
       ],
       "sources": [
-        "packages/session/handoff/src/types.ts:12"
+        "packages/session/handoff/src/types.ts:31"
       ]
     },
     {

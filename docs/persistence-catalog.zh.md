@@ -562,7 +562,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 }
 ```
 
-来源：[`packages/session/handoff/src/types.ts:12`](../packages/session/handoff/src/types.ts)
+来源：[`packages/session/handoff/src/types.ts:31`](../packages/session/handoff/src/types.ts)
 
 ### `hook/*`
 
@@ -2849,7 +2849,7 @@ SHA-256: `de1837a69b842f67615fa50fdea7fe0596545c6e63b931419f47304cb76c2043`
 
 SHA-256: `539791115ec35db6ec80d13c342ce52da8b71bedf6f476518ae680700e2f9c55`
 
-来源：[`packages/session/handoff/src/types.ts:12`](../packages/session/handoff/src/types.ts)
+来源：[`packages/session/handoff/src/types.ts:31`](../packages/session/handoff/src/types.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|

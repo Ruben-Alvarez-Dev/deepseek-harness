@@ -906,7 +906,7 @@ Source: [`packages/goal/goal/src/index.ts:172`](../packages/goal/goal/src/index.
 
 ## `@deepseek-ai/dsh-handoff`
 
-Requires: `commands` · `sessions` · `tokenMeter`
+Requires: `commands` · `sessions` · `tokenMeter` · `sessionProjections`
 
 ```ts config-catalog
 /** Deployment-owned checkpoint bounds. */
@@ -2414,8 +2414,6 @@ Source: [`packages/skill/skill-filesystem/src/index.ts:49`](../packages/skill/sk
 <a id="deepseek-aidsh-skill-mcp-router"></a>
 
 ## `@deepseek-ai/dsh-skill-mcp-router`
-
-Requires: `tools`
 
 ```ts config-catalog
 /** Deployment-owned router configuration. */

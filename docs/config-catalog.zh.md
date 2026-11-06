@@ -908,7 +908,7 @@ export interface Config {
 
 ## `@deepseek-ai/dsh-handoff`
 
-Requires: `commands` · `sessions` · `tokenMeter`
+Requires: `commands` · `sessions` · `tokenMeter` · `sessionProjections`
 
 ```ts config-catalog
 /** Deployment-owned checkpoint bounds. */
@@ -2417,7 +2417,6 @@ export interface Config {
 
 ## `@deepseek-ai/dsh-skill-mcp-router`
 
-Requires: `tools`
 
 ```ts config-catalog
 /** Deployment-owned router configuration. */
