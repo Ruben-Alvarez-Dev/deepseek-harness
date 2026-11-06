@@ -98,7 +98,7 @@ export class ToolResultPruner extends Service {
    * @param thresholdChars - threshold for this pass; defaults to the configured one.
    * @returns pruned content, or `null` when the text is within budget.
    */
-  pruneContent(blocks: readonly ContentBlock[], thresholdChars = this.config.thresholdChars): ContentBlock[] | null {
+  pruneContent(blocks: readonly ContentBlock[], thresholdChars: number = this.config.thresholdChars): ContentBlock[] | null {
     const totalChars = this.measureContent(blocks)
     if (totalChars <= thresholdChars) return null
 
