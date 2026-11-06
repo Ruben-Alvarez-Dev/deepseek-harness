@@ -156,7 +156,6 @@ export class ToolResultPruner extends Service {
     const thresholdChars = options.thresholdChars ?? this.config.thresholdChars
     const candidates: SnapshotCandidate[] = []
     for (const seq of [...session.surface.nodes]) {
-      // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
       const event = session.eventAt(seq)
       /* v8 ignore next -- surface seqs are validated contiguous log references. */
       if (event?.type === 'tool/result') candidates.push({ seq, event })
