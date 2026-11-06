@@ -35,7 +35,7 @@ P3 = **B-1 (Skill/MCPRouter)** + **B-2 (escape hatch garantizado)**:
 ### Integración opt-in (sin defaults)
 
 1. **tool-skill (skills):** si `ctx.get('skillRouter')` existe, el top-K del catálogo usa `skillRouter.search(query, { kind: 'skill', limit: topK })`; sin router, conserva el ranking léxico de CH-041. El resto del comportamiento (todas las skills listadas, gestos `/name`, digest) no cambia.
-2. **`find-mcp-tools` (nuevo tool, opt-in):** busca en la partición `tool` y devuelve nombre + descripción de los MCP tools coincidentes; es la vía explícita de descubrimiento, no oculta nada ni cambia el ensamblado.
+2. **Sin `find-mcp-tools` (decisión):** los MCP tools siguen siendo visibles en el ensamblado; añadir una tool de descubrimiento pagaría schema en cada petición sin aportar capacidad. La partición `tool` queda en la API del servicio para el consumidor que en el futuro seleccione/ordene tools, y el escape hatch de B-2 ya existe porque no se oculta nada.
 
 ### Evaluación (gate)
 
@@ -71,3 +71,10 @@ P3 = **B-1 (Skill/MCPRouter)** + **B-2 (escape hatch garantizado)**:
 Objetivos del gate (`recall@8 ≥ 0,90`, `nDCG@8 ≥ 0,80`): **cumplidos** (0,915 / 0,932) y el router **supera al baseline** en ambas métricas. Medición reproducible en `packages/skill/skill-mcp-router/tests/router-quality.spec.ts` (test del paquete) y fixture `tests/fixtures/corpus.ts`.
 
 **Límite declarado:** el corpus es sintético y el gate es una señal interna de regresión, no una afirmación de calidad universal. La consulta "roll back a bad release" no recupera nada (no comparte raíz con "rollback"); se documenta como limitación léxica en el README.
+
+## 7 · Implementación y cierre (2026-11-06)
+
+- **Implementado opt-in, sin activar en presets.** Commits locales en `feat/ch043-skill-mcp-router` (base `origin/master` `0d1f50007f`, apilada sobre la rama de CH-041 porque usa `catalogTopK`): `acd3e30` (servicio FTS5 + fixture + gate) y `2b04540` (integración en `tool-skill` + Agent Note) (ranking opcional vía `ctx.get('skillRouter')`, fallback léxico intacto).
+- **Gate medido:** recall@8 0,915 / nDCG@8 0,932 frente a 0,890/0,883 del baseline léxico (59 queries, 32 entradas); objetivos 0,90/0,80 cumplidos. Agent Note bilingüe `proposed/feature/2026-11-06-skill-mcp-router`.
+- **Verificación:** 46 tests (10 router, 36 tool-skill), `pnpm run typecheck` exit 0, `pnpm run test:docs` 20/20. Sin activación en composiciones → snapshots sin diffs. Sin push ni PR.
+- **Pendiente de decisión del propietario:** publicar la rama/PR y, si se quiere efecto en producción, montar router + `catalogTopK` en presets (requiere re-grabar snapshots).
