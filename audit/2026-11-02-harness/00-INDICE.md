@@ -44,6 +44,7 @@ audit/2026-11-02-harness/
 | 19 | `18-NOTAS-TRABAJO.md` | Notas de trabajo de la ronda 1 (histórico) |
 | 20 | `19-HANDOFF.md` | **Handoff para la siguiente sesión**: estado, decisiones pendientes, próximo paso |
 | 21 | `planificacion/20-BASELINE-CH040.md` | Baseline medido de tokens (CH-040/P0): 3 sesiones, 582 peticiones, 308.353 tok/petición ponderado |
+| 22 | `planificacion/21-CH041-DISENO.md` | Diseño de CH-041 (P1 governor outbound): seams verificados, alcance, gate −20 % y verificación |
 
 **Relación entre documentos:** 01–12 son la evidencia; 13–15 son las decisiones; 17 es la trazabilidad de fuentes. El plan ejecutable es 15. **cortex queda fuera del alcance desde el 2026-11-05**: su evidencia y su plan viven en `/Users/ruben/Code/JARTOS/Jart-CORTEX/audit/2026-11-02-cortex/`.
 

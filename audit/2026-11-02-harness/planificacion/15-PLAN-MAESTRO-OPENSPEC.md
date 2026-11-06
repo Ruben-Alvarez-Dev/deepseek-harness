@@ -26,7 +26,8 @@
 | CH-034 | **CANCELADO (pérdida)** | E-031…E-057 no reconstruibles sin historial git. |
 | CH-012 | **CERRADO** | Commit `45c3443` en rama local `audit/2026-11-02-harness` (269 ficheros, solo `audit/`); sin push; `master` intacto. |
 | CH-040 | **CERRADO (P0)** | Baseline publicado: 3 sesiones / 582 peticiones / **308.353 tok/petición** ponderado (ver `planificacion/20-BASELINE-CH040.md`). Cuotas K=8 · 3k · 1k fijadas. |
-| CH-041…047 | **PENDIENTE** | P1 (governor) no iniciado. |
+| CH-041 | **EN CURSO** | Diseño publicado (`planificacion/21-CH041-DISENO.md`); implementación en worktree desde `origin/master`; gate −20 % (≤246.682 tok/petición). |
+| CH-042…047 | **PENDIENTE** | P2–P7 no iniciados. |
 
 ---
 
