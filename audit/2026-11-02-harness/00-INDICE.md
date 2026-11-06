@@ -46,4 +46,4 @@ audit/2026-11-02-harness/
 
 **Relación entre documentos:** 01–12 son la evidencia; 13–15 son las decisiones; 17 es la trazabilidad de fuentes. El plan ejecutable es 15. **cortex queda fuera del alcance desde el 2026-11-05**: su evidencia y su plan viven en `/Users/ruben/Code/JARTOS/Jart-CORTEX/audit/2026-11-02-cortex/`.
 
-**Estado:** expediente cerrado en F0 (2026-11-06) y pendiente de versionar (CH-012 del plan). Todo lo afirmado lleva evidencia `fichero:línea` o comando ejecutado, salvo lo marcado `sin-verificar` en cada informe.
+**Estado:** expediente cerrado en F0 y versionado (CH-012) el 2026-11-06 en la rama local `audit/2026-11-02-harness` (commit `45c3443`, sin push). Todo lo afirmado lleva evidencia `fichero:línea` o comando ejecutado, salvo lo marcado `sin-verificar` en cada informe.

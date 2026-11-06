@@ -24,7 +24,7 @@
 | CH-010 | **RESUELTO** | Cortex canónico → archivar `@pi-agent/memory@1.0.0`; F3 cancelado. |
 | CH-011 | **CANCELADO (pérdida)** | El repo PI-agent no existe en disco (sin `.git`; copia sin historial en `Code/AGENTS/PI-agent`). |
 | CH-034 | **CANCELADO (pérdida)** | E-031…E-057 no reconstruibles sin historial git. |
-| CH-012 | **PENDIENTE** | Requiere autorización expresa de commit del propietario. |
+| CH-012 | **CERRADO** | Commit `45c3443` en rama local `audit/2026-11-02-harness` (269 ficheros, solo `audit/`); sin push; `master` intacto. |
 | CH-040…047 | **PENDIENTE** | F4 no iniciado. Cuotas ya fijadas: K=8 · 3k · 1k. |
 
 ---
@@ -186,7 +186,7 @@ F1 y F4 pueden correr en paralelo humano; F3 solo si CH-010 decide revivir `@pi-
 
 ## 4 · Autorizaciones
 
-**F0 autorizado y cerrado el 2026-11-06.** Única autorización pendiente: commit de CH-012 (versionar el expediente).
+**F0 autorizado y cerrado el 2026-11-06.** CH-012 cerrado con commit local `45c3443` (sin push).
 
 _Histórico de lo que se necesitaba para abrir F0:_
 

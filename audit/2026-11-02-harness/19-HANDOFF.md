@@ -1,6 +1,6 @@
 # HANDOFF — sesión de auditoría/planificación SOTA (2026-11-02)
 
-**Para la siguiente sesión:** este documento resume el estado exacto. Todo el material está en `audit/2026-11-02-harness/` (269 ficheros). Nada está commiteado (git está fuera de alcance por decisión del usuario; sigue pendiente CH-012).
+**Para la siguiente sesión:** este documento resume el estado exacto. Todo el material está en `audit/2026-11-02-harness/` (269 ficheros). **CH-012 cerrado 2026-11-06:** versionado en la rama local `audit/2026-11-02-harness` (commit `45c3443`, sin push).
 **Actualización 2026-11-05:** cortex sale del alcance de DSH. Su material (C5–C8, F0 cortex, F2) se migró a `~/Code/Jart-CORTEX/audit/2026-11-02-cortex/`; este expediente mantiene PI-agent, DSH, dossier QWEN y router.
 **Actualización 2026-11-06 (esta sesión):** F0 cerrado con gates medidos; las 4 decisiones del propietario resueltas; plan adaptado a las desviaciones verificadas. Detalle en §0.
 
@@ -15,6 +15,7 @@
 3. **Claves agnes sueltas:** mover al keychain y limpiar duplicados. **Ejecutado** (ver §4).
 4. **Cuotas iniciales:** **K=8 skills · 3k schemas MCP · 1k inyección**, firmes (CH-040).
 5. **Repo PI-agent ausente:** **pérdida declarada** y plan adaptado (CH-011/034 cancelados como pérdida; CH-005 reducido a lo rescatado).
+6. **CH-012:** autorizado el commit en rama nueva → cerrado (commit `45c3443`, sin push).
 
 ### 0.2 F0 — cerrado (gates medidos)
 
@@ -22,6 +23,7 @@
   - Nota de mecanismo: el CLI `omniroute keys rotate` devuelve **404** (el servidor empaquetado 0.1.5-rc.2 no tiene `/rotate`); la rotación se hizo con las funciones canónicas de la BD (`issueRegisteredKey`/`revokeRegisteredKey`, formato `ork_` + base64url(24 B), SHA-256). El servidor local no exige clave para peticiones desde localhost, así que la exposición remota era baja, pero la clave queda revocada igualmente.
 - **CH-004 (`demo/tmp/d1.db`):** eliminada la copia del expediente (184.320 B, SHA-256 `780f0c46…09283`, modo 0644). Gate `grep -r "PRIVATE KEY" demo/` → **0**. La **copia original** de `PROJECTS/QWEN-code/auditoria-pi-agent/demo/tmp/d1.db` (mismo SHA-256) se **eliminó** después con tu autorización expresa: `find /Users/ruben -name d1.db` → 0. Gate final: 0 claves privadas en ambas ubicaciones.
 - **CH-005 (rescate):** `router.bundle` verificado (`git bundle verify` → *complete history*; 32 commits; `main = 12d0940…`) y manifiesto SHA-256 de **183 ficheros** en `rescate/MANIFIESTO-SHA256.txt`. **Pérdida declarada:** 38 commits colgantes, 81 ficheros de test de `e54c5d9^` (526 casos) y E-031…E-057 (CH-034) no son recuperables porque el repo PI-agent ya no existe en disco.
+- **CH-012 (versionado):** expediente commiteado en rama local `audit/2026-11-02-harness` (commit `45c3443`, 269 ficheros, solo `audit/2026-11-02-harness/`); `master` intacto; sin push.
 
 ### 0.3 Desviaciones verificadas frente al handoff del 11-05
 
@@ -60,7 +62,7 @@
 
 ## 3 · Decisiones pendientes del usuario
 
-Resueltas el 2026-11-06 (ver §0.1). Única autorización que falta: **commit de CH-012** (versionar el expediente en DSH); sin ella no se commitea nada.
+Todas resueltas el 2026-11-06 (ver §0.1), incluido **CH-012** (commit `45c3443` en rama local, sin push).
 
 ## 4 · Estado de las claves (2026-11-06)
 
@@ -83,12 +85,12 @@ audit/2026-11-02-harness/
 
 ## 6 · Próximo paso concreto
 
-1. **CH-012:** versionar el expediente en DSH — **requiere tu autorización expresa de commit**. Hay 6 tracked modificados y 19 untracked ajenos al expediente: el commit debe limitarse a `audit/2026-11-02-harness/` (excluyendo cualquier secreto).
+1. **CH-012 — hecho:** commit `45c3443` en la rama local `audit/2026-11-02-harness`, solo con `audit/2026-11-02-harness/`; sin push. Los 6 tracked modificados y 19 untracked ajenos siguen sin tocar.
 2. **F4 / CH-040:** baseline token-meter en 3 sesiones con las cuotas ya fijadas (K=8/3k/1k); requiere actualizar `master` (666 commits por detrás) y el proceso DSH (PR + Agent Note).
 3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
 
 ## 7 · Avisos
 
 - Ninguna de las dos copias del dossier contiene ya `d1.db`: eliminadas el 2026-11-06 (CH-004; la original con autorización expresa).
-- El expediente **no está versionado**: si autorizas, es el CH-012.
+- El expediente está versionado en la **rama local** `audit/2026-11-02-harness` (commit `45c3443`), sin push.
 - No tocar los originales: dossier QWEN, `~/Code/PI-agent`, `~/Code/JARTOS/jart-os-development` y `~/Code/JEV-AI` solo se han leído o copiado.
