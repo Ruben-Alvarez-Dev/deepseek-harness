@@ -904,6 +904,26 @@ export interface Config {
 
 来源：[`packages/goal/goal/src/index.ts:172`](../packages/goal/goal/src/index.ts)
 
+<a id="deepseek-aidsh-handoff"></a>
+
+## `@deepseek-ai/dsh-handoff`
+
+Requires: `commands` · `sessions` · `tokenMeter`
+
+```ts config-catalog
+/** Deployment-owned checkpoint bounds. */
+export interface Config {
+  /** Maximum assistant text kept in the checkpoint. */
+  checkpointAssistantChars?: number
+  /** Maximum recent tool calls listed in the working set. */
+  maxToolCalls?: number
+  /** Maximum argument characters kept per tool call. */
+  argumentChars?: number
+}
+```
+
+Source: [`packages/session/handoff/src/config.ts:6`](../packages/session/handoff/src/config.ts)
+
 <a id="deepseek-aidsh-headless"></a>
 
 ## `@deepseek-ai/dsh-headless`
