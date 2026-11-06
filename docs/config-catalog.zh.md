@@ -2354,6 +2354,22 @@ export interface Config {
 
 来源：[`packages/skill/skill-filesystem/src/index.ts:49`](../packages/skill/skill-filesystem/src/index.ts)
 
+<a id="deepseek-aidsh-skill-mcp-router"></a>
+
+## `@deepseek-ai/dsh-skill-mcp-router`
+
+Requires: `tools`
+
+```ts config-catalog
+/** Deployment-owned router configuration. */
+export interface Config {
+  /** SQLite database path; defaults to an in-memory index. */
+  path?: string
+}
+```
+
+Source: [`packages/skill/skill-mcp-router/src/index.ts:27`](../packages/skill/skill-mcp-router/src/index.ts)
+
 <a id="deepseek-aidsh-spill-local"></a>
 
 ## `@deepseek-ai/dsh-spill-local`

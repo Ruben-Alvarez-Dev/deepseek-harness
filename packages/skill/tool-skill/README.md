@@ -47,7 +47,7 @@ Load the plugin together with the skill registry and at least one provider. The 
 | `catalogTopK` | `0` | Number of skills that keep the full description, ranked by lexical overlap with the current request; `0` renders every skill in full |
 | `catalogSummaryDescriptionMaxLength` | `64` | Description cap for skills outside the top-K; minimum 3 |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-skill) is the exhaustive source for every accepted field.
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-skill) is the exhaustive source for every accepted field. When `dsh-skill-mcp-router` is mounted, the top-K ranking uses that service's FTS5/BM25 order instead of the lexical fallback; without it the catalog behaves exactly as before.
 
 ### What the model gets
 

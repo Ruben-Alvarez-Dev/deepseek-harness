@@ -47,7 +47,7 @@ agent 可以在会话期间发现并加载 skill。在首次请求前，如果�
 | `catalogTopK` | `0` | 按与当前请求的词法重叠加权保留完整描述的 skill 数量；`0` 表示全部保留完整描述 |
 | `catalogSummaryDescriptionMaxLength` | `64` | 超出 top-K 的 skill 的描述上限；最小为 3 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-tool-skill)是每个受支持字段的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-tool-skill)是每个受支持字段的穷尽式真源。挂载 `dsh-skill-mcp-router` 时，top-K 排序使用该服务的 FTS5/BM25 顺序而不是词法回退；未挂载时目录行为与之前完全一致。
 
 ### 模型得到什么
 
