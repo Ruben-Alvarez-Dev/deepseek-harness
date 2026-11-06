@@ -1,7 +1,7 @@
 /** Configuration resolution for deterministic tool-result pruning. */
 
 import { deepFreeze } from '@deepseek-ai/dsh-util-values'
-import type { ResolvedConfig, ToolResultPruneConfig } from './types.ts'
+import type { PressureConfig, ResolvedConfig, ToolResultPruneConfig } from './types.ts'
 
 /** Fixed marker substituted for every removed middle span. */
 export const PRUNE_MARKER = '\n\n[... tool result middle pruned ...]\n\n'
@@ -17,6 +17,12 @@ const CONFIG_KEYS: ReadonlySet<string> = new Set([
   'thresholdChars',
   'headChars',
   'tailChars',
+  'pressure',
+])
+
+const PRESSURE_KEYS: ReadonlySet<string> = new Set([
+  'maxContextTokens',
+  'pruneThresholdChars',
 ])
 
 /**
@@ -61,7 +67,43 @@ export function resolveConfig(config: ToolResultPruneConfig = {}): ResolvedConfi
       + `must be at most thresholdChars (${resolved.thresholdChars})`,
     )
   }
-  return deepFreeze(structuredClone(resolved))
+
+  // Schemastery normalizes an absent optional object field to an empty object;
+  // an empty block means "not configured", while a partial block fails loud.
+  const pressure = config.pressure === undefined || config.pressure === null
+    || Object.keys(config.pressure).length === 0
+    ? undefined
+    : resolvePressure(config.pressure, emittedChars)
+  return deepFreeze(structuredClone(pressure === undefined ? resolved : { ...resolved, pressure }))
+}
+
+/**
+ * Validate the optional per-turn pressure trigger.
+ * @param raw - configured pressure block.
+ * @param emittedChars - fixed head + marker + tail budget.
+ * @returns a detached immutable pressure policy.
+ */
+function resolvePressure(raw: PressureConfig, emittedChars: number): PressureConfig {
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('ToolResultPruneConfig: pressure must be an object')
+  }
+  for (const key of Object.keys(raw)) {
+    if (!PRESSURE_KEYS.has(key)) {
+      throw new Error(
+        `ToolResultPruneConfig: unknown pressure key "${key}" `
+        + '(allowed: maxContextTokens, pruneThresholdChars)',
+      )
+    }
+  }
+  assertPositiveInteger('pressure.maxContextTokens', raw.maxContextTokens)
+  assertPositiveInteger('pressure.pruneThresholdChars', raw.pruneThresholdChars)
+  if (emittedChars > raw.pruneThresholdChars) {
+    throw new Error(
+      `ToolResultPruneConfig: pressure.pruneThresholdChars (${raw.pruneThresholdChars}) `
+      + `must be at least headChars + marker + tailChars (${emittedChars})`,
+    )
+  }
+  return { maxContextTokens: raw.maxContextTokens, pruneThresholdChars: raw.pruneThresholdChars }
 }
 
 function assertPositiveInteger(name: string, value: number): void {

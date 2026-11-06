@@ -492,7 +492,7 @@ export interface ModelCompactPolicyConfig extends CompactionPolicyConfig {
 
 ## `@deepseek-ai/dsh-compaction-tool-result-pruner`
 
-需要：`tokenMeter`
+Requires: `tokenMeter`
 
 ```ts config-catalog
 /** Character-budget policy for deterministic tool-result pruning. */
@@ -503,10 +503,23 @@ export interface ToolResultPruneConfig {
   headChars?: number
   /** Maximum trailing Unicode code points retained. Defaults to `1024`. */
   tailChars?: number
+  /** Optional per-turn pressure trigger; absent keeps trim-on-compaction only. */
+  pressure?: PressureConfig
+}
+
+/** Turn-pressure trigger for per-step pruning, independent of compaction. */
+export interface PressureConfig {
+  /** Prune tool results once the measured session context exceeds this many tokens. */
+  maxContextTokens: number
+  /**
+   * Per-result pruning threshold used by the pressure trigger; must fit the
+   * configured head, marker, and tail.
+   */
+  pruneThresholdChars: number
 }
 ```
 
-来源：[`packages/compaction/compaction-tool-result-pruner/src/types.ts:5`](../packages/compaction/compaction-tool-result-pruner/src/types.ts)
+Source: [`packages/compaction/compaction-tool-result-pruner/src/types.ts:16`](../packages/compaction/compaction-tool-result-pruner/src/types.ts)
 
 <a id="deepseek-aidsh-cordis-host-runner"></a>
 
@@ -2933,6 +2946,30 @@ export interface Config {
 ```
 
 来源：[`packages/shell/tool-bash-persistent/src/index.ts:435`](../packages/shell/tool-bash-persistent/src/index.ts)
+
+<a id="deepseek-aidsh-tool-dispatch-gate"></a>
+
+## `@deepseek-ai/dsh-tool-dispatch-gate`
+
+```ts config-catalog
+/** Deployment-owned dispatch policy. */
+export interface Config {
+  /** `audit` observes and logs (default); `enforce` denies unlisted calls. */
+  mode?: GateMode
+  /**
+   * Normalized allowlist entries: an exact name, or a prefix ending in `*`
+   * (for example `mcp__git__*`). `*` alone allows every non-empty name.
+   */
+  allow?: string[]
+  /** Normalized deny entries that win over `allow`. Same pattern grammar. */
+  deny?: string[]
+}
+
+/** Enforcement posture: `audit` logs, `enforce` denies. */
+export type GateMode = 'audit' | 'enforce'
+```
+
+Source: [`packages/guard/tool-dispatch-gate/src/index.ts:24`](../packages/guard/tool-dispatch-gate/src/index.ts)
 
 <a id="deepseek-aidsh-tool-fs"></a>
 
