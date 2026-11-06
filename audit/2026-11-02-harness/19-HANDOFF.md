@@ -103,3 +103,60 @@ audit/2026-11-02-harness/
 - Ninguna de las dos copias del dossier contiene ya `d1.db`: eliminadas el 2026-11-06 (CH-004; la original con autorización expresa).
 - El expediente está versionado en la **rama local** `audit/2026-11-02-harness` (commit `45c3443`), sin push.
 - No tocar los originales: dossier QWEN, `~/Code/PI-agent`, `~/Code/JARTOS/jart-os-development` y `~/Code/JEV-AI` solo se han leído o copiado.
+
+-----
+
+## 9 · HANDOFF OPERATIVO — pausa del 2026-11-06
+
+**Motivo:** el propietario pide congelar el trabajo para retomarlo bien. El goal autónomo queda **pausado** (id `goal-a3078fb6-2d26-411b-8763-50ee627cd9d2`, revisión 4, 8/40 rondas consumidas). No hay push ni PR en ninguna rama.
+
+### 9.1 · Estado del plan al congelar
+
+- **F0/F1:** cerrados con gates medidos (CH-003/004/005/010/011/012).
+- **F2:** fuera de alcance (cortex en Jart-CORTEX). **F3:** cancelado por CH-010.
+- **F4:** **completo, cerrado opt-in**: CH-040 baseline, CH-041 governor, CH-042 dispatch gate + pruner, CH-043 router, CH-044 memoria pasiva, CH-045 handoff, CH-046 telemetría redactada, CH-047 evaluación longitudinal. Ningún opt-in está montado en presets.
+- **F5/CH-050:** **pendiente** (integración + auditoría final + sello).
+
+### 9.2 · Ramas, worktrees y commits exactos
+
+| Change | Worktree | Rama local | Tip / commits | Estado |
+|---|---|---|---|---|
+| Baseline | — | `audit/2026-11-02-harness` (checkout principal) | `e9c484e` baseline CH-040; expediente hasta `a21fed0` | Cerrado y publicado |
+| CH-041 | `.worktrees/ch041` | `feat/ch041-outbound-governor` | `6212348`, `dbb8778`, `a019ea4` | Cerrado opt-in; gate 0,45 % |
+| CH-042 | `.worktrees/ch042` | `feat/ch042-dispatch-gate-pruner` | `d6816f7`, `e08ac49`, `626833c` | Cerrado opt-in; gate 12,94 %/20,54 % |
+| CH-043 | `.worktrees/ch043` | `feat/ch043-skill-mcp-router` | `acd3e30`, `2b04540` (apilada sobre CH-041) | Cerrado opt-in; gate 0,915/0,932 |
+| CH-044 | `.worktrees/ch044` | `feat/ch044-passive-memory` | `c3e2e86` | Cerrado opt-in; recall@5 1,000 |
+| CH-045 | `.worktrees/ch045` | `feat/ch045-session-handoff` | `fcf0dc2`, `944c37b` (fix CRITICAL) | Cerrado opt-in; gate proxy 15/15 vs 15 |
+| CH-046 | `.worktrees/ch046` | `feat/ch046-telemetry-redaction` | `3a641b2` | Cerrado opt-in; 20/20 sin fugas, invariants 39/39 |
+| CH-047 | `.worktrees/ch047` | `feat/ch047-longitudinal-eval` | `2b76786` | Cerrado opt-in; instrumento + baseline |
+
+Todas las ramas están **sin upstream** (sin push). El checkout principal está en `audit/2026-11-02-harness`; los worktrees viven en `.worktrees/` (gitignored).
+
+### 9.3 · Verificación al congelar
+
+- Por rama: tests focados verdes (CH-043 46; CH-044 13; CH-045 6; CH-046 6; CH-047 9), `pnpm run typecheck` **exit 0** y `pnpm run test:docs` **20/20** en las cinco ramas; `verify-package-invariants` 39/39 en CH-046.
+- Auditoría P6: `auditorias/09-AUDITORIA-P6-F4.md` con **0 BLOCKER/CRITICAL abiertos** (1 CRITICAL de handoff remediado en `944c37b`), 2 MAJOR y 4 MINOR con plan.
+- Sin snapshot keyless ejecutado como gate: ningún opt-in está montado, por lo que no hay diffs de composición; activarlos exigirá re-grabar snapshots.
+
+### 9.4 · Decisiones pendientes del propietario
+
+1. **Activar opt-ins en presets** (ninguno lo está): governor, dispatch gate en `enforce` tras auditoría, pruner por presión (política conservadora o agresiva), router, memoria pasiva, redacción de telemetría, handoff. Cada activación cambia resultados model-visible y exige re-grabar snapshots.
+2. **Publicar ramas/PRs**: no hay push; se publicaría con fork/credenciales del propietario. CH-043 está apilada sobre CH-041.
+3. **E-3** (pin de integridad de plugins): diferido a aceptar riesgo de terceros.
+4. **Ventana de 30 días** de CH-047: re-ejecutar la métrica longitudinal tras activar memoria/router; la regla aplicada hoy dice **no activar C-2 sin señal**.
+5. **MAJOR de la auditoría**: (a) migrar `memory-passive` a `@deepseek-ai/dsh-redaction` y borrar su copia de reglas; (b) acotar el tracking de captura (retener como máximo la cuota por lado).
+6. **Snapshots keyless**: ejecutar `pnpm run test:snapshot` tras montar cualquier opt-in.
+7. **Claves literales preexistentes en `auth.json`** (deepseek, anthropic, qwen-token-plan-individual): no son de este trabajo; migrarlas al keychain queda como higiene opcional.
+
+### 9.5 · Siguiente paso concreto: F5 / CH-050
+
+1. Crear worktree de integración desde `origin/master` (`git worktree add .worktrees/ch050 -b feat/ch050-integration origin/master`; desvincular upstream y `git config --worktree --unset core.hooksPath`; `pnpm install`).
+2. Integrar en este orden: CH-041 → CH-043 (apilada) → CH-042 → CH-044 → CH-045 → CH-046 → CH-047. Los conflictos esperables están en `docs/config-catalog.*`, `docs/config-catalog.i18n.yaml`, `tsconfig.base.json`/`tsconfig.host.json` y `pnpm-lock.yaml`: resolverlos regenerando (`pnpm run gen-tsconfig-paths`, `pnpm run gen-config-catalog`, sincronizar zh y `verify-translation-pairing --write`) y re-instalando.
+3. Resolver **MAJOR-1** (memoria → `dsh-redaction`, borrar `memory-passive/src/redact.ts`) y **MAJOR-2** (acotar el estado de captura al ingerir), con tests.
+4. Verificar el árbol integrado: tests de los paquetes afectados, `pnpm run typecheck`, `pnpm run test:docs`, `pnpm run verify-package-invariants`; snapshots keyless si se activa algo.
+5. Ejecutar `/auditoria-dev` final sobre el árbol integrado; corregir lo que sea BLOCKER/CRITICAL.
+6. Actualizar 15/19/00-INDICE, sellar el expediente y **volver a preguntar al propietario** por activación, publicación y ventana de 30 días.
+
+### 9.6 · Cómo reanudar
+
+Cuando el propietario pida continuar: rearmar el goal (`update_goal … action: resume` sobre la revisión vigente) y empezar por el paso 9.5.1. El checkout principal no debe tocarse para código; todo se hace en worktrees. Recordatorio de restricciones: sin push, sin PR, sin tocar dossier QWEN/PI-agent/jart-os-development, sin copiar/escribir/publicar credenciales, un change a la vez y ningún gate se declara sin medición.
