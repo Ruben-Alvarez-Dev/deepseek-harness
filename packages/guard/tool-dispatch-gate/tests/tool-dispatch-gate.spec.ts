@@ -80,6 +80,16 @@ describe('normalizeToolName and compilePatterns', () => {
     expect(normalizeToolName('\uff52\uff45\uff41\uff44')).toBe('read')
   })
 
+  it('rejects an unknown programmatic mode instead of silently auditing', async () => {
+    const ctx = new Context()
+    try {
+      expect(() => { dispatchGate.apply(ctx, { mode: 'Enforce' as never }) })
+        .toThrow('mode must be "audit" or "enforce"')
+    } finally {
+      await ctx.fiber.dispose()
+    }
+  })
+
   it('rejects empty and non-trailing wildcard patterns at load time', () => {
     expect(() => compilePatterns([''], 'allow')).toThrow('must not be empty')
     expect(() => compilePatterns(['mcp__*__x'], 'allow')).toThrow('trailing "*"')

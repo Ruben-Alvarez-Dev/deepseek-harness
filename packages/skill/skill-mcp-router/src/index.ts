@@ -75,8 +75,6 @@ declare module '@deepseek-ai/cordis' {
 
 /** FTS5-backed zero-embedding router for skills and MCP tool metadata. */
 export class SkillMcpRouter extends Service {
-  static inject = ['tools']
-
   static Config: z<Config> = z.object({
     path: z.string().default(':memory:'),
   })

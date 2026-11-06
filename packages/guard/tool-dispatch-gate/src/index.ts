@@ -139,13 +139,21 @@ function matchesAny(name: string, patterns: readonly string[]): boolean {
   return false
 }
 
+/** Whether a programmatic value is one of the two supported gate modes. */
+function isGateMode(value: unknown): value is GateMode | undefined {
+  return value === undefined || value === 'audit' || value === 'enforce'
+}
+
 /**
  * Register the dispatch gate.
  * @param ctx - the plugin context whose scope owns the listener.
  * @param config - optional validated policy.
  */
 export function apply(ctx: Context, config: Config = {}): void {
-  const mode = config.mode ?? 'audit'
+  if (!isGateMode(config.mode)) {
+    throw new Error(`tool-dispatch-gate: mode must be "audit" or "enforce", got ${JSON.stringify(config.mode)}`)
+  }
+  const mode: GateMode = config.mode ?? 'audit'
   const policy: CompiledPolicy = {
     mode,
     allow: compilePatterns(config.allow ?? [], 'allow'),
