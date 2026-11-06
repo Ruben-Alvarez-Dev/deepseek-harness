@@ -82,8 +82,8 @@
 | Fase | Contenido | Gate (número medido) | Semanas |
 |---|---|---|---|
 | **P0** | Decisiones (cuotas: K=8 skills, 3k schemas MCP, 1k inyección) + baseline con token-meter + versionar este plan + unificar homes de cortex | **Baseline publicado 2026-11-06:** 308.353 tok/petición ponderado (3 sesiones, 582 peticiones; `planificacion/20-BASELINE-CH040.md`); plan en git | 0,5 |
-| **P1** | A-1 (governor outbound) | tokens/petición −X % **sin** regresión en snapshots ni en tool-calls correctos | 0,5–1 |
-| **P2** | A-2 (modo audit→enforce) + A-3 (pruner por presión) | 12 ataques de bypass bloqueados en enforce; resultados largos recortados con original en log | 0,5–1 |
+| **P1** | A-1 (governor outbound) | tokens/petición −X % **sin** regresión en snapshots ni en tool-calls correctos. **Medido 2026-11-06:** −1.393 tok/petición (0,45 % del total) en la superficie gobernada; el −20 % total se traslada a P2 | 0,5–1 |
+| **P2** | A-2 (modo audit→enforce) + A-3 (pruner por presión) | 12 ataques de bypass bloqueados en enforce; resultados largos recortados con original en log; **asume el objetivo −20 % tokens/petición** (dominado por conversación) | 0,5–1 |
 | **P3** | B-1 (router skills/MCP) + B-2 | nDCG/recall@k ≥ umbral sobre ≥50 queries etiquetadas | 0,5–1 |
 | **P4** | C-2/C-3/C-4/C-5 (memoria pasiva sobre cortex) + E-2 | recall@k propio ≥ umbral; 0 llamadas explícitas del agente; inyección ≤ cuota; redacción verificada | 1–1,5 |
 | **P5** | D-1/D-2 (handoff) | tarea continuada en sesión nueva con menos pasos que sin handoff (medido) | 0,5–1 |
