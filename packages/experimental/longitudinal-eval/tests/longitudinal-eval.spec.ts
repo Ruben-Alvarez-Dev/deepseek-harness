@@ -7,7 +7,7 @@ import {
   recallAtK,
   summarizeUsage,
   type SessionUsageSample,
-} from '@deepseek-ai/dsh-longitudinal-eval'
+} from '@deepseek-ai/dsh-experimental-longitudinal-eval'
 
 describe('retrieval metrics', () => {
   it('computes recall@k against the min(relevant, k) denominator', () => {

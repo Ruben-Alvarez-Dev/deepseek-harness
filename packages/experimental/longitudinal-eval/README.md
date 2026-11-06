@@ -3,13 +3,13 @@ description: "Pure measurement helpers for the longitudinal memory and skill eva
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-longitudinal-eval
+# @deepseek-ai/dsh-experimental-longitudinal-eval
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-longitudinal-eval` provides the measurement primitives for F-1/F-2 of the SOTA plan: binary `recall@k`, graded `nDCG@k`, a per-session usage aggregation (requests, tool calls by name, skill-loading sessions, memory injections, active days), and declarative kill criteria that turn a measured window into `keep` or `disable` decisions with the measured reason. The caller reads session logs and passes samples; the package owns no host paths, services, or configuration, so measurements stay reproducible and reviewable.
+`dsh-experimental-longitudinal-eval` provides the measurement primitives for F-1/F-2 of the SOTA plan: binary `recall@k`, graded `nDCG@k`, a per-session usage aggregation (requests, tool calls by name, skill-loading sessions, memory injections, active days), and declarative kill criteria that turn a measured window into `keep` or `disable` decisions with the measured reason. The caller reads session logs and passes samples; the package owns no host paths, services, or configuration, so measurements stay reproducible and reviewable.
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ English | [中文](README.zh.md)
 ## Use this package
 
 ```ts
-import { evaluateKillCriteria, summarizeUsage } from '@deepseek-ai/dsh-longitudinal-eval'
+import { evaluateKillCriteria, summarizeUsage } from '@deepseek-ai/dsh-experimental-longitudinal-eval'
 
 const summary = summarizeUsage([
   { requests: 315, toolCalls: { skill: 2 }, memoryInjections: 0, day: '2026-11-02' },

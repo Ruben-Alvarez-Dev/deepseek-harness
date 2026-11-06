@@ -1,8 +1,7 @@
 {
-  "name": "@deepseek-ai/dsh-longitudinal-eval",
+  "name": "@deepseek-ai/dsh-experimental-longitudinal-eval",
   "description": "Pure retrieval metrics, session-usage summaries, and kill-criteria evaluation for the longitudinal memory/skill measurements",
   "version": "0.1.6-alpha.1",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
@@ -23,5 +22,14 @@
     "lib/index.js",
     "lib/types/**/*.d.ts"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:^"
+  }
 }

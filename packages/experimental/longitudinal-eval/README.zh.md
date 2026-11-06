@@ -3,13 +3,13 @@ description: "用于记忆与 skill 纵向评估的纯测量助手：recall@k、
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-longitudinal-eval
+# @deepseek-ai/dsh-experimental-longitudinal-eval
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-longitudinal-eval` 为 SOTA 计划的 F-1/F-2 提供测量原语：二值 `recall@k`、分级 `nDCG@k`、按会话聚合的使用统计（请求数、按名称的工具调用、加载 skill 的会话、记忆注入、活跃天数），以及把测量窗口变成 `keep`/`disable` 决策并附带测量理由的声明式 kill-criteria。调用方读取会话日志并传入样本；本包不拥有主机路径、服务或配置，因此测量可复现、可审查。
+`dsh-experimental-longitudinal-eval` 为 SOTA 计划的 F-1/F-2 提供测量原语：二值 `recall@k`、分级 `nDCG@k`、按会话聚合的使用统计（请求数、按名称的工具调用、加载 skill 的会话、记忆注入、活跃天数），以及把测量窗口变成 `keep`/`disable` 决策并附带测量理由的声明式 kill-criteria。调用方读取会话日志并传入样本；本包不拥有主机路径、服务或配置，因此测量可复现、可审查。
 
 ## 目录
 
@@ -24,7 +24,7 @@ kind: "package-reference"
 ## 使用本包
 
 ```ts
-import { evaluateKillCriteria, summarizeUsage } from '@deepseek-ai/dsh-longitudinal-eval'
+import { evaluateKillCriteria, summarizeUsage } from '@deepseek-ai/dsh-experimental-longitudinal-eval'
 
 const summary = summarizeUsage([
   { requests: 315, toolCalls: { skill: 2 }, memoryInjections: 0, day: '2026-11-02' },

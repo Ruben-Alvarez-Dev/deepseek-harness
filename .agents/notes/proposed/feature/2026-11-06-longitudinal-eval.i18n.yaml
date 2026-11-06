@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-06-longitudinal-eval.md
-2026-11-06-longitudinal-eval.md: d277f67183edb471b2f18a46a4285d2ab201761d
-2026-11-06-longitudinal-eval.zh.md: 1f8f53e008b68f0c04c73adcbf828bb5ca082e9d
+2026-11-06-longitudinal-eval.md: c6b381f29ecce34a846acfd94595b44ac68cd661
+2026-11-06-longitudinal-eval.zh.md: 233b0510c7b02d0af36f19b44f327754a7c9c064

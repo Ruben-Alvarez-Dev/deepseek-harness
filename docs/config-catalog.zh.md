@@ -3855,6 +3855,7 @@ export interface Config {
 - `@deepseek-ai/dsh-experimental-agent-team-profile`（[`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts)）
 - `@deepseek-ai/dsh-experimental-agent-team-web-profile`（[`packages/experimental/agent-team-web-profile/src/index.ts`](../packages/experimental/agent-team-web-profile/src/index.ts)）
 - `@deepseek-ai/dsh-experimental-browser-use-runtime` ([`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts))
+- `@deepseek-ai/dsh-experimental-longitudinal-eval` ([`packages/experimental/longitudinal-eval/src/index.ts`](../packages/experimental/longitudinal-eval/src/index.ts))
 - `@deepseek-ai/dsh-experimental-webworker-packer`（[`packages/experimental/webworker-packer/src/index.ts`](../packages/experimental/webworker-packer/src/index.ts)）
 - `@deepseek-ai/dsh-experimental-webworker-runtime`（[`packages/experimental/webworker-runtime/src/index.ts`](../packages/experimental/webworker-runtime/src/index.ts)）
 - `@deepseek-ai/dsh-home-paths`（[`packages/util/home-paths/src/index.ts`](../packages/util/home-paths/src/index.ts)）
@@ -3864,7 +3865,6 @@ export interface Config {
 - `@deepseek-ai/dsh-lazy-require`（[`packages/util/lazy-require/src/index.ts`](../packages/util/lazy-require/src/index.ts)）
 - `@deepseek-ai/dsh-llm-mock-server`（[`packages/test-support/llm-mock-server/src/index.ts`](../packages/test-support/llm-mock-server/src/index.ts)）
 - `@deepseek-ai/dsh-loader-smoke`（[`packages/test-support/loader-smoke/src/index.ts`](../packages/test-support/loader-smoke/src/index.ts)）
-- `@deepseek-ai/dsh-longitudinal-eval` ([`packages/experimental/longitudinal-eval/src/index.ts`](../packages/experimental/longitudinal-eval/src/index.ts))
 - `@deepseek-ai/dsh-native-command`（[`packages/util/native-command/src/index.ts`](../packages/util/native-command/src/index.ts)）
 - `@deepseek-ai/dsh-output-retention`（[`packages/util/output-retention/src/index.ts`](../packages/util/output-retention/src/index.ts)）
 - `@deepseek-ai/dsh-package-manifest` ([`packages/util/package-manifest/src/index.ts`](../packages/util/package-manifest/src/index.ts))

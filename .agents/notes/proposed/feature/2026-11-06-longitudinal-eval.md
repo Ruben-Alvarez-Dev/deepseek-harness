@@ -10,7 +10,7 @@ Each P1–P6 change measured its own gate with a bespoke script, and none of the
 
 ## Proposal
 
-`@deepseek-ai/dsh-longitudinal-eval` is a private, pure library with three parts:
+`@deepseek-ai/dsh-experimental-longitudinal-eval` is a pure library with three parts:
 
 - **Retrieval metrics** — binary `recallAtK` and graded `ndcgAtK` (gain `2^grade - 1`, `log2(position + 2)` discount, ideal normalization), validated against hand-computed values and rejecting invalid cutoffs.
 - **Usage summary** — `summarizeUsage` aggregates caller-supplied session samples: requests, tool calls by name, sessions that loaded a skill, `memory/injected` events, and distinct UTC days. The caller owns log reading; the package owns no host path.

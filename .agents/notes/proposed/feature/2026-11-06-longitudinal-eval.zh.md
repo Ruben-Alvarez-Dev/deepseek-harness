@@ -10,7 +10,7 @@ P1–P6 的每个变更都用一次性的脚本测量自己的门禁，但没有
 
 ## 方案
 
-`@deepseek-ai/dsh-longitudinal-eval` 是一个私有的纯库，包含三部分：
+`@deepseek-ai/dsh-experimental-longitudinal-eval` 是一个纯库，包含三部分：
 
 - **检索指标** — 二值 `recallAtK` 与分级 `ndcgAtK`（增益 `2^grade - 1`，`log2(position + 2)` 折减，理想排序归一化），用手算值验证并拒绝非法截断。
 - **使用摘要** — `summarizeUsage` 聚合调用方提供的会话样本：请求数、按名称的工具调用、加载 skill 的会话、`memory/injected` 事件与不同 UTC 天数。读取日志属于调用方；本包不拥有主机路径。

@@ -2,7 +2,7 @@
  * Pure measurement helpers for the longitudinal memory/skill evaluation:
  * retrieval metrics, session-usage aggregation, and kill-criteria decisions.
  *
- * @module @deepseek-ai/dsh-longitudinal-eval
+ * @module @deepseek-ai/dsh-experimental-longitudinal-eval
  */
 
 /** One ranked retrieval sample with graded relevance (0 = not relevant). */
