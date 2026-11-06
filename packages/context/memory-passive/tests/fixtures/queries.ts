@@ -1,0 +1,47 @@
+/** Labeled queries for the passive-memory recall gate (synthetic, no user data). */
+
+export interface MemoryQuery { readonly query: string; readonly expected: readonly string[] }
+
+export const MEMORY_QUERIES: readonly MemoryQuery[] = [
+  { query: 'rollback a failed production deploy', expected: ['deploy-rollback'] },
+  { query: 'canary release watch error rate', expected: ['deploy-canary'] },
+  { query: 'kubernetes readiness probe failing', expected: ['k8s-probes'] },
+  { query: 'reduce docker image size with multistage', expected: ['docker-multistage'] },
+  { query: 'migration holds a lock and blocks deploy', expected: ['db-migration-locks'] },
+  { query: 'prisma schema drift after migration', expected: ['prisma-schema'] },
+  { query: 'postgres explain analyze slow query', expected: ['postgres-explain'] },
+  { query: 'sqlite fts5 bm25 tokenizer search', expected: ['sqlite-fts5'] },
+  { query: 'cache invalidation after deploy', expected: ['cache-invalidation'] },
+  { query: 'redis ttl expiry memory pressure', expected: ['redis-ttl'] },
+  { query: 'jwt refresh token rotation reuse', expected: ['jwt-refresh'] },
+  { query: 'oauth state mismatch on callback', expected: ['oauth-state'] },
+  { query: 'rotate a leaked secret api key', expected: ['secret-rotation'] },
+  { query: 'private key block in a log', expected: ['pem-keys', 'secret-rotation'] },
+  { query: 'token bucket rate limiter design', expected: ['rate-limit-bucket'] },
+  { query: 'api cursor pagination for large collections', expected: ['api-pagination'] },
+  { query: 'version the openapi spec breaking change', expected: ['openapi-versioning'] },
+  { query: 'graphql n+1 resolver batching', expected: ['graphql-n1'] },
+  { query: 'react effect stale dependency', expected: ['react-hooks'] },
+  { query: 'vite dev server api proxy', expected: ['vite-proxy'] },
+  { query: 'accessible dialog focus keyboard', expected: ['accessibility-focus'] },
+  { query: 'i18n plural rules per locale', expected: ['i18n-plurals'] },
+  { query: 'responsive css grid columns', expected: ['css-grid'] },
+  { query: 'flaky e2e test timeout retry', expected: ['e2e-flaky'] },
+  { query: 'vitest fake timers flush microtasks', expected: ['vitest-timers'] },
+  { query: 'ci dependency cache lockfile hash', expected: ['ci-cache'] },
+  { query: 'git rebase conflict resolution', expected: ['git-rebase'] },
+  { query: 'stacked pull requests merge order', expected: ['stacked-prs'] },
+  { query: 'write release notes changelog', expected: ['release-notes'] },
+  { query: 'semver tag a release version', expected: ['semver-tags'] },
+  { query: 'postmortem timeline for an outage', expected: ['incident-postmortem'] },
+  { query: 'sentry noise duplicate issues', expected: ['sentry-noise'] },
+  { query: 'profile cpu flame graph hot path', expected: ['profiling-flamegraph'] },
+  { query: 'heap snapshot memory leak growth', expected: ['memory-leak'] },
+  { query: 'input token budget per request', expected: ['token-budget'] },
+  { query: 'stable prefix for prompt cache', expected: ['prompt-cache'] },
+  { query: 'summarize non-selected mcp tool schemas', expected: ['mcp-schema'] },
+  { query: 'rank the skill catalog by request', expected: ['skill-catalog'] },
+  { query: 'falsifiable audit gate measurement', expected: ['audit-gates'] },
+]
+
+export const MEMORY_FIXTURE_DIR = new URL('./memory/', import.meta.url).pathname
