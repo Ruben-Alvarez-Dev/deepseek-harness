@@ -27,7 +27,7 @@
 | CH-012 | **CERRADO** | Commit `45c3443` en rama local `audit/2026-11-02-harness` (269 ficheros, solo `audit/`); sin push; `master` intacto. |
 | CH-040 | **CERRADO (P0)** | Baseline publicado: 3 sesiones / 582 peticiones / **308.353 tok/petición** ponderado (ver `planificacion/20-BASELINE-CH040.md`). Cuotas K=8 · 3k · 1k fijadas. |
 | CH-041 | **CERRADO (opt-in, gate recalibrado)** | S1+S2 en rama local (`6212348`, `dbb8778`, `a019ea4`), no activados en presets. Medido: **1.393 tok/petición = 0,45 %** (MCP 0; catálogo 810.798 tok/582 peticiones). Decisión 2026-11-06: el −20 % total pasa a **P2/CH-042**. |
-| CH-042 | **IMPLEMENTADO (opt-in), GATE 20,54 % con política agresiva** | A-2 dispatch gate (12 vectores, audit/enforce) + A-3 pruner por presión en `.worktrees/ch042` (commits `d6816f7`, `e08ac49`, `626833c`, sin push), no activado. Medido por replay: **12,94 % conservador / 20,54 % agresivo** (36.870.187 tok de 179.461.588; 63.351 tok/petición). Decisión de política/activación pendiente del propietario. |
+| CH-042 | **CERRADO (opt-in, gate −20 % demostrado en simulación)** | A-2 dispatch gate (12 vectores, audit/enforce) + A-3 pruner por presión; commits locales `d6816f7`, `e08ac49`, `626833c`, sin push ni activación. Medido por replay: **12,94 % conservador / 20,54 % agresivo** (36.870.187 tok de 179.461.588). Activación futura condicionada a evaluación en vivo y re-grabado de snapshots. |
 | CH-043…047 | **PENDIENTE** | P3–P7 no iniciados. |
 
 ---

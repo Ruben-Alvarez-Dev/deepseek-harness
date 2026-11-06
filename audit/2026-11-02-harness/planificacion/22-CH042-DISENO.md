@@ -89,3 +89,7 @@ Por sesión (agresiva): 19,75 % / 24,32 % / 14,71 %; reducción final de context
 - Verificación: 37 tests verdes entre gate y pruner, `pnpm run typecheck` exit 0, `pnpm run test:docs` 20/20. Opt-ins **no** montados en presets → snapshots sin diffs; no se ejecutó `test:snapshot` como gate.
 - Agent Note: `.agents/notes/proposed/feature/2026-11-06-tool-dispatch-gate-and-pressure-pruner.md`.
 - **Pendiente de decisión del propietario:** política de presión (agresiva 20,54 % vs conservadora 12,94 % vs solo documentar), activación en presets (requiere re-grabar snapshots) y publicación de PR.
+
+## 10 · Cierre (decisión del propietario, 2026-11-06)
+
+CH-042 se cierra **opt-in, sin activar**. El gate de tokens queda **demostrado por simulación** con la política agresiva (**20,54 %**; conservadora **12,94 %**), no activado en presets, y la activación futura queda condicionada a una evaluación en vivo (calidad de tarea y tool-calls) y a re-grabar snapshots, con kill-criteria. Sin PR ni push; rama local `feat/ch042-dispatch-gate-pruner` con `d6816f7` (A-2), `e08ac49` (A-3) y `626833c` (Agent Note). Siguiente change del plan: CH-043 (P3, router de skills/MCP).
