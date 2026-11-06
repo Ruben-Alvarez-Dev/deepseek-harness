@@ -49,6 +49,7 @@ audit/2026-11-02-harness/
 | 24 | `planificacion/23-CH043-DISENO.md` | Diseño de CH-043 (P3): router FTS5 de skills/MCP zero-embeddings, escape hatch y gate nDCG/recall@k |
 | 25 | `planificacion/24-CH044-DISENO.md` | Diseño de CH-044 (P4): memoria pasiva local (captura redactada, índice ≤200 líneas, inyector con cuota y valla, evento log-only) y gate recall@k |
 | 26 | `planificacion/25-CH045-DISENO.md` | Diseño de CH-045 (P5): handoff `/handoff <goal>` con checkpoint estructurado, hija enlazada por `parentSession` y gate de pasos de recuperación |
+| 27 | `planificacion/26-CH046-DISENO.md` | Diseño de CH-046 (P6): redacción por defecto en `session-telemetry/record`, invariants y auditoría final; E-3 diferido |
 
 **Relación entre documentos:** 01–12 son la evidencia; 13–15 son las decisiones; 17 es la trazabilidad de fuentes. El plan ejecutable es 15. **cortex queda fuera del alcance desde el 2026-11-05**: su evidencia y su plan viven en `/Users/ruben/Code/JARTOS/Jart-CORTEX/audit/2026-11-02-cortex/`.
 
