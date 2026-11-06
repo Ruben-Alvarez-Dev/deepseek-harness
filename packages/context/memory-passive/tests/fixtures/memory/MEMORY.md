@@ -1,0 +1,41 @@
+# Memory index (synthetic fixture; no user data)
+
+- deploy-rollback — Deploy rollback runbook — deploy rollback release production failed
+- deploy-canary — Canary release checks — canary release watch errors health
+- k8s-probes — Kubernetes probe failures — kubernetes readiness liveness probe pod
+- docker-multistage — Smaller container images — docker multistage image size layer
+- db-migration-locks — Migration lock contention — migration lock table deploy blocking
+- prisma-schema — Prisma schema drift — prisma schema drift generate migrate
+- postgres-explain — Slow query plans — postgres explain analyze slow query index
+- sqlite-fts5 — SQLite FTS5 ranking — sqlite fts5 bm25 search tokenizer
+- cache-invalidation — Cache invalidation on deploy — cache invalidation deploy bust stale
+- redis-ttl — Redis expiry policy — redis ttl expiry eviction memory
+- jwt-refresh — Refresh token rotation — jwt refresh token rotation session
+- oauth-state — OAuth state validation — oauth state callback mismatch login
+- secret-rotation — Rotate leaked secrets — rotate leaked secret api key credential
+- pem-keys — Manage private keys — pem private key block file permissions
+- rate-limit-bucket — Token bucket limiter — rate limit token bucket throttle quota
+- api-pagination — Cursor pagination — api pagination cursor page limit
+- openapi-versioning — Version the OpenAPI spec — openapi versioning spec breaking change
+- graphql-n1 — GraphQL N+1 queries — graphql n+1 resolver dataloader batch
+- react-hooks — Effect dependency bugs — react effect dependency hook rerender
+- vite-proxy — Vite dev proxy — vite proxy dev server config cors
+- accessibility-focus — Focus management — accessibility focus keyboard dialog aria
+- i18n-plurals — Plural rules — i18n plural locale translation message
+- css-grid — Grid layout — css grid layout responsive columns
+- e2e-flaky — Flaky end-to-end tests — e2e flaky retry test timeout
+- vitest-timers — Fake timers — vitest fake timers clock test async
+- ci-cache — CI dependency cache — ci cache dependencies lockfile build
+- git-rebase — Rebase conflicts — git rebase conflict resolution branch
+- stacked-prs — Stacked pull requests — stacked pr merge order branch dependency
+- release-notes — Write release notes — release notes changelog draft publish
+- semver-tags — Semver tags — semver tag version release package
+- incident-postmortem — Postmortem timeline — incident postmortem timeline outage cause
+- sentry-noise — Noise in error tracking — sentry issue noise dedupe alert
+- profiling-flamegraph — Flame graph profiling — profile flame graph cpu hot path
+- memory-leak — Heap growth investigation — memory leak heap snapshot growth
+- token-budget — Token budget pressure — token budget context prompt cost
+- prompt-cache — Prompt cache reuse — prompt cache prefix stable tokens
+- mcp-schema — MCP tool schema budget — mcp schema tool description budget
+- skill-catalog — Skill catalog ranking — skill catalog ranking top-k description
+- audit-gates — Falsifiable audit gates — audit gate measurement threshold evidence

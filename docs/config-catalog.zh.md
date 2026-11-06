@@ -1689,6 +1689,32 @@ export interface ReconnectConfig {
 
 来源：[`packages/mcp/mcp-client/src/index.ts:104`](../packages/mcp/mcp-client/src/index.ts)
 
+<a id="deepseek-aidsh-memory-passive"></a>
+
+## `@deepseek-ai/dsh-memory-passive`
+
+```ts config-catalog
+/** Deployment-owned passive-memory policy. */
+export interface Config {
+  /** Directory holding `MEMORY.md` and one `<id>.md` file per topic. */
+  memoryDir: string
+  /** Maximum entries rendered into one injection. */
+  injectLimit?: number
+  /** Character quota for one injected block. */
+  injectQuotaChars?: number
+  /** Maximum index lines loaded from `MEMORY.md`. */
+  maxIndexLines?: number
+  /** Inject only on the first pre-step of each turn. */
+  injectOncePerTurn?: boolean
+  /** Append a redacted capture record when a session is disposed. */
+  capture?: boolean
+  /** Maximum characters kept per captured side. */
+  captureMaxChars?: number
+}
+```
+
+Source: [`packages/context/memory-passive/src/config.ts:7`](../packages/context/memory-passive/src/config.ts)
+
 <a id="deepseek-aidsh-message-feedback"></a>
 
 ## `@deepseek-ai/dsh-message-feedback`
