@@ -14,6 +14,7 @@ import AgentRegistry, { agentEvents, type Agent, type PreStepDecision } from '@d
 import SkillRegistry from '@deepseek-ai/dsh-skill'
 import * as SkillFileSystem from '@deepseek-ai/dsh-skill-filesystem'
 import * as toolSkill from '@deepseek-ai/dsh-tool-skill'
+import SkillMcpRouter from '@deepseek-ai/dsh-skill-mcp-router'
 import { unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
 
 const testToolSignal = new AbortController().signal
@@ -36,13 +37,14 @@ async function writeSkill(root: string, name: string, description: string, body:
   await writeFile(join(dir, 'SKILL.md'), `---\nname: ${name}\ndescription: ${description}\n---\n\n${body}\n`)
 }
 
-async function setup(home: string, config: toolSkill.Config = {}): Promise<Context> {
+async function setup(home: string, config: toolSkill.Config = {}, withRouter = false): Promise<Context> {
   const ctx = new Context()
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime)
   await ctx.plugin(AgentRegistry)
   await ctx.plugin(SkillRegistry)
   await ctx.plugin(SkillFileSystem, { dshHome: join(home, '.dsh'), agentsHome: join(home, '.agents'), watch: false })
+  if (withRouter) await ctx.plugin(SkillMcpRouter)
   await ctx.plugin(toolSkill, config)
   return ctx
 }
@@ -428,6 +430,36 @@ describe('dsh-tool-skill', () => {
     const beta = catalog.source.entries.find(entry => entry.name === 'beta-skill')
     expect(alpha?.description).toBe('Alpha workflow instructions.')
     expect(beta?.description.length).toBe(16)
+  })
+
+  it('uses the optional skill-router ranking for the top-K when mounted', async () => {
+    const home = await tempDir('tool-catalog-router')
+    const ctx = await setup(home, {
+      catalogTopK: 1,
+      catalogDescriptionMaxLength: 200,
+      catalogSummaryDescriptionMaxLength: 20,
+    }, true)
+    for (const [name, description] of [
+      ['deploy-pipeline', 'Deploy the deploy deploy pipeline with staged rollout and deploy rollbacks.'],
+      ['alpha-skill', 'Handles alpha workflows end to end.'],
+      ['beta-skill', 'Builds beta reporting dashboards.'],
+    ] as const) {
+      ctx.skills.register({ name, description, source: 'runtime', provider: 'runtime', content: `${name} body.` })
+    }
+    const agent = agentForCwd('/workspace')
+    agent.session.append('turn/start', { turn: 1 })
+    agent.session.append('user/message', createUserMessage({
+      content: [{ type: 'text', text: 'run the deploy pipeline and rollback' }],
+      source: { kind: 'user' },
+    }), { surfaceOp: 'append' })
+    const prefix = await composePrefixForAgent(ctx, agent)
+    const expected = (await ctx.skillRouter.search('run the deploy pipeline and rollback', { kind: 'skill', limit: 1 }))
+      .map(entry => entry.name)
+    expect(expected).toHaveLength(1)
+    const catalog = prefix.find(message => message.source.kind === 'skill-catalog')
+    if (catalog === undefined || catalog.source.kind !== 'skill-catalog') throw new Error('expected a skill catalog')
+    const fullDescriptions = catalog.source.entries.filter(entry => entry.description.length > 20)
+    expect(fullDescriptions.map(entry => entry.name)).toEqual(expected)
   })
 
   it('does not inject a catalog when no model-invocable skills are available', async () => {

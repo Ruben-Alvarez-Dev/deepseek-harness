@@ -28,6 +28,9 @@
       "path": "../skill"
     },
     {
+      "path": "../skill-mcp-router"
+    },
+    {
       "path": "../../core/tools"
     }
   ]

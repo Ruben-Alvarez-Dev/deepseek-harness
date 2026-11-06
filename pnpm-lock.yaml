@@ -9895,6 +9895,9 @@ importers:
       '@deepseek-ai/dsh-skill-filesystem':
         specifier: workspace:^
         version: link:../skill-filesystem
+      '@deepseek-ai/dsh-skill-mcp-router':
+        specifier: workspace:^
+        version: link:../skill-mcp-router
       '@deepseek-ai/dsh-tools':
         specifier: workspace:^
         version: link:../../core/tools

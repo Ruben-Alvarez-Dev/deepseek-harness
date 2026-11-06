@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-06-skill-mcp-router.md
+2026-11-06-skill-mcp-router.md: 3e173869f6dc19b3aff1ca8b6d1179688b19704c
+2026-11-06-skill-mcp-router.zh.md: c63aadf96257c9995960940d2abe250c0b7dc743

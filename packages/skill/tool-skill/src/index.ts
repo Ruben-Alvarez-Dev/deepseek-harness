@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto'
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import type { Agent, PreStepDecision } from '@deepseek-ai/dsh-agent'
+import type { SkillMcpRouter } from '@deepseek-ai/dsh-skill-mcp-router'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import { SessionSeq, type UserMessage } from '@deepseek-ai/dsh-session'
@@ -76,6 +77,7 @@ interface CatalogSelectionLimits {
  * @param queryText - the current request text used for ranking.
  * @param invokedNames - skill names claimed by a user `/name` gesture.
  * @param limits - configured full/summary lengths and top-K size.
+ * @param rankedNames - optional router ranking; absent keeps the lexical ranking.
  * @returns durable catalog entries in unchanged catalog order.
  */
 function selectCatalogEntries(
@@ -83,13 +85,21 @@ function selectCatalogEntries(
   queryText: string,
   invokedNames: readonly string[],
   limits: CatalogSelectionLimits,
+  rankedNames?: readonly string[],
 ): SkillCatalogSource['entries'] {
   if (limits.topK === 0 || skills.length <= limits.topK) {
     return catalogSourceEntries(skills, () => limits.fullLength)
   }
-  const queryTokens = tokenizeCatalogText(queryText)
   const known = new Set(skills.map(skill => skill.name))
   const chosen = new Set(invokedNames.filter(name => known.has(name)))
+  if (rankedNames !== undefined) {
+    for (const name of rankedNames) {
+      if (chosen.size >= limits.topK) break
+      if (known.has(name)) chosen.add(name)
+    }
+    return catalogSourceEntries(skills, name => chosen.has(name) ? limits.fullLength : limits.summaryLength)
+  }
+  const queryTokens = tokenizeCatalogText(queryText)
   if (queryTokens.size === 0) {
     return catalogSourceEntries(skills, () => limits.fullLength)
   }
@@ -107,6 +117,30 @@ function selectCatalogEntries(
     chosen.add(entry.name)
   }
   return catalogSourceEntries(skills, name => chosen.has(name) ? limits.fullLength : limits.summaryLength)
+}
+
+/**
+ * Ranked skill names from the optional `skillRouter` service. No mounted router
+ * (or no usable query) keeps the deterministic lexical ranking below, so the
+ * integration is opt-in through the composition.
+ * @param ctx - plugin context that may expose the router service.
+ * @param skills - model-invocable skills to index.
+ * @param queryText - current request text.
+ * @param topK - configured full-description budget; 0 disables ranking.
+ * @returns ranked names, or undefined to keep the lexical path.
+ */
+async function routerPicks(
+  ctx: Context,
+  skills: readonly SkillSummary[],
+  queryText: string,
+  topK: number,
+): Promise<string[] | undefined> {
+  if (topK === 0 || queryText.trim().length === 0) return undefined
+  const router: SkillMcpRouter | undefined = ctx.get('skillRouter')
+  if (router === undefined) return undefined
+  await router.indexSkills(skills)
+  const ranked = await router.search(queryText, { kind: 'skill', limit: topK })
+  return ranked.length === 0 ? undefined : ranked.map(entry => entry.name)
 }
 
 /** Code-unit name order: deterministic across hosts, unlike locale collation. */
@@ -342,6 +376,7 @@ export function apply(ctx: Context, config: Config = {}): void {
     const skills = snapshot.skills.filter(isModelInvocable)
     const queryText = catalogQueryText(decision.messages, agent)
     const invoked = [...invokedSkillNames(decision.messages), ...skillGestureNames(queryText)]
+    const rankedNames = await routerPicks(ctx, skills, queryText, catalogTopK)
     const entries = selectCatalogEntries(
       skills,
       queryText,
@@ -351,6 +386,7 @@ export function apply(ctx: Context, config: Config = {}): void {
         fullLength: catalogDescriptionMaxLength,
         summaryLength: catalogSummaryDescriptionMaxLength,
       },
+      rankedNames,
     )
     const digest = digestCatalogEntries(entries)
     const history = catalogHistory(agent)
