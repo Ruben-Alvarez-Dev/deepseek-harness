@@ -547,8 +547,8 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 ```ts persistence-catalog
 /**
  * Durable checkpoint pending delivery to the child's first model step.
- * Log-only: the checkpoint reaches the request as a volatile user message,
- * so the child's surface still starts with the system prompt.
+ * The event itself is log-only; the delivered user message is appended to
+ * the surface by the agent loop and stays durable. Delivery is process-local.
  */
 'handoff/checkpoint': {
   /** Parent session the checkpoint was derived from. */
@@ -665,8 +665,9 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 
 ```ts persistence-catalog
 /**
- * Durable record of one volatile memory injection. Log-only: it never
- * changes the surface and the injected message itself stays request-scoped.
+ * Durable record of one memory injection. The event itself is log-only; the
+ * injected user message is appended to the surface by the agent loop and
+ * stays durable, so later requests resend it.
  */
 'memory/injected': {
   /** Identifiers of the rendered memory entries, in injection order. */
@@ -682,7 +683,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 }
 ```
 
-来源：[`packages/context/memory-passive/src/types.ts:42`](../packages/context/memory-passive/src/types.ts)
+来源：[`packages/context/memory-passive/src/types.ts:43`](../packages/context/memory-passive/src/types.ts)
 
 ### `model/*`
 
@@ -3042,7 +3043,7 @@ SHA-256: `cba26b47888b4d3f588b01c325f4aec13fef456a1a13013345d177c1bec826dc`
 
 SHA-256: `0314cf520e0a4093c484f82b252d2152ec20b89d287c410c0df55100e44eb6ca`
 
-来源：[`packages/context/memory-passive/src/types.ts:42`](../packages/context/memory-passive/src/types.ts)
+来源：[`packages/context/memory-passive/src/types.ts:43`](../packages/context/memory-passive/src/types.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|

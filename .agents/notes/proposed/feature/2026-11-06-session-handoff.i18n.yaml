@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-06-session-handoff.md
-2026-11-06-session-handoff.md: 41faf7e642985a850cffd600ad9e59691b9a1eac
-2026-11-06-session-handoff.zh.md: 750047bdefd6036466ce5d96122e77a2a662a299
+2026-11-06-session-handoff.md: bea815474d88eb3f2cd2c66797a59b8db72304d4
+2026-11-06-session-handoff.zh.md: 81e85c77f7887420097bd1195d688685c4de61c8

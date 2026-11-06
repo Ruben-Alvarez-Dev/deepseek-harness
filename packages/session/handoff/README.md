@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-handoff` adds a human command, `/handoff <goal>`, that turns the current session into a continuation: it reads the live state, renders a bounded checkpoint (goal, parent id, measured tokens, last exchange, tool calls, files, guidance), creates a child session linked through `header.parentSession`, and records that checkpoint as a log-only event delivered to the child's first model step as a request-scoped message. The parent is not forked or compacted; the child starts small and can still read the parent through the existing session tools.
+`dsh-handoff` adds a human command, `/handoff <goal>`, that turns the current session into a continuation: it reads the live state, renders a bounded checkpoint (goal, parent id, measured tokens, last exchange, tool calls, files, guidance), creates a child session linked through `header.parentSession`, and records that checkpoint as a log-only event, and delivers it on the child's first model step as a user message that the agent loop appends to the child's surface. The parent is not forked or compacted; the child starts small and can still read the parent through the existing session tools.
 
 ## Table of Contents
 
@@ -50,7 +50,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-a
 
 ### Design concept
 
-The checkpoint is derived from the live projection (`session.deriveMessages()`), never from deprecated historical reads. It states the goal first, then the parent link and the measured context size, then the bounded last request/outcome and working set, and finally the guidance that names the parent session id and the `session_event_search`/`session_trace` tools. The child is created with `header.parentSession` set and its checkpoint is appended as a `handoff/checkpoint` log-only record. On the child's first model step, an `agent/pre-step` listener injects that checkpoint as a request-scoped user message with the `plugin` source (`plugin: 'handoff'`); the child's surface therefore stays empty until the loop adds its own system prompt, and the delivery happens once. No fork copies the parent history, no compaction runs, and the parent keeps its own trajectory.
+The checkpoint is derived from the live projection (`session.deriveMessages()`), never from deprecated historical reads. It states the goal first, then the parent link and the measured context size, then the bounded last request/outcome and working set, and finally the guidance that names the parent session id and the `session_event_search`/`session_trace` tools. The child is created with `header.parentSession` set and its checkpoint is appended as a `handoff/checkpoint` log-only record. On the child's first model step, an `agent/pre-step` listener adds that checkpoint as a user message with the `plugin` source (`plugin: 'handoff'`); because the surface is still empty when the loop starts the turn, the system prompt lands as surface node 0 and the checkpoint follows it as the first user-role message. The loop keeps that message, so later requests resend it. Delivery is once per process: a child resumed before its first step does not receive the checkpoint. No fork copies the parent history, no compaction runs, and the parent keeps its own trajectory.
 
 ### Source map
 
@@ -78,7 +78,7 @@ No invariant companion is published because it owns no relation between independ
 
 #### What the model sees
 
-In the child's first model step, the request carries one additional user-role message after the claimed messages: a `## Handoff checkpoint (from the previous session)` heading, the goal, the parent session id, the measured context size, the guidance for `session_event_search`/`session_trace`, the bounded last request and last outcome, and the recent tool calls and referenced files. The checkpoint is a request-scoped delivery, not a surface message, so the child's system prompt remains surface node 0. The parent session's model sees nothing new: the command and its result are human-only command lifecycle records.
+In the child's first model step, the request carries one additional user-role message after the claimed messages: a `## Handoff checkpoint (from the previous session)` heading, the goal, the parent session id, the measured context size, the guidance for `session_event_search`/`session_trace`, the bounded last request and last outcome, and the recent tool calls and referenced files. The agent loop appends the checkpoint to the child's surface after the system prompt (node 0), and later requests resend it. Delivery state is process-local: a child resumed after a restart does not receive the checkpoint. The parent session's model sees nothing new: the command and its result are human-only command lifecycle records.
 
 #### Token effect
 
@@ -93,5 +93,6 @@ A new session starts with no provider cache: its cacheable prefix is the child's
 - **Checkpoint is a summary** — details beyond the bounded last exchange and working set are not carried; the fixed guidance points to the parent log instead.
 - **Continuation gate is a proxy** — "fewer steps" is measured as facts present in the checkpoint versus one recovery search per missing fact, not by running a model; a live evaluation remains the activation gate.
 - **No automatic switch** — the command reports the child session id and leaves opening it to the surface; the package does not move focus.
+- **Delivery is same-process** — the pending checkpoint lives in memory until the child's first step. If the process exits between `/handoff` and that step, the durable `handoff/checkpoint` record survives but is never delivered on resume. Handoff must not be activated until this is fixed or the restriction is accepted.
 - **No automatic compaction** — the parent is neither compacted nor deleted; disposal remains the operator's choice.
 - **Text projection only** — non-text blocks and attachments are referenced by name or omitted, not carried across.

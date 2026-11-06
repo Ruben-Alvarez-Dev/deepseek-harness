@@ -9,7 +9,7 @@ English | [中文](2026-11-06-opt-in-session-events.zh.md)
 
 ## Summary
 
-Adds three log-only event types owned by the opt-in F4 plugins: memory/injected records one volatile memory injection, handoff/checkpoint records a checkpoint pending delivery to a linked child session, and tool/dispatch-gate records one non-allowed tool dispatch decision.
+Adds three event types owned by the opt-in F4 plugins: memory/injected records one memory injection (ids, digest, character count, quota, turn), handoff/checkpoint records a checkpoint pending delivery to a linked child session, and tool/dispatch-gate records one non-allowed tool dispatch decision. The injected memory block and the delivered checkpoint are also appended to the session surface by the agent loop as ordinary user messages; the events themselves stay log-only records of what happened.
 
 ## Table of Contents
 
@@ -43,12 +43,12 @@ changes:
 <a id="compatibility"></a>
 ## Compatibility
 
-New roots only: existing records contain none of these events, so replay of old sessions is unchanged. All three are log-only by contract; they never alter the surface, request text, or any event a reader must interpret, so a reader that does not know them can skip them without changing the reconstructed conversation or the current Session validation. None of them is required for restoration.
+New roots only: existing records contain none of these events, so replay of older sessions is unchanged and no header version changes. The three events are not marked ignorable, and validateStoredEvents refuses a stored log containing an unknown non-ignorable type: a reader older than this build rejects any session written while one of these opt-ins is mounted. While the opt-ins stay unmounted no such session exists, and older readers keep working. This same-version decision covers the absence of a structural change to existing roots, not forward compatibility for older readers.
 
 <a id="verification"></a>
 ## Verification
 
-Reverted the volatile message sources to the existing plugin variant, so no persisted union changed. pnpm run verify-session-format-catalog: PASS. pnpm exec vitest run packages/context/memory-passive packages/session/handoff packages/guard/tool-dispatch-gate: 40 tests passed. pnpm run verify-persistence-changes after recording: PASS.
+Probe: validateStoredEvents rejects an unknown non-ignorable event type and accepts the same type only when marked ignorable, so this record makes no skippability claim. Volatile message sources stay on the existing plugin variant, so no persisted source union changed. pnpm run verify-session-format-catalog: PASS. pnpm run verify-persistence-changes after recording: PASS. pnpm exec vitest run packages/context/memory-passive packages/session/handoff packages/guard/tool-dispatch-gate: 40 tests passed.
 
 <a id="dev-note"></a>
 ## Dev Note

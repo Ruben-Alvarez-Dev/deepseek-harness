@@ -36,8 +36,9 @@ export interface CaptureRecord {
 declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /**
-     * Durable record of one volatile memory injection. Log-only: it never
-     * changes the surface and the injected message itself stays request-scoped.
+     * Durable record of one memory injection. The event itself is log-only; the
+     * injected user message is appended to the surface by the agent loop and
+     * stays durable, so later requests resend it.
      */
     'memory/injected': {
       /** Identifiers of the rendered memory entries, in injection order. */

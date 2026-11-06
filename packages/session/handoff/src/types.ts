@@ -6,8 +6,8 @@ declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /**
      * Durable checkpoint pending delivery to the child's first model step.
-     * Log-only: the checkpoint reaches the request as a volatile user message,
-     * so the child's surface still starts with the system prompt.
+     * The event itself is log-only; the delivered user message is appended to
+     * the surface by the agent loop and stays durable. Delivery is process-local.
      */
     'handoff/checkpoint': {
       /** Parent session the checkpoint was derived from. */

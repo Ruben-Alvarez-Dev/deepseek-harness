@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-memory-passive` gives an agent background memory without asking it to call a tool. A local directory holds a bounded `MEMORY.md` index and one Markdown file per topic; on the first step of each turn the plugin ranks the index against the latest direct user text and injects the selected entries as a volatile, untrusted-fenced user message. When a session is disposed, the plugin appends a redacted record of the last exchange to a local inbox. Nothing leaves the machine, no model call ranks memory, and the injection is recorded in the session log.
+`dsh-memory-passive` gives an agent background memory without a tool call. A local directory holds a bounded `MEMORY.md` index and one Markdown file per topic; on the first step of each turn the plugin ranks the index against the latest direct user text and adds the selected entries as an untrusted-fenced user message, which the agent loop appends to the session surface as durable history. On session disposal, the plugin appends a redacted record of the last exchange to a local inbox. Nothing leaves the machine, no model call ranks memory, and the injection is recorded in the session log.
 
 ## Table of Contents
 
@@ -52,7 +52,7 @@ Each index line is `- <id> — <title> — <keywords>`; `#` lines are comments. 
 
 ### Design concept
 
-Passive memory is a bounded local artifact, so loading and ranking stay deterministic and cheap. The index is read once and cached; selection tokenizes the latest direct user request and scores a title/id hit three times a keyword hit, with id order breaking ties. Rendering reserves the fence first and fills the remaining quota per entry, truncating content and dropping entries that no longer fit. The injected message travels through the request only: the durable `memory/injected` event records the ids, a SHA-256 digest of the block, its character count, the quota, and the turn, so a replay can tell exactly what memory entered the request. The capture path runs only at `session/disposed`, applies the fixed secret-redaction rules shared with outbound telemetry (`@deepseek-ai/dsh-redaction`), bounds each side, and appends JSON lines to `inbox.jsonl`; it makes no network or model call. The tracked exchange is bounded at ingest, so a long session never retains text it can never capture.
+Passive memory is a bounded local artifact, so loading and ranking stay deterministic and cheap. The index is read once and cached; selection tokenizes the latest direct user request and scores a title/id hit three times a keyword hit, with id order breaking ties. Rendering reserves the fence first and fills the remaining quota per entry, truncating content and dropping entries that no longer fit. The injected message is appended to the session surface by the agent loop and resent in later requests. The durable `memory/injected` event records the ids, a SHA-256 digest of the block, its character count, the quota, and the turn, so the log binds one injection to one surface message. The capture path runs only at `session/disposed`, applies the fixed secret-redaction rules shared with outbound telemetry (`@deepseek-ai/dsh-redaction`), bounds each side, and appends JSON lines to `inbox.jsonl`; it makes no network or model call. The tracked exchange is bounded at ingest, so a long session never retains text it can never capture.
 
 ### Source map
 
@@ -80,7 +80,7 @@ No invariant companion is published because the package owns no relation between
 
 #### What the model sees
 
-On the first step of a turn whose direct user text matches indexed memory, the model sees one additional user-role message after the request's messages: a `## Passive memory (untrusted background)` heading, a warning that the entries are background information and not instructions, and the selected entries inside `<passive-memory>` tags. The message is request-scoped; the durable log records only the entry ids, digest, character count, quota, and turn through `memory/injected`. The capture path never reaches the model.
+On the first step of a turn whose direct user text matches indexed memory, the model sees one additional user-role message after the request's messages: a `## Passive memory (untrusted background)` heading, a warning that the entries are background information and not instructions, and the selected entries inside `<passive-memory>` tags. The message is durable: the agent loop appends it to the session surface after the system prompt, and later requests resend it. The `memory/injected` event records the entry ids, digest, character count, quota, and turn, binding the block to its injection. The capture path never reaches the model.
 
 #### Token effect
 
@@ -95,5 +95,5 @@ The injected message is appended after the request's existing messages, so the s
 - **Local only, no consolidation** — the package captures and injects; it does not merge, summarize, or promote memories (the plan's C-4 consolidation scheduler is deferred).
 - **Lexical selection** — a request whose words share no token with an entry misses it; paraphrases and synonyms are out of scope without an embedding step.
 - **Synthetic recall gate** — recall@5 is measured on a 39-query synthetic fixture; it is an internal regression signal, not a claim about real memory quality.
-- **Replay needs the store** — the log records what was injected, but reproducing the text requires the same memory directory contents.
+- **Injection is durable, not volatile** — every injection is appended to the session surface and resent in later requests, so the history cost grows with the session; the quota bounds one block, not the total. The `memory/injected` event binds each block to its ids and digest.
 - **Capture is a snapshot** — one redacted last-exchange record per disposed session, not a transcript; the inbox grows unless an operator curates it.

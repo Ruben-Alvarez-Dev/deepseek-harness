@@ -545,8 +545,8 @@ Source: [`packages/goal/goal/src/domain.ts:66`](../packages/goal/goal/src/domain
 ```ts persistence-catalog
 /**
  * Durable checkpoint pending delivery to the child's first model step.
- * Log-only: the checkpoint reaches the request as a volatile user message,
- * so the child's surface still starts with the system prompt.
+ * The event itself is log-only; the delivered user message is appended to
+ * the surface by the agent loop and stays durable. Delivery is process-local.
  */
 'handoff/checkpoint': {
   /** Parent session the checkpoint was derived from. */
@@ -663,8 +663,9 @@ Source: [`packages/llm/llm-retry/src/types.ts:11`](../packages/llm/llm-retry/src
 
 ```ts persistence-catalog
 /**
- * Durable record of one volatile memory injection. Log-only: it never
- * changes the surface and the injected message itself stays request-scoped.
+ * Durable record of one memory injection. The event itself is log-only; the
+ * injected user message is appended to the surface by the agent loop and
+ * stays durable, so later requests resend it.
  */
 'memory/injected': {
   /** Identifiers of the rendered memory entries, in injection order. */
@@ -680,7 +681,7 @@ Source: [`packages/llm/llm-retry/src/types.ts:11`](../packages/llm/llm-retry/src
 }
 ```
 
-Source: [`packages/context/memory-passive/src/types.ts:42`](../packages/context/memory-passive/src/types.ts)
+Source: [`packages/context/memory-passive/src/types.ts:43`](../packages/context/memory-passive/src/types.ts)
 
 ### `model/*`
 
@@ -3040,7 +3041,7 @@ SHA-256: `cba26b47888b4d3f588b01c325f4aec13fef456a1a13013345d177c1bec826dc`
 
 SHA-256: `0314cf520e0a4093c484f82b252d2152ec20b89d287c410c0df55100e44eb6ca`
 
-Sources: [`packages/context/memory-passive/src/types.ts:42`](../packages/context/memory-passive/src/types.ts)
+Sources: [`packages/context/memory-passive/src/types.ts:43`](../packages/context/memory-passive/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
