@@ -17,7 +17,7 @@
 5. **Repo PI-agent ausente:** **pérdida declarada** y plan adaptado (CH-011/034 cancelados como pérdida; CH-005 reducido a lo rescatado).
 6. **CH-012:** autorizado el commit en rama nueva → cerrado (commit `45c3443`, sin push).
 7. **CH-041:** recalibrar tras medir → **cerrado** con 0,45 % en superficie gobernada y **−20 % total trasladado a P2** (decisión 2026-11-06); opt-ins no activados; sin PR.
-8. **CH-042:** arrancado — diseño P2 publicado (dispatch gate audit→enforce + pruner por presión, gate −20 %); implementación en `.worktrees/ch042`.
+8. **CH-042:** implementado (opt-in) — dispatch gate (12 vectores) + pruner por presión; medido 20,54 % con política agresiva (12,94 % conservadora). Decisión de política/activación pendiente; sin push.
 
 ### 0.2 F0 — cerrado (gates medidos)
 
@@ -90,7 +90,7 @@ audit/2026-11-02-harness/
 ## 6 · Próximo paso concreto
 
 1. **CH-012 — hecho:** commit `45c3443` en la rama local `audit/2026-11-02-harness`, solo con `audit/2026-11-02-harness/`; sin push. Los 6 tracked modificados y 19 untracked ajenos siguen sin tocar.
-2. **F4 / CH-042 (P2) — en curso:** A-2 (dispatch gate audit→enforce, 12 vectores de bypass) + A-3 (pruner por presión por turno) con el objetivo **−20 % tokens/petición**; diseño en `planificacion/22-CH042-DISENO.md`, trabajo en `.worktrees/ch042` (rama local, sin push). CH-041 quedó cerrado opt-in en `.worktrees/ch041`.
+2. **F4 / CH-042 (P2) — implementado, decisión pendiente:** A-2 + A-3 en `.worktrees/ch042` (commits `d6816f7`, `e08ac49`, `626833c`, sin push). Medición por replay en `planificacion/22-CH042-DISENO.md` §8: 12,94 % conservador / **20,54 % agresivo** (36,87 M tok de 179,46 M). Falta decidir política, activación en presets (re-grabar snapshots) y PR. CH-041 quedó cerrado opt-in en `.worktrees/ch041`.
 3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
 
 ## 7 · Avisos

@@ -69,3 +69,23 @@ P2 del plan SOTA es **A-2 (dispatch gate)** + **A-3 (result pruner por presión)
 ## 7 · Entorno
 
 Worktree `.worktrees/ch042` creado desde `origin/master`; `pnpm install` completado; upstream desvinculado para evitar push accidental. El checkout principal y el WIP del usuario no se tocan.
+
+## 8 · Medición del gate (2026-11-06)
+
+**Método:** replay de los logs de las 3 sesiones de CH-040, sin llamadas al modelo. Baseline = usage del proveedor registrado (179.461.588 tokens, 582 peticiones). Para cada política se simula el disparo por presión (`totalTokens` de la petición > `maxContextTokens`), se podan los tool-results de la superficie por encima del umbral y se cuenta el ahorro (`chars retirados / 4`, misma heurística fija del meter) en **cada petición posterior que carga la superficie podada**. Límite declarado: no mide calidad del modelo ni regresión de tool-calls; un tool-call no se elimina, solo se acorta su resultado.
+
+| Política | `maxContextTokens` | `pruneThresholdChars` | head/tail | Tokens ahorrados | % del baseline |
+|---|---|---|---|---|---|
+| Conservadora (defaults de trim) | 100.000 | 8.192 | 4.096/1.024 | 23.226.625 | **12,94 %** |
+| Agresiva | 40.000 | 3.000 | 2.048/512 | 36.870.187 | **20,54 %** |
+
+Por sesión (agresiva): 19,75 % / 24,32 % / 14,71 %; reducción final de contexto 158.220 / 79.557 / 33.947 tokens. **A-2 no aporta ahorro de tokens** (control de seguridad: 12/12 vectores bloqueados en enforce).
+
+**Conclusión:** el gate −20 % **se alcanza en la simulación solo con la política agresiva**, que deja ~640 tokens por resultado de tool. La conservadora se queda en 12,94 %. La condición "sin regresión" no está evaluada porque la activación cambia resultados model-visible y snapshots; queda como decisión del propietario con kill-criteria (si aumentan reintentos de tool-calls o baja el éxito de tarea, desactivar).
+
+## 9 · Estado de implementación
+
+- Commits locales en `feat/ch042-dispatch-gate-pruner` (sin push): `d6816f7` (A-2 + 19 tests), `e08ac49` (A-3 + 18 tests), `626833c` (Agent Note bilingüe).
+- Verificación: 37 tests verdes entre gate y pruner, `pnpm run typecheck` exit 0, `pnpm run test:docs` 20/20. Opt-ins **no** montados en presets → snapshots sin diffs; no se ejecutó `test:snapshot` como gate.
+- Agent Note: `.agents/notes/proposed/feature/2026-11-06-tool-dispatch-gate-and-pressure-pruner.md`.
+- **Pendiente de decisión del propietario:** política de presión (agresiva 20,54 % vs conservadora 12,94 % vs solo documentar), activación en presets (requiere re-grabar snapshots) y publicación de PR.
