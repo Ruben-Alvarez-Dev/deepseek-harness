@@ -7,7 +7,8 @@
 audit/2026-11-02-harness/
 ├── 00-INDICE.md            ← este índice
 ├── auditorias/             ← 00-INFORME · 01-INVENTARIO · 02-MAPA-DSH · 05-FORENSE ·
-│                              06-ADVERSARIAL-Y-DEMENTOR · 08-DOSSIER · 14-AUDITORIA-LINEA-POR-LINEA
+│                              06-ADVERSARIAL-Y-DEMENTOR · 08-DOSSIER · 09-AUDITORIA-P6-F4 ·
+│                              10-AUDITORIA-CH050 · 14-AUDITORIA-LINEA-POR-LINEA
 ├── investigaciones/        ← 03-SOTA · 04-ITEM-POR-ITEM · 07-ESTUDIO-ADOPCION · 09-HANDOFF-SOTA ·
 │                              10-FRONTERA · 16-ESTRATEGIA-NCM-JEV
 │   ├── dossier-anillos-2026-10-25/   ← copia íntegra del dossier QWEN (con LEEME.md)
@@ -52,7 +53,8 @@ audit/2026-11-02-harness/
 | 27 | `planificacion/26-CH046-DISENO.md` | Diseño de CH-046 (P6): redacción por defecto en `session-telemetry/record`, invariants y auditoría final; E-3 diferido |
 | 28 | `auditorias/09-AUDITORIA-P6-F4.md` | Auditoría `/auditoria-dev` de F4 (CH-043…046): 1 CRITICAL remediado, 0 abiertos; 2 MAJOR y 4 MINOR documentados |
 | 29 | `planificacion/27-CH047-DISENO.md` | Diseño de CH-047 (P7): harness recall/nDCG, resumen longitudinal de logs y kill-criteria con baseline medido |
+| 30 | `auditorias/10-AUDITORIA-CH050.md` | Auditoría `/auditoria-dev` de CH-050 (árbol integrado F4, HEAD final `c50f6fea`): 0 BLOCKER/CRITICAL, 3 MAJOR (2 corregidos, 1 condición de activación) y 6 MINOR (6.º resuelto) |
 
 **Relación entre documentos:** 01–12 son la evidencia; 13–15 son las decisiones; 17 es la trazabilidad de fuentes. El plan ejecutable es 15. **cortex queda fuera del alcance desde el 2026-11-05**: su evidencia y su plan viven en `/Users/ruben/Code/JARTOS/Jart-CORTEX/audit/2026-11-02-cortex/`.
 
-**Estado:** expediente cerrado en F0 y versionado (CH-012) el 2026-11-06 en la rama local `audit/2026-11-02-harness` (commit `45c3443`, sin push). Todo lo afirmado lleva evidencia `fichero:línea` o comando ejecutado, salvo lo marcado `sin-verificar` en cada informe.
+**Estado:** expediente **sellado el 2026-11-06** — F0/F1/F4/F5 cerrados; F2 fuera de alcance (cortex), F3 cancelado. Árbol integrado F5 auditado en `auditorias/10-AUDITORIA-CH050.md` (0 BLOCKER/CRITICAL) con HEAD final `c50f6fea` y sin publicar. Versionado en la rama local `audit/2026-11-02-harness` (sin push). Todo lo afirmado lleva evidencia `fichero:línea` o comando ejecutado, salvo lo marcado `sin-verificar` en cada informe.

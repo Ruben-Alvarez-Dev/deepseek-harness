@@ -160,3 +160,58 @@ Todas las ramas están **sin upstream** (sin push). El checkout principal está 
 ### 9.6 · Cómo reanudar
 
 Cuando el propietario pida continuar: rearmar el goal (`update_goal … action: resume` sobre la revisión vigente) y empezar por el paso 9.5.1. El checkout principal no debe tocarse para código; todo se hace en worktrees. Recordatorio de restricciones: sin push, sin PR, sin tocar dossier QWEN/PI-agent/jart-os-development, sin copiar/escribir/publicar credenciales, un change a la vez y ningún gate se declara sin medición.
+
+-----
+
+## 10 · CIERRE F5/CH-050 — integración, auditoría y sello (2026-11-06)
+
+**Estado:** **CERRADO.** El árbol integrado F4 existe, está auditado de forma independiente y los gates medidos están verdes. No hay push ni PR: publicación, activación de opt-ins y ventana de 30 días siguen siendo decisiones del propietario.
+
+### 10.1 · Árbol integrado
+
+- Worktree `.worktrees/ch050`, rama local `feat/ch050-integration`, base `origin/master` = `0d1f50007f`, **HEAD final `c50f6fea76`**, **33 commits**, **190 ficheros, +9.138/−202** (134 añadidos, 56 modificados, 0 borrados). Sin upstream.
+- Integración con `--no-ff` en el orden del §9.5: CH-041 → CH-043 (apilada) → CH-042 → CH-044 → CH-045 → CH-046 → CH-047. Solo 2 conflictos (`tsconfig.base.json` en CH-046, `verify-package-readme-model-experience.ts` en CH-047), resueltos sumando ambos lados y regenerando artefactos.
+- **Ningún opt-in montado:** `git diff --stat origin/master..HEAD -- packages/preset apps` vacío; los paquetes F4 solo se montan por decisión del propietario.
+- Las 8 ramas F4/CH-050 siguen **sin upstream**. Checkout principal intacto (rama `audit/2026-11-02-harness`, cambios ajenos preexistentes sin tocar).
+
+### 10.2 · Remediaciones del P6 y hallazgos que la integración descubrió
+
+- **MAJOR-1 P6 (una sola casa de reglas):** `memory-passive` importa `@deepseek-ai/dsh-redaction`; `src/redact.ts` eliminado. Gate: `grep -rn "name: 'private-key'" packages --include=*.ts` = **1**.
+- **MAJOR-2 P6 (cota al ingerir):** el exchange se acota con `captureMaxChars` antes de entrar en el estado; tests de retención (15 tests del paquete).
+- Gates que fallaron en el árbol integrado y se corrigieron (ninguno se había medido por rama): invariants (frase de omisión en 5 READMEs), typert (anotación de tipo en `pruneContent`), catálogo de tools (exención documentada de `tool-dispatch-gate`), catálogo/roles Cordis (`ctx.skillRouter`), constraints (cordis peer/dev en `redaction`; renombre `@deepseek-ai/dsh-experimental-longitudinal-eval`), registro de persistencia de los tres eventos nuevos, jscpd (4 clones → helpers compartidos `contentText`/`boundDescription` en `dsh-llm` y `registerDrainingCommand` en `dsh-commands`; 0 clones) y lint (2 comparaciones nulas redundantes y supresión restaurada).
+- **Corrección de premisa (auditoría):** el variant `plugin` de `MessageSourceMap` para las inyecciones volátiles es correcto (evita cambiar la unión persistida), pero la afirmación «el bucle no las apendiza a la superficie» era falsa (`packages/core/agent-loop/src/agent.ts:374-377`): el bloque de memoria y el checkpoint son historia durable. READMEs, tipos y notas corregidos; el coste (crecimiento del historial) queda declarado.
+
+### 10.3 · Auditoría independiente y remediación post-informe
+
+- Informe: `auditorias/10-AUDITORIA-CH050.md` (auditor independiente; primera pasada sobre `f3bc397bac`, re-medición §5 sobre `5b56c065` y `c50f6fea`): **0 BLOCKER, 0 CRITICAL, 3 MAJOR, 6 MINOR, 5 INFO**; veredicto **APTO para sellar** con HEAD final `c50f6fea76`.
+- Remediado sobre HEAD `5b56c065` y `c50f6fea`: MAJOR-2 (documentación durable) y MAJOR-3 (compatibilidad real del registro de persistencia: los 3 eventos no son ignorables y un lector antiguo rechaza el log; `same-version` solo cubre la ausencia de cambio estructural) **corregidos**; MAJOR-1 (el checkpoint de handoff no se entrega si la hija se reanuda antes del primer paso) **registrado como condición de activación** en README/nota: entregar desde el log durable exige un change aparte o aceptar la restricción «mismo proceso»; handoff no debe activarse sin decidirlo.
+- MINOR-1 (artefactos `lib/` obsoletos con copia de las reglas) y MINOR-6 (últimas menciones «request-scoped/volatile») eliminados; gates re-medidos. MINOR-2…5 (validación de `mode` en dispatch gate, lecturas deprecadas de `tool-skill`, proxy definicional de handoff, `inject` sin uso del router) quedan como follow-ups documentados.
+- Re-verificación del auditor: confirmada sobre `5b56c065` y `c50f6fea76`; «0 BLOCKER / 0 CRITICAL, el sello puede referenciar `c50f6fea76`». MINOR-6 (últimos comentarios/frases «request-scoped/volatile») corregido en `c50f6fea`: solo texto (9 ficheros, +15/−14), `verify-translation-pairing` 934 pares consistentes.
+
+### 10.4 · Gates medidos en el HEAD final (`c50f6fea`)
+
+| Gate | Resultado |
+|---|---|
+| `pnpm run check:ci:static` | **55/55** (0 failed, 0 skipped; re-medido en `c50f6fea`) |
+| `pnpm run test:docs` | **20/20** (re-medido en `c50f6fea`) |
+| `pnpm run verify-package-invariants` | **39/39** companions |
+| `pnpm run typecheck` | **exit 0** (re-medido en `c50f6fea`) |
+| `pnpm run lint:contracts-ready` | **0 warnings, 0 errors** (3.898 ficheros, 90 reglas) |
+| `pnpm run duplication` | **0 clones** (1.874 ficheros) |
+| Tests focados F4 + paquetes tocados | **199/199** (17 ficheros) + `llm` 1.234/1.234 + `session`/`agent-loop` 923/923 |
+| Gates re-medidos por el auditor | router recall@8 **0,915** / nDCG@8 **0,932** vs 0,890/0,883; memoria recall@5 **1,000**, bloque máx **1.033** chars |
+| Secretos en el diff | solo fixtures de test; ninguna credencial real |
+| Snapshots keyless | **no ejecutados** (ningún opt-in montado; se exigen al activar) |
+
+### 10.5 · Decisiones pendientes del propietario
+
+1. **Activar opt-ins en presets** (ninguno lo está): governor, dispatch gate en `enforce`, pruner por presión, router, memoria pasiva, redacción de telemetría, handoff. **Handoff tiene ahora una precondición extra:** decidir entre arreglar la entrega durable del checkpoint al reanudar (change aparte) o aceptar la restricción «mismo proceso» antes de montarlo. Cada activación cambia resultados model-visible y exige `pnpm run test:snapshot`.
+2. **Publicar ramas/PRs**: no hay push; se haría con fork/credenciales del propietario. CH-043 sigue apilada sobre CH-041; el árbol integrado es CH-050.
+3. **E-3** (pin de integridad de plugins): sigue diferido.
+4. **Ventana de 30 días de CH-047**: re-ejecutar la métrica longitudinal tras activar memoria/router; la regla actual dice **no activar C-2 sin señal**.
+5. **MINOR-2…5** de la auditoría CH-050: validar `mode` en el dispatch gate, migrar/registrar las lecturas deprecadas de `tool-skill`, etiquetar el proxy de handoff como definición (no medición) y retirar el `inject` sin uso del router.
+6. **Claves literales preexistentes en `auth.json`** (deepseek, anthropic, qwen-token-plan-individual): ajenas a este trabajo; migrarlas al keychain queda como higiene opcional.
+
+### 10.6 · Cómo reanudar
+
+El plan F0/F1/F4/F5 está cerrado. Para una nueva iteración: partir del árbol integrado (worktree `.worktrees/ch050`, HEAD `c50f6fea76`, sin push), aplicar la decisión del propietario sobre activación/publicación y abrir un change nuevo por cada activación (con snapshots y evaluación en vivo). El expediente y sus gates están sellados en la rama local `audit/2026-11-02-harness`; no reescribir registros de persistencia aceptados.
