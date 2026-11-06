@@ -25,7 +25,7 @@
 - **CH-005 (rescate):** `router.bundle` verificado (`git bundle verify` → *complete history*; 32 commits; `main = 12d0940…`) y manifiesto SHA-256 de **183 ficheros** en `rescate/MANIFIESTO-SHA256.txt`. **Pérdida declarada:** 38 commits colgantes, 81 ficheros de test de `e54c5d9^` (526 casos) y E-031…E-057 (CH-034) no son recuperables porque el repo PI-agent ya no existe en disco.
 - **CH-012 (versionado):** expediente commiteado en rama local `audit/2026-11-02-harness` (commit `45c3443`, 269 ficheros, solo `audit/2026-11-02-harness/`); `master` intacto; sin push.
 - **CH-040 (baseline P0):** medido con usage exacto del log v4 en 3 sesiones (cordis/standard/sota): **582 peticiones**, **308.353 tok/petición** ponderado (input no cacheado 6.175 · cache read 301.159 · output 1.019; 97,7 % cache read). Publicado en `planificacion/20-BASELINE-CH040.md`; P1 propone −20 % (decisión pendiente).
-- **CH-041 (P1, governor outbound):** diseño publicado en `planificacion/21-CH041-DISENO.md` con los seams verificados en `origin/master` y gate decidido (**−20 % → ≤246.682 tok/petición**, sin regresión de snapshots/tool-calls). Implementación en curso en el worktree `.worktrees/ch041` (rama `feat/ch041-outbound-governor`, base `0d1f50007f`); el checkout principal no se toca.
+- **CH-041 (P1, governor outbound) — implementado (opt-in), gate −20 % FALSADO:** S1 (`catalogTopK`+resúmenes) y S2 (`system-prompt-governor`, presupuesto MCP 3k) en la rama local `feat/ch041-outbound-governor` (commits `6212348`, `dbb8778`, `a019ea4`, sin push). Medición sobre las 3 sesiones baseline: **1.393 tok/petición ahorrados = 0,45 %** (catálogo 810.798 tok en 582 peticiones; MCP 0 por estar ya bajo 3k). El objetivo de −20 % total se traslada a P2 (result pruner); no se activan los opt-ins en presets. Ver `planificacion/21-CH041-DISENO.md` §1 y §7.
 
 ### 0.3 Desviaciones verificadas frente al handoff del 11-05
 
@@ -88,7 +88,7 @@ audit/2026-11-02-harness/
 ## 6 · Próximo paso concreto
 
 1. **CH-012 — hecho:** commit `45c3443` en la rama local `audit/2026-11-02-harness`, solo con `audit/2026-11-02-harness/`; sin push. Los 6 tracked modificados y 19 untracked ajenos siguen sin tocar.
-2. **F4 / CH-041 (P1):** governor outbound en curso en `.worktrees/ch041` (base `origin/master`), gate −20 %; falta implementación, verificación keyless y Agent Note. Sin push hasta autorización.
+2. **F4 / CH-041 — hecho (opt-in):** S1+S2 implementados y verificados en `.worktrees/ch041`; gate medido 0,45 % (no −20 %), Agent Note bilingüe. Decisiones pendientes: recalibrar el plan (mover −20 % a P2), activar o no los opt-ins y publicar PR (requiere push).
 3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
 
 ## 7 · Avisos
