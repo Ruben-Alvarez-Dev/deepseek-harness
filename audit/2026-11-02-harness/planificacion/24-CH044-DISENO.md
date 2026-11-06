@@ -71,3 +71,23 @@ Worktree `.worktrees/ch044` desde `origin/master`; implementación **opt-in** si
 | Pérdida de recall por cuota | Selección léxica con desempate determinista y k reportado; la cuota es configurable |
 | Replay incompleto | Evento `memory/injected` con ids+digest; el almacén sigue en disco |
 | Coste de captura | Solo en `session/disposed`; trabajo acotado por registro |
+
+## 7 · Medición del gate (2026-11-06)
+
+**Corpus:** 39 memorias (índice `MEMORY.md` + 39 temas) y **39 queries etiquetadas** sintéticas.
+
+| Métrica | Objetivo | Medido |
+|---|---|---|
+| recall@5 | ≥ 0,80 | **1,000** (39/39 queries; 0 fallos) |
+| Inyección ≤ cuota | sí | máx. **1.033 chars** con cuota 4.000 en todo el fixture |
+| Tools registradas | 0 | 0 (test contra `ToolRuntime`) |
+| Redacción | verificada | 6 reglas (PEM, `sk-`, Bearer, JWT, GitHub, AWS + asignaciones); 0 secretos en captura e inyección |
+
+**Límite declarado:** el fixture es sintético y la queries comparten vocabulario con los títulos/keywords; el 1,000 es una señal de regresión interna, no una promesa de recall sobre memorias reales. C-4 (consolidación) sigue diferido.
+
+## 8 · Implementación y cierre (2026-11-06)
+
+- **Implementado opt-in, sin activar en presets.** Paquete `@deepseek-ai/dsh-memory-passive`: almacén acotado, inyector volátil en `agent/pre-step` con evento log-only `memory/injected`, captura local en `session/disposed` mediante estado incremental desde `session/event` (sin lecturas síncronas deprecadas de historial), redacción fija y valla untrusted; 13 tests focados.
+- **Verificación:** 13 tests verdes, `pnpm run typecheck` exit 0, `pnpm run test:docs` 20/20. Sin activación → snapshots sin diffs.
+- **Agent Note bilingüe:** `.agents/notes/proposed/feature/2026-11-06-passive-memory.md`.
+- **Pendiente de decisión del propietario:** montar el plugin en presets (cambia el contexto model-visible y requiere re-grabar snapshots) y decidir la ruta de captura (directorio local a elegir).
