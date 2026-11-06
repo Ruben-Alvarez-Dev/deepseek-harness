@@ -52,12 +52,13 @@ All settings are optional; the defaults trim any result with more than 8,192 tex
 | `thresholdChars` | `8192` | Trim when combined text exceeds this many Unicode code points. |
 | `headChars` | `4096` | Leading Unicode code points retained. |
 | `tailChars` | `1024` | Trailing Unicode code points retained. |
+| `pressure` | — | Optional per-turn trigger `{ maxContextTokens, pruneThresholdChars }`; absent keeps trim-on-compaction only. |
 
-Character counts are Unicode code points, so slicing never splits an emoji pair, though a multi-character grapheme can still be cut. The head plus the marker plus the tail must fit within the threshold, so a valid configuration trims every over-budget result without growth or repeated rewriting. An unknown setting rejects the plugin at construction.
+Character counts are Unicode code points, so slicing never splits an emoji pair, though a multi-character grapheme can still be cut. The head plus the marker plus the tail must fit within the threshold, so a valid configuration trims every over-budget result without growth or repeated rewriting; a configured `pressure.pruneThresholdChars` must fit them too. An unknown setting rejects the plugin at construction.
 
 ### When trimming runs
 
-Trimming only runs when a compaction trigger qualifies: `dsh-compaction-basic` invokes it after pressure or overflow is confirmed, before it selects what to condense. Below pressure nothing is trimmed, and trimming itself makes no model call.
+Trimming only runs when a compaction trigger qualifies: `dsh-compaction-basic` invokes it after pressure or overflow is confirmed, before it selects what to condense. Below pressure nothing is trimmed, and trimming itself makes no model call. The optional `pressure` block adds an independent per-turn trigger: at `agent/pre-step`, a session whose measured context exceeds `maxContextTokens` is pruned with `pressure.pruneThresholdChars` before the next request assembles. The block is absent by default, so the package keeps trim-on-compaction behavior unless a deployment opts in.
 
 -----
 
@@ -118,7 +119,7 @@ Once a compaction trigger qualifies, future requests see the retained head, `\n\
 
 #### Token effect
 
-Each rewritten tool result has at most `thresholdChars` text code points. Pruning itself makes no model call; compaction-basic skips summarization when the remeasured request falls below pressure, otherwise the summarizer reads the pruned surface.
+Each rewritten tool result has at most `thresholdChars` text code points (or `pressure.pruneThresholdChars` under the per-turn trigger). Pruning itself makes no model call; compaction-basic skips summarization when the remeasured request falls below pressure, otherwise the summarizer reads the pruned surface.
 
 #### KV Cache effect
 
@@ -130,6 +131,8 @@ Replacing an earlier result invalidates reuse from the first changed token. The 
 
 
 These limits define when trimming is a poor fit or needs special care; they are the current package constraints.
+
+- **Per-turn trigger cost** — when the `pressure` block is configured, the trigger measures the session before each step; keep `maxContextTokens` above ordinary context so it only fires under real pressure.
 
 - **Character budgets are not token budgets** — provider token density varies, so `ctx.tokenMeter` remains the authority for deciding whether trimming relieved request pressure.
 - **Pruning is syntactic** — it retains the beginning and end without interpreting which middle lines are semantically important.

@@ -1,6 +1,7 @@
 import { imageOffloadProjection } from '@deepseek-ai/dsh-compaction-image-offload/projection'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
+import AgentRegistry, { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
 import { ToolCallId , createMessage, createToolResultMessage } from '@deepseek-ai/dsh-llm'
 import type { ContentBlock } from '@deepseek-ai/dsh-llm'
 import SessionStore, {
@@ -296,5 +297,85 @@ describe('ToolResultPruner session transaction', () => {
       turn: 2,
     })
     expect(() => prune.pruneSession(session)).not.toThrow()
+  })
+})
+
+describe('turn-pressure trigger', () => {
+  const PRESSURE: ToolResultPruneConfig = {
+    thresholdChars: 8192,
+    headChars: 4,
+    tailChars: 3,
+    pressure: { maxContextTokens: 1, pruneThresholdChars: 50 },
+  }
+
+  async function pressureRig(config: ToolResultPruneConfig) {
+    const ctx = new Context()
+    new SessionProjectionRegistry(ctx)
+    void new TokenMeter(ctx)
+    await ctx.plugin(AgentRegistry)
+    const prune = new ToolResultPruner(ctx, config)
+    const id = SessionId('pressure')
+    const session = Session.create(id)
+    const agent = { id, session, ctx } as unknown as Agent
+    const fire = async (): Promise<void> => {
+      await agentEvents(ctx, agent).waterfall('agent/pre-step', {
+        messages: [], turn: 1, step: 2, signal: new AbortController().signal,
+      }, () => Promise.resolve({ kind: 'enter' as const, messages: [] }))
+    }
+    return { ctx, prune, session, fire }
+  }
+
+  it('prunes current tool results over the pressure budget and keeps the original', async () => {
+    const rig = await pressureRig(PRESSURE)
+    const originalText = 'x'.repeat(200)
+    const seq = appendToolStep(rig.session, 1, 'big', [{ type: 'text', text: originalText }])
+    await rig.fire()
+    const pruneEvents = rig.session.snapshotEvents().filter(event => event.type === 'compaction/prune')
+    expect(pruneEvents).toHaveLength(1)
+    const surfaceText = JSON.stringify(rig.session.deriveMessages())
+    expect(surfaceText).not.toContain(originalText)
+    expect(surfaceText).toContain('tool result middle pruned')
+    // The complete original tool result stays in the durable log.
+    expect(JSON.stringify(rig.session.eventAt(SessionSeq(seq)))).toContain(originalText)
+    await rig.ctx.fiber.dispose()
+  })
+
+  it('does nothing when the session is below the context threshold', async () => {
+    const rig = await pressureRig({
+      ...PRESSURE,
+      pressure: { maxContextTokens: 10_000_000, pruneThresholdChars: 50 },
+    })
+    appendToolStep(rig.session, 1, 'big', [{ type: 'text', text: 'x'.repeat(200) }])
+    await rig.fire()
+    expect(rig.session.snapshotEvents().filter(event => event.type === 'compaction/prune')).toHaveLength(0)
+    await rig.ctx.fiber.dispose()
+  })
+
+  it('adds no listener when the pressure block is absent', async () => {
+    const rig = await pressureRig({ thresholdChars: 8192, headChars: 4, tailChars: 3 })
+    appendToolStep(rig.session, 1, 'big', [{ type: 'text', text: 'x'.repeat(200) }])
+    await rig.fire()
+    expect(rig.session.snapshotEvents().filter(event => event.type === 'compaction/prune')).toHaveLength(0)
+    await rig.ctx.fiber.dispose()
+  })
+
+  it('is idempotent across repeated steps once results fit the pressure budget', async () => {
+    const rig = await pressureRig(PRESSURE)
+    appendToolStep(rig.session, 1, 'big', [{ type: 'text', text: 'x'.repeat(200) }])
+    await rig.fire()
+    const first = rig.session.snapshotEvents().filter(event => event.type === 'compaction/prune').length
+    await rig.fire()
+    expect(rig.session.snapshotEvents().filter(event => event.type === 'compaction/prune')).toHaveLength(first)
+    await rig.ctx.fiber.dispose()
+  })
+
+  it('rejects a partial or too-small pressure block', () => {
+    expect(() => resolveConfig({
+      pressure: { maxContextTokens: 10 } as never,
+    })).toThrow(/pressure.pruneThresholdChars/)
+    expect(() => resolveConfig({
+      thresholdChars: 8192, headChars: 4, tailChars: 3,
+      pressure: { maxContextTokens: 1, pruneThresholdChars: 5 },
+    })).toThrow(/pressure.pruneThresholdChars/)
   })
 })

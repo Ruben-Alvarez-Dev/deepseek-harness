@@ -52,12 +52,13 @@ kind: "package-reference"
 | `thresholdChars` | `8192` | 合并文本超过此 Unicode 码点数时修剪。 |
 | `headChars` | `4096` | 保留的开头 Unicode 码点数。 |
 | `tailChars` | `1024` | 保留的末尾 Unicode 码点数。 |
+| `pressure` | — | 可选的每轮触发 `{ maxContextTokens, pruneThresholdChars }`；缺省时只在压缩时修剪。 |
 
-字符数以 Unicode 码点计，因此切片绝不会拆分 emoji 对，但多字符字素仍可能被切断。头部加标记加尾部之和必须不超过阈值，因此有效配置可以修剪每个超出预算的结果，不会增长或重复改写。未知设置会导致插件在构造时被拒绝。
+字符数以 Unicode 码点计，因此切片绝不会拆分 emoji 对，但多字符字素仍可能被切断。头部加标记加尾部之和必须不超过阈值，因此有效配置可以修剪每个超出预算的结果，不会增长或重复改写；配置的 `pressure.pruneThresholdChars` 也必须容纳它们。未知设置会导致插件在构造时被拒绝。
 
 ### 修剪何时运行
 
-修剪只在压缩触发条件满足后运行：`dsh-compaction-basic` 在压力或溢出确认后、选择要压缩的内容之前调用它。低于压力时不会修剪任何内容，修剪本身也不发起模型调用。
+修剪只在压缩触发条件满足后运行：`dsh-compaction-basic` 在压力或溢出确认后、选择要压缩的内容之前调用它。低于压力时不会修剪任何内容，修剪本身也不发起模型调用。可选的 `pressure` 块增加独立的每轮触发：在 `agent/pre-step` 时，若测量到的会话上下文超过 `maxContextTokens`，就在下一个请求组装前用 `pressure.pruneThresholdChars` 进行修剪。该块默认缺省，因此除非部署显式启用，本包保持“只在压缩时修剪”的行为。
 
 -----
 
@@ -118,7 +119,7 @@ kind: "package-reference"
 
 #### Token 影响
 
-每个已改写工具结果最多包含 `thresholdChars` 个文本码点。剪枝本身不会发起模型调用；重新测量的请求低于压力阈值时，compaction-basic 会跳过摘要，否则摘要器会读取已剪枝的表层。
+每个已改写工具结果最多包含 `thresholdChars` 个文本码点（每轮触发下为 `pressure.pruneThresholdChars`）。剪枝本身不会发起模型调用；重新测量的请求低于压力阈值时，compaction-basic 会跳过摘要，否则摘要器会读取已剪枝的表层。
 
 #### KV Cache 影响
 
@@ -130,6 +131,8 @@ kind: "package-reference"
 
 
 这些限制说明修剪何时不合适，或何时需要特别注意；它们是当前包约束。
+
+- **每轮触发的开销** — 配置 `pressure` 块后，触发器会在每个步骤前测量会话；把 `maxContextTokens` 设在常规上下文之上，使其只在真实压力下触发。
 
 - **字符预算不是 token 预算**——不同提供方的 token 密度各异，因此 `ctx.tokenMeter` 仍负责判定修剪是否缓解了请求压力。
 - **剪枝只基于语法**——它保留开头与结尾，不解释中间哪些行在语义上重要。

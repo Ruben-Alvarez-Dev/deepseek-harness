@@ -492,7 +492,7 @@ export interface ModelCompactPolicyConfig extends CompactionPolicyConfig {
 
 ## `@deepseek-ai/dsh-compaction-tool-result-pruner`
 
-需要：`tokenMeter`
+Requires: `tokenMeter`
 
 ```ts config-catalog
 /** Character-budget policy for deterministic tool-result pruning. */
@@ -503,10 +503,23 @@ export interface ToolResultPruneConfig {
   headChars?: number
   /** Maximum trailing Unicode code points retained. Defaults to `1024`. */
   tailChars?: number
+  /** Optional per-turn pressure trigger; absent keeps trim-on-compaction only. */
+  pressure?: PressureConfig
+}
+
+/** Turn-pressure trigger for per-step pruning, independent of compaction. */
+export interface PressureConfig {
+  /** Prune tool results once the measured session context exceeds this many tokens. */
+  maxContextTokens: number
+  /**
+   * Per-result pruning threshold used by the pressure trigger; must fit the
+   * configured head, marker, and tail.
+   */
+  pruneThresholdChars: number
 }
 ```
 
-来源：[`packages/compaction/compaction-tool-result-pruner/src/types.ts:5`](../packages/compaction/compaction-tool-result-pruner/src/types.ts)
+Source: [`packages/compaction/compaction-tool-result-pruner/src/types.ts:16`](../packages/compaction/compaction-tool-result-pruner/src/types.ts)
 
 <a id="deepseek-aidsh-cordis-host-runner"></a>
 

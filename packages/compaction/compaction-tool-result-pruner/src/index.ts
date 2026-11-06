@@ -13,10 +13,13 @@ import type { Session, SessionEvent, SessionSeq, ToolResultMessage } from '@deep
 import type {} from '@deepseek-ai/dsh-compaction'
 // Type-only: the `ctx.tokenMeter` Context merge for the declared injection.
 import type {} from '@deepseek-ai/dsh-token-meter'
+// Type-only: the `agent/pre-step` waterfall typing used by the pressure trigger.
+import type {} from '@deepseek-ai/dsh-agent'
 import { codePointLength, DEFAULTS, PRUNE_MARKER, resolveConfig } from './config.ts'
 import type {
   PrunedEntry,
   PruneResult,
+  PruneSessionOptions,
   ResolvedConfig,
   ToolResultPruneConfig,
 } from './types.ts'
@@ -25,6 +28,8 @@ export { codePointLength, DEFAULTS, PRUNE_MARKER, resolveConfig } from './config
 export type {
   PrunedEntry,
   PruneResult,
+  PruneSessionOptions,
+  PressureConfig,
   ResolvedConfig,
   ToolResultPruneConfig,
 } from './types.ts'
@@ -50,6 +55,10 @@ export class ToolResultPruner extends Service {
     thresholdChars: z.number().step(1).min(1).default(DEFAULTS.thresholdChars),
     headChars: z.number().step(1).min(0).default(DEFAULTS.headChars),
     tailChars: z.number().step(1).min(0).default(DEFAULTS.tailChars),
+    pressure: z.object({
+      maxContextTokens: z.number().step(1).min(1),
+      pruneThresholdChars: z.number().step(1).min(1),
+    }),
   })
 
   /** Resolved and immutable character budgets. */
@@ -58,6 +67,14 @@ export class ToolResultPruner extends Service {
   constructor(ctx: Context, config: ToolResultPruneConfig = {}) {
     super(ctx, 'toolResultPruner')
     this.config = resolveConfig(config)
+    if (this.config.pressure !== undefined) {
+      // Prune before other step listeners read the surface, so the next request
+      // assembles from the reduced history; the trigger is absent by default.
+      ctx.on('agent/pre-step', async ({ agent, signal }, next) => {
+        if (!signal.aborted) this.pruneForPressure(agent.session)
+        return next()
+      }, { prepend: true })
+    }
   }
 
   /**
@@ -78,11 +95,12 @@ export class ToolResultPruner extends Service {
    * Text slicing is by Unicode code point, not UTF-16 code unit, so a retained
    * boundary cannot split a surrogate pair. Grapheme clusters may still split.
    * @param blocks - original tool-result content.
+   * @param thresholdChars - threshold for this pass; defaults to the configured one.
    * @returns pruned content, or `null` when the text is within budget.
    */
-  pruneContent(blocks: readonly ContentBlock[]): ContentBlock[] | null {
+  pruneContent(blocks: readonly ContentBlock[], thresholdChars = this.config.thresholdChars): ContentBlock[] | null {
     const totalChars = this.measureContent(blocks)
-    if (totalChars <= this.config.thresholdChars) return null
+    if (totalChars <= thresholdChars) return null
 
     const removedStart = this.config.headChars
     const removedEnd = totalChars - this.config.tailChars
@@ -115,7 +133,7 @@ export class ToolResultPruner extends Service {
     if (!markerInserted) throw new Error('tool-result prune: failed to locate the removed text span')
     const charsAfter = this.measureContent(pruned)
     /* v8 ignore next -- config validation fixes the emitted head + marker + tail budget. */
-    if (charsAfter > this.config.thresholdChars || charsAfter >= totalChars) {
+    if (charsAfter > thresholdChars || charsAfter >= totalChars) {
       throw new Error('tool-result prune: replacement must be smaller and within threshold')
     }
     return pruned
@@ -129,11 +147,13 @@ export class ToolResultPruner extends Service {
    * shadowed node through the injected token meter, so pure consumers can
    * subtract it without per-node state.
    * @param session - session whose current surface is rewritten.
+   * @param options - optional threshold override for this pass.
    * @returns landed replacements and aggregate Unicode-code-point savings.
    * @throws when the session rejects a replacement; replacements committed
    * earlier in the pass remain durable.
    */
-  pruneSession(session: Session): PruneResult {
+  pruneSession(session: Session, options: PruneSessionOptions = {}): PruneResult {
+    const thresholdChars = options.thresholdChars ?? this.config.thresholdChars
     const candidates: SnapshotCandidate[] = []
     for (const seq of [...session.surface.nodes]) {
       // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
@@ -147,7 +167,7 @@ export class ToolResultPruner extends Service {
     for (const { seq, event } of candidates) {
       const original = session.deriveEventMessage(event) as ToolResultMessage
       const result = original.content[0]
-      const content = this.pruneContent(result.content)
+      const content = this.pruneContent(result.content, thresholdChars)
       if (content === null) continue
       const charsBefore = this.measureContent(result.content)
       const charsAfter = this.measureContent(content)
@@ -183,6 +203,25 @@ export class ToolResultPruner extends Service {
       charsRemoved += charsBefore - charsAfter
     }
     return { pruned, charsRemoved }
+  }
+
+  /**
+   * Apply the configured per-turn pressure trigger to one session.
+   *
+   * Measures the session with the injected token meter and, only when the
+   * measured context exceeds `pressure.maxContextTokens`, prunes current
+   * tool-result surface nodes over `pressure.pruneThresholdChars` through the
+   * ordinary replacement path (originals stay in the log).
+   * @param session - session entering the next model step.
+   * @returns the pruning result, or undefined when below the pressure threshold
+   *   or without a configured trigger.
+   */
+  pruneForPressure(session: Session): PruneResult | undefined {
+    const pressure = this.config.pressure
+    if (pressure === undefined) return undefined
+    const measured = this.ctx.tokenMeter.measure(session)
+    if (measured.totalTokens <= pressure.maxContextTokens) return undefined
+    return this.pruneSession(session, { thresholdChars: pressure.pruneThresholdChars })
   }
 }
 
