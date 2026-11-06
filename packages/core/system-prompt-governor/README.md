@@ -66,7 +66,7 @@ MCP servers are the unbounded part of the tool surface: their schemas arrive fro
 <a id="dev-note"></a>
 ## Dev Note
 
-The package depends on `dsh-token-meter` only for its exported fixed-heuristic schema price; it mounts no service and adds no model-visible text of its own. It publishes no `./invariant`: the budget split is asserted by the package tests and has no independent observation to cross-check.
+The package depends on `dsh-token-meter` only for its exported fixed-heuristic schema price; it mounts no service and adds no model-visible text of its own. No invariant companion is published because the budget split is asserted by the package tests and has no independent observation to cross-check.
 
 <a id="model-experience"></a>
 ## Model Experience

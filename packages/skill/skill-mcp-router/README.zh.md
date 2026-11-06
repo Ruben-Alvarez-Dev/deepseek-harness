@@ -67,7 +67,7 @@ const ranked = await ctx.skillRouter.search('deploy the service', { kind: 'skill
 <a id="dev-note"></a>
 ## 开发备注
 
-本包不发布 `./invariant`：它不拥有可能出现分歧的独立观测关系。它要求支持 FTS5 的 `node:sqlite`，在运行时缺少该能力时首次使用即失败；质量门禁在 `tests/router-quality.spec.ts` 中于带标签的合成语料上断言 recall@8 与 nDCG@8。
+本包不发布 invariant 伴随包，因为它不拥有可能出现分歧的独立观测关系。它要求支持 FTS5 的 `node:sqlite`，在运行时缺少该能力时首次使用即失败；质量门禁在 `tests/router-quality.spec.ts` 中于带标签的合成语料上断言 recall@8 与 nDCG@8。
 
 <a id="model-experience"></a>
 ## 模型体验

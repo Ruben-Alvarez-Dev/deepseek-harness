@@ -64,7 +64,7 @@ kind: "package-reference"
 <a id="dev-note"></a>
 ## 开发备注
 
-本包不发布 `./invariant`：它不拥有可能出现分歧的独立观测关系，其决策由测试与持久事件来验证。其会话事件对所认识它的构建是 read-required 的；挂载本包的部署包含该词汇。
+本包不发布 invariant 伴随包，因为它不拥有可能出现分歧的独立观测关系，其决策由测试与持久事件来验证。其会话事件对所认识它的构建是 read-required 的；挂载本包的部署包含该词汇。
 
 <a id="model-experience"></a>
 ## 模型体验

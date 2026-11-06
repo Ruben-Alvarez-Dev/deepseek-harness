@@ -67,7 +67,7 @@ Ranking is a reviewable lexical problem, so the index is plain FTS5 with the `po
 <a id="dev-note"></a>
 ## Dev Note
 
-The package publishes no `./invariant`: it owns no relation between independent observations that could diverge. It requires `node:sqlite` with FTS5 support and fails loud on first use when the runtime lacks it; the quality gate in `tests/router-quality.spec.ts` asserts recall@8 and nDCG@8 on a labeled synthetic corpus.
+No invariant companion is published because it owns no relation between independent observations that could diverge. It requires `node:sqlite` with FTS5 support and fails loud on first use when the runtime lacks it; the quality gate in `tests/router-quality.spec.ts` asserts recall@8 and nDCG@8 on a labeled synthetic corpus.
 
 <a id="model-experience"></a>
 ## Model Experience

@@ -64,7 +64,7 @@ A tool name is the one dispatch fact every caller must supply, so the gate canon
 <a id="dev-note"></a>
 ## Dev Note
 
-The package publishes no `./invariant`: it owns no relation between independent observations that could diverge, and its decisions are exercised by tests and durable events. Its session event is required-on-read by builds that know it; a deployment mounting this package includes that vocabulary.
+No invariant companion is published because it owns no relation between independent observations that could diverge, and its decisions are exercised by tests and durable events. Its session event is required-on-read by builds that know it; a deployment mounting this package includes that vocabulary.
 
 <a id="model-experience"></a>
 ## Model Experience
