@@ -64,7 +64,7 @@ kind: "package-reference"
 ## 进一步探索
 
 - [会话生命周期](../../core/session/README.zh.md) — `session/event` 与 `session/disposed` 的语义与错误隔离。
-- [会话引用](../session-reference/README.zh.md) — 本包遵循的不可信围栏与易失注入先例。
+- [会话引用](../session-reference/README.zh.md) — 本包遵循的不可信围栏与注入上下文先例。
 - [密钥脱敏](../../util/redaction/README.zh.md) — 应用于捕获内容与注入主题的共享规则集。
 - [Agent 循环](../../core/agent/README.zh.md) — `agent/pre-step` 的运行位置及其决策控制。
 

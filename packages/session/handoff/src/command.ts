@@ -37,7 +37,7 @@ export function executeHandoff(
     },
   })
   // The checkpoint is a log-only record; the child's first pre-step delivers it
-  // as a request-scoped message so the system prompt stays surface node 0.
+  // as a user message. The loop appends it after the system prompt (node 0).
   child.append('handoff/checkpoint', {
     parentSession: String(session.id),
     goal,

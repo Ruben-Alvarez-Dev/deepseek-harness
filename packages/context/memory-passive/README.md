@@ -64,7 +64,7 @@ Passive memory is a bounded local artifact, so loading and ranking stay determin
 ## Further Exploration
 
 - [Session lifecycle](../../core/session/README.md) — `session/event` and `session/disposed` semantics and containment.
-- [Session references](../session-reference/README.md) — the untrusted-fence and volatile-injection precedent this package follows.
+- [Session references](../session-reference/README.md) — the untrusted-fence and injected-context precedent this package follows.
 - [Secret redaction](../../util/redaction/README.md) — the shared rule set applied to captures and injected topics.
 - [Agent loop](../../core/agent/README.md) — where `agent/pre-step` runs and what its decision controls.
 

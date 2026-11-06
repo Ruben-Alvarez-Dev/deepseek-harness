@@ -38,8 +38,9 @@ export function apply(ctx: Context, config: Config): void {
   const limits = resolveConfig(config)
   const pending = new WeakMap<object, PendingCheckpoint>()
 
-  // The checkpoint is durable log data; delivery is request-scoped so the
-  // child's surface begins with the system prompt, never with quoted text.
+  // The checkpoint is durable log data; delivery happens on the first
+  // pre-step, after the loop has written the system prompt as surface node 0.
+  // The loop then appends the checkpoint as the child's first user message.
   ctx.on('session/event', (session, event) => {
     if (event.type !== 'handoff/checkpoint') return
     pending.set(session, { text: event.data.text })

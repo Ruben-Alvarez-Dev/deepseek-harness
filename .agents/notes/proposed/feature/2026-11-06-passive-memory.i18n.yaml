@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-06-passive-memory.md
-2026-11-06-passive-memory.md: ba40e83475519380a4117c6eca51f83ece51f3ef
-2026-11-06-passive-memory.zh.md: 7de743f3ae8efaf2190e74eef46ba9ed8af6d70b
+2026-11-06-passive-memory.md: 17bb36769690fd3d3660bbd6ec12707a8284acda
+2026-11-06-passive-memory.zh.md: dba804c3bc89e9488f6ba510208209358c2fcc95

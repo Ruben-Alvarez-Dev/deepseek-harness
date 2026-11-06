@@ -6,7 +6,7 @@ English | [中文](2026-11-06-passive-memory.zh.md)
 
 ## Problem
 
-A session starts with no durable background: what an operator learned in earlier work is only available if the agent decides to call a memory tool, and a tool call costs a step, a schema, and a decision the model may skip. The plan's memory front (P4) wants passive injection — memory that arrives with the request because the task matches, not because the agent asked. A remote backend is out of scope for this change and carries the worst failure mode: private session text leaving the machine. The remaining design space is a local artifact, a deterministic selector, a volatile injection that cannot contaminate the stable prefix, and a capture path that is redacted before it is written.
+A session starts with no durable background: what an operator learned in earlier work is only available if the agent decides to call a memory tool, and a tool call costs a step, a schema, and a decision the model may skip. The plan's memory front (P4) wants passive injection — memory that arrives with the request because the task matches, not because the agent asked. A remote backend is out of scope for this change and carries the worst failure mode: private session text leaving the machine. The remaining design space is a local artifact, a deterministic selector, an injection that cannot contaminate the stable prefix, and a capture path that is redacted before it is written.
 
 ## Proposal
 
@@ -21,7 +21,7 @@ Measured on a synthetic fixture (39 memories, 39 labeled task queries): **recall
 ## Alternatives considered
 
 - **Cortex/MCP capture bridge over the network** — rejected here: it sends private text to another process; the plan's backend decision is separate and this local layer is safe to ship first.
-- **Injecting memory into the system prompt** — rejected: it changes the stable prefix on every selection and defeats prompt-cache reuse; the volatile tail costs more tokens but keeps the prefix reusable.
+- **Injecting memory into the system prompt** — rejected: it changes the stable prefix on every selection and defeats prompt-cache reuse; the appended tail costs more tokens but keeps the prefix reusable.
 - **Embedding-based selection** — rejected: a model call to rank memory adds latency, cost, and nondeterminism to a background mechanism.
 - **Full-transcript capture** — rejected: unbounded private text in the inbox; the last exchange is the smallest useful record and redaction happens before the write.
 - **An agent-visible save/recall tool** — rejected as the primary path: it is the behavior this front replaces; the inbox can be curated by an operator or a future consolidation step.

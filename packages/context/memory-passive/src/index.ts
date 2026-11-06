@@ -23,7 +23,7 @@ export { redactSecrets } from '@deepseek-ai/dsh-redaction'
 export type { RedactionSummary } from '@deepseek-ai/dsh-redaction'
 
 /**
- * Mount passive memory: volatile per-turn injection and local redacted capture.
+ * Mount passive memory: per-turn injection and local redacted capture.
  * @param ctx - plugin context.
  * @param config - deployment policy; `memoryDir` is required.
  */
