@@ -2895,6 +2895,30 @@ export interface Config {
 
 Source: [`packages/shell/tool-bash-persistent/src/index.ts:435`](../packages/shell/tool-bash-persistent/src/index.ts)
 
+<a id="deepseek-aidsh-tool-dispatch-gate"></a>
+
+## `@deepseek-ai/dsh-tool-dispatch-gate`
+
+```ts config-catalog
+/** Deployment-owned dispatch policy. */
+export interface Config {
+  /** `audit` observes and logs (default); `enforce` denies unlisted calls. */
+  mode?: GateMode
+  /**
+   * Normalized allowlist entries: an exact name, or a prefix ending in `*`
+   * (for example `mcp__git__*`). `*` alone allows every non-empty name.
+   */
+  allow?: string[]
+  /** Normalized deny entries that win over `allow`. Same pattern grammar. */
+  deny?: string[]
+}
+
+/** Enforcement posture: `audit` logs, `enforce` denies. */
+export type GateMode = 'audit' | 'enforce'
+```
+
+Source: [`packages/guard/tool-dispatch-gate/src/index.ts:24`](../packages/guard/tool-dispatch-gate/src/index.ts)
+
 <a id="deepseek-aidsh-tool-fs"></a>
 
 ## `@deepseek-ai/dsh-tool-fs`
