@@ -22,7 +22,7 @@
 10. **CH-044:** implementado y **cerrado opt-in** — memoria pasiva local (índice acotado, inyección con cuota y valla, captura redactada sin red) con commit `c3e2e86` en `.worktrees/ch044`, sin activar ni push; gate recall@5 1,000 (39 queries) y redacción verificada; C-4 diferido.
 11. **CH-045:** implementado y **cerrado opt-in** — handoff `/handoff <goal>` con checkpoint estructurado e hija enlazada por `parentSession`; commits `fcf0dc2` + `944c37b` (CRITICAL de orden de superficie remediado) en `.worktrees/ch045`, sin activar ni push; gate proxy 15/15 hechos y 0 vs 15 pasos.
 12. **CH-046:** implementado y **cerrado opt-in** — `dsh-redaction` + `dsh-telemetry-redaction` (20/20 registros sin fugas, invariants 39/39) y auditoría F4 con **0 BLOCKER/CRITICAL abiertos** (informe `auditorias/09-AUDITORIA-P6-F4.md`); commit `3a641b2` en `.worktrees/ch046`, sin activar ni push. E-3 diferido a decisión.
-13. **CH-047:** arrancado — diseño P7 (harness recall/nDCG + resumen longitudinal + kill-criteria; ventana de 30 días declarada como límite) publicado; implementación en `.worktrees/ch047`.
+13. **CH-047:** implementado y **cerrado opt-in** — `dsh-longitudinal-eval` (métricas, resumen de uso, kill-criteria) con baseline real y decisiones aplicadas (memoria disable, skills keep); commit `2b76786` en `.worktrees/ch047`, sin push. La ventana de 30 días sigue pendiente como re-ejecución del propietario.
 
 ### 0.2 F0 — cerrado (gates medidos)
 
@@ -95,7 +95,7 @@ audit/2026-11-02-harness/
 ## 6 · Próximo paso concreto
 
 1. **CH-012 — hecho:** commit `45c3443` en la rama local `audit/2026-11-02-harness`, solo con `audit/2026-11-02-harness/`; sin push. Los 6 tracked modificados y 19 untracked ajenos siguen sin tocar.
-2. **F4 / CH-047 (P7) — en curso:** harness de evaluación (recall@k/nDCG@k), resumen longitudinal desde logs y kill-criteria con baseline medido; diseño en `planificacion/27-CH047-DISENO.md`, trabajo en `.worktrees/ch047` (rama local, sin push). Ventana de 30 días declarada como límite temporal; re-ejecución pendiente. Después, F5/CH-050 (integración, MAJOR-1/2 de la auditoría y sello). CH-046 cerrado en `.worktrees/ch046` (auditoría 0 BLOCKER/CRITICAL).
+2. **F5 / CH-050 — siguiente:** auditoría final y sello: integrar F4 en una rama de integración, resolver MAJOR-1/2 de la auditoría P6, ejecutar `/auditoria-dev` final sobre el conjunto y actualizar el HANDOFF con el estado de cierre. CH-047 quedó cerrado opt-in en `.worktrees/ch047` (`2b76786`; ventana de 30 días pendiente); CH-046, CH-045, CH-044, CH-043, CH-042 y CH-041 también cerrados opt-in y sin push.
 3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
 
 ## 7 · Avisos

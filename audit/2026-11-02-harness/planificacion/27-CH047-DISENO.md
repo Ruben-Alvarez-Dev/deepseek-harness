@@ -48,3 +48,32 @@ Un script de medición (no commiteado, `/tmp`) lee las 3 sesiones de CH-040 y ap
 | Datos de logs ajenos al repo | El paquete es puro; la medición corre localmente y sólo se publican agregados |
 | Kill-criteria mal calibrado | Umbrales declarativos en el resumen y decisión con la razón medida; ajustables por el propietario |
 | Dependencia futura de CH-043/044 | La rama parte de `origin/master`; la integración de CH-050 conecta ambos fixtures al harness sin reescribir métricas |
+
+## 6 · Medición base (2026-11-06)
+
+Ejecución local sobre las 3 sesiones de CH-040 (lectura de `session.v4.jsonl.zstd`, agregados sólo):
+
+| Métrica | Valor medido |
+|---|---|
+| Sesiones / peticiones | **3 / 582** (315 + 195 + 72) |
+| Tool-calls de `skill` | **4** (en 2 de 3 sesiones) |
+| Eventos `memory/injected` | **0** (memoria pasiva no activada) |
+| Días activos | **2** (2026-10-31, 2026-11-02) |
+| `summarizeUsage` (verificado por ejecución) | `{sessions:3, requests:582, toolCalls:{skill:4}, sessionsWithSkill:2, memoryInjections:0, activeDays:2}` |
+
+**Kill-criteria aplicados con la regla declarada** (`memory {minInjections:1, minSessions:3}`, `skills {minSessionRatio:0.5, minSessions:3}`), ejecutados con la librería:
+
+- **memoria → `disable`**: «0 injections in 3 sessions, below the 1 minimum». Interpretación: sin señal porque la memoria pasiva **no estaba activada**; la decisión correcta es **no activar C-2** hasta tener una ventana con la función disponible. La regla queda armada para la re-ejecución a 30 días tras la activación (decisión del propietario).
+- **skills → `keep`**: «2/3 sessions loaded a skill (0.67) meet 0.5».
+
+**F-1:** las métricas (`recallAtK`, `ndcgAtK`) se validaron contra valores calculados a mano (9 tests, error 0; incluidos `k` mayor que la lista y relevancia graduada).
+
+**Límite temporal declarado:** la ventana de **30 días no ha transcurrido** (2 días activos en el baseline). Este change entrega el instrumento, el baseline y la regla; el número a 30 días es una **re-ejecución pendiente**, no un cumplimiento simulado.
+
+## 7 · Implementación y cierre (2026-11-06)
+
+- **Implementado opt-in (librería privada, no montada).** `@deepseek-ai/dsh-longitudinal-eval` en `.worktrees/ch047` (commit `2b76786`, sin push): métricas, resumen de uso y kill-criteria; 9 tests verdes, `pnpm run typecheck` exit 0, `pnpm run test:docs` 20/20. Agent Note bilingüe `proposed/feature/2026-11-06-longitudinal-eval`.
+- **Gate F-1:** métricas verificadas contra valores calculados a mano (error 0).
+- **Gate F-2:** baseline real medido (3 sesiones, 582 peticiones, 4 skill calls en 2/3 sesiones, 0 inyecciones de memoria, 2 días activos) y **kill-criteria aplicados**: memoria `disable` (sin señal; no activar C-2 hasta ventana real) y skills `keep` (0,67 ≥ 0,5).
+- **Límite temporal:** la ventana de 30 días no ha transcurrido. La re-ejecución a 30 días queda como **decisión/observación pendiente del propietario**; el instrumento y la regla están listos. CH-047 se cierra con esa declaración explícita (no se simula el cumplimiento).
+- **Siguiente:** F5/CH-050 (integración de F4, MAJOR-1/2 de la auditoría P6 y sello final).
