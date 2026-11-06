@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-06-outbound-prompt-governor.md
+2026-11-06-outbound-prompt-governor.md: bd5d38cd7fb2ebd8194ba75a1578bc3a55271ecf
+2026-11-06-outbound-prompt-governor.zh.md: 546e74fdfbc95abf7478f71788a2dde7619b59ea
