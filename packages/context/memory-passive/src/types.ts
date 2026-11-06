@@ -1,5 +1,6 @@
 /** Cross-module types and declaration merges for passive memory. */
 
+import type { RedactionSummary } from '@deepseek-ai/dsh-redaction'
 import type {} from '@deepseek-ai/dsh-session/types'
 
 /** One entry parsed from the bounded `MEMORY.md` index. */
@@ -16,14 +17,6 @@ export interface MemoryEntry {
 export interface SelectedMemory extends MemoryEntry {
   /** Redacted topic content loaded from disk. */
   readonly content: string
-}
-
-/** Counts of each redaction rule applied to one text. */
-export interface RedactionSummary {
-  /** Total replacements across every rule. */
-  readonly count: number
-  /** Replacements by rule name. */
-  readonly kinds: Readonly<Record<string, number>>
 }
 
 /** One durable capture record appended to `inbox.jsonl`. */

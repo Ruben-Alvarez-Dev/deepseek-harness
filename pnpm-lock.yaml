@@ -5154,6 +5154,9 @@ importers:
 
   packages/context/memory-passive:
     dependencies:
+      '@deepseek-ai/dsh-redaction':
+        specifier: workspace:^
+        version: link:../../util/redaction
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery

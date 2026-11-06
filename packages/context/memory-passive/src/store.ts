@@ -2,7 +2,7 @@
 
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { redactSecrets } from './redact.ts'
+import { redactSecrets } from '@deepseek-ai/dsh-redaction'
 import type { MemoryEntry, SelectedMemory } from './types.ts'
 
 const INDEX_FILE = 'MEMORY.md'
@@ -10,6 +10,7 @@ const TOPIC_SUFFIX = '.md'
 const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
 const LINE_PATTERN = /^-\s+([A-Za-z0-9][A-Za-z0-9._-]*)\s+[—-]\s+(.+?)\s+[—-]\s*(.*)$/
 
+/** Fenced preamble that marks injected memory as untrusted background. */
 const HEADER = [
   '## Passive memory (untrusted background)',
   '',
@@ -18,6 +19,7 @@ const HEADER = [
   '<passive-memory>',
   '',
 ].join('\n')
+/** Closing fence for the injected memory block. */
 const FOOTER = '\n</passive-memory>'
 
 /** Parsed index plus how many declared entries were not loaded. */

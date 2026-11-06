@@ -52,26 +52,26 @@ Each index line is `- <id> — <title> — <keywords>`; `#` lines are comments. 
 
 ### Design concept
 
-Passive memory is a bounded local artifact, so loading and ranking stay deterministic and cheap. The index is read once and cached; selection tokenizes the latest direct user request and scores a title/id hit three times a keyword hit, with id order breaking ties. Rendering reserves the fence first and fills the remaining quota per entry, truncating content and dropping entries that no longer fit. The injected message travels through the request only: the durable `memory/injected` event records the ids, a SHA-256 digest of the block, its character count, the quota, and the turn, so a replay can tell exactly what memory entered the request. The capture path runs only at `session/disposed`, applies fixed secret-redaction rules, bounds each side, and appends JSON lines to `inbox.jsonl`; it makes no network or model call.
+Passive memory is a bounded local artifact, so loading and ranking stay deterministic and cheap. The index is read once and cached; selection tokenizes the latest direct user request and scores a title/id hit three times a keyword hit, with id order breaking ties. Rendering reserves the fence first and fills the remaining quota per entry, truncating content and dropping entries that no longer fit. The injected message travels through the request only: the durable `memory/injected` event records the ids, a SHA-256 digest of the block, its character count, the quota, and the turn, so a replay can tell exactly what memory entered the request. The capture path runs only at `session/disposed`, applies the fixed secret-redaction rules shared with outbound telemetry (`@deepseek-ai/dsh-redaction`), bounds each side, and appends JSON lines to `inbox.jsonl`; it makes no network or model call. The tracked exchange is bounded at ingest, so a long session never retains text it can never capture.
 
 ### Source map
 
 - `src/index.ts` — plugin entry, the `agent/pre-step` injector, the `session/disposed` capture listener, and the `memory/injected` event append.
-- `src/store.ts` — bounded index parsing, deterministic selection, quota-fenced rendering.
-- `src/redact.ts` — fixed rules for private keys, `sk-` keys, Bearer tokens, JWTs, GitHub tokens, AWS keys, and secret assignments.
-- `src/capture.ts` — last-exchange extraction, redaction, and the local inbox append.
+- `src/store.ts` — bounded index parsing, deterministic selection, quota-fenced rendering, and redaction of injected topics.
+- `src/capture.ts` — bounded last-exchange tracking, shared-rule redaction, and the local inbox append.
 
 <a id="further-exploration"></a>
 ## Further Exploration
 
 - [Session lifecycle](../../core/session/README.md) — `session/event` and `session/disposed` semantics and containment.
 - [Session references](../session-reference/README.md) — the untrusted-fence and volatile-injection precedent this package follows.
+- [Secret redaction](../../util/redaction/README.md) — the shared rule set applied to captures and injected topics.
 - [Agent loop](../../core/agent/README.md) — where `agent/pre-step` runs and what its decision controls.
 
 <a id="dev-note"></a>
 ## Dev Note
 
-The package publishes no `./invariant`: it owns no relation between independent observations that could diverge. Redaction and quota rules are covered by focused tests; the recall gate lives in `tests/memory-passive.spec.ts` against the synthetic fixture.
+No invariant companion is published because the package owns no relation between independent observations that could diverge. Redaction and quota rules are covered by focused tests; the recall gate lives in `tests/memory-passive.spec.ts` against the synthetic fixture.
 
 <a id="model-experience"></a>
 ## Model Experience

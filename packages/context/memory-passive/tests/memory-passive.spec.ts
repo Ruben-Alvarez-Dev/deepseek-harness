@@ -12,8 +12,8 @@ import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import ToolRuntime from '@deepseek-ai/dsh-tools'
 import * as memoryPassive from '@deepseek-ai/dsh-memory-passive'
-import { captureExchange } from '@deepseek-ai/dsh-memory-passive/src/capture.ts'
-import { redactSecrets } from '@deepseek-ai/dsh-memory-passive/src/redact.ts'
+import { boundCaptureText, captureExchange } from '@deepseek-ai/dsh-memory-passive/src/capture.ts'
+import { redactSecrets } from '@deepseek-ai/dsh-memory-passive'
 import { MemoryStore } from '@deepseek-ai/dsh-memory-passive/src/store.ts'
 import { MEMORY_FIXTURE_DIR, MEMORY_QUERIES } from './fixtures/queries.ts'
 
@@ -151,6 +151,26 @@ describe('memory-passive redaction and capture', () => {
     expect(record.redactions.count).toBeGreaterThan(0)
     const line = JSON.parse((await readFile(join(temporary, 'inbox.jsonl'), 'utf8')).trim()) as { user: string }
     expect(line.user).toBe(record.user)
+  })
+
+  it('bounds the tracked exchange at ingest', () => {
+    const oversized = 'x'.repeat(5000)
+    expect(boundCaptureText(oversized, 200)).toHaveLength(200)
+    expect(boundCaptureText(oversized, 200).endsWith('…')).toBe(true)
+    expect(boundCaptureText('short exchange', 200)).toBe('short exchange')
+  })
+
+  it('captures an oversized exchange within the per-side bound', async () => {
+    temporary = await mkdtemp(join(tmpdir(), 'memory-bound-'))
+    const record = await captureExchange(
+      { user: 'u'.repeat(5000), assistant: 'a'.repeat(5000) },
+      'bound-session',
+      temporary,
+      200,
+    )
+    if (record === null) throw new Error('expected a capture record')
+    expect(record.user.length).toBeLessThanOrEqual(200)
+    expect(record.assistant.length).toBeLessThanOrEqual(200)
   })
 
   it('writes the capture when a tracked session is disposed', async () => {

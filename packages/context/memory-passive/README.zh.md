@@ -52,26 +52,26 @@ kind: "package-reference"
 
 ### 设计理念
 
-被动记忆是有界的本地产物，因此加载与排序保持确定且廉价。索引只读一次并缓存；选择会对最新直接用户请求分词，标题/id 命中按关键词命中的三倍计分，平局按 id 排序。渲染先预留围栏，再按剩余配额逐条填充，内容超长时截断，放不下的条目直接丢弃。注入消息只存在于请求中：持久的 `memory/injected` 事件记录 id、块的 SHA-256 摘要、字符数、配额与轮次，因此回放能准确知道哪些记忆进入了请求。捕获路径只在 `session/disposed` 运行，应用固定的密钥脱敏规则，限制每侧长度，并向 `inbox.jsonl` 追加 JSON 行；不发起网络或模型调用。
+被动记忆是有界的本地产物，因此加载与排序保持确定且廉价。索引只读一次并缓存；选择会对最新直接用户请求分词，标题/id 命中按关键词命中的三倍计分，平局按 id 排序。渲染先预留围栏，再按剩余配额逐条填充，内容超长时截断，放不下的条目直接丢弃。注入消息只存在于请求中：持久的 `memory/injected` 事件记录 id、块的 SHA-256 摘要、字符数、配额与轮次，因此回放能准确知道哪些记忆进入了请求。捕获路径只在 `session/disposed` 运行，应用与出站遥测共享的固定密钥脱敏规则（`@deepseek-ai/dsh-redaction`），限制每侧长度，并向 `inbox.jsonl` 追加 JSON 行；不发起网络或模型调用。被跟踪的交互在摄取时即被限长，长会话不会保留永远无法捕获的文本。
 
 ### 源码导图
 
 - `src/index.ts` — 插件入口、`agent/pre-step` 注入器、`session/disposed` 捕获监听器与 `memory/injected` 事件追加。
-- `src/store.ts` — 有界索引解析、确定性选择、带配额围栏的渲染。
-- `src/redact.ts` — 针对私钥、`sk-` 密钥、Bearer token、JWT、GitHub token、AWS 密钥与密钥赋值的固定规则。
-- `src/capture.ts` — 最后交互提取、脱敏与本地收件箱追加。
+- `src/store.ts` — 有界索引解析、确定性选择、带配额围栏的渲染，以及注入主题的脱敏。
+- `src/capture.ts` — 有界的最后交互跟踪、共享规则脱敏与本地收件箱追加。
 
 <a id="further-exploration"></a>
 ## 进一步探索
 
 - [会话生命周期](../../core/session/README.zh.md) — `session/event` 与 `session/disposed` 的语义与错误隔离。
 - [会话引用](../session-reference/README.zh.md) — 本包遵循的不可信围栏与易失注入先例。
+- [密钥脱敏](../../util/redaction/README.zh.md) — 应用于捕获内容与注入主题的共享规则集。
 - [Agent 循环](../../core/agent/README.zh.md) — `agent/pre-step` 的运行位置及其决策控制。
 
 <a id="dev-note"></a>
 ## 开发备注
 
-本包不发布 `./invariant`：它不拥有可能出现分歧的独立观测关系。脱敏与配额规则由聚焦测试覆盖；recall 门禁位于 `tests/memory-passive.spec.ts`，针对合成 fixture 运行。
+本包不发布 invariant 伴随包，因为它不拥有可能出现分歧的独立观测关系。脱敏与配额规则由聚焦测试覆盖；recall 门禁位于 `tests/memory-passive.spec.ts`，针对合成 fixture 运行。
 
 <a id="model-experience"></a>
 ## 模型体验

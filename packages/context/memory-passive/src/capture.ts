@@ -2,8 +2,9 @@
 
 import { appendFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
-import { redactSecrets } from './redact.ts'
-import type { CaptureRecord, RedactionSummary } from './types.ts'
+import { redactSecrets } from '@deepseek-ai/dsh-redaction'
+import type { RedactionSummary } from '@deepseek-ai/dsh-redaction'
+import type { CaptureRecord } from './types.ts'
 
 const INBOX_FILE = 'inbox.jsonl'
 
@@ -31,8 +32,8 @@ export async function captureExchange(
   maxChars: number,
 ): Promise<CaptureRecord | null> {
   if (state.user.length === 0 && state.assistant.length === 0) return null
-  const redactedUser = redactSecrets(bound(state.user, maxChars))
-  const redactedAssistant = redactSecrets(bound(state.assistant, maxChars))
+  const redactedUser = redactSecrets(boundCaptureText(state.user, maxChars))
+  const redactedAssistant = redactSecrets(boundCaptureText(state.assistant, maxChars))
   const redactions = mergeSummaries(redactedUser.summary, redactedAssistant.summary)
   const record: CaptureRecord = {
     ts: Date.now(),
@@ -46,7 +47,15 @@ export async function captureExchange(
   return record
 }
 
-function bound(text: string, maxChars: number): string {
+/**
+ * Bound one side of the tracked exchange before it is retained in memory.
+ * The ingest path calls this so a long session never keeps text it can never
+ * capture; `captureExchange` applies the same bound again after redaction.
+ * @param text - latest direct user or assistant text.
+ * @param maxChars - per-side character bound.
+ * @returns the original text when it fits, or a truncated text ending in `…`.
+ */
+export function boundCaptureText(text: string, maxChars: number): string {
   return text.length <= maxChars ? text : `${text.slice(0, maxChars - 1)}…`
 }
 
