@@ -1,6 +1,6 @@
 # CH-041 (P1) — Governor outbound: diseño y gate
 
-**Fecha:** 2026-11-06 · **Estado:** IMPLEMENTADO (opt-in); gate −20 % total falsado por medición · **Base:** `origin/master` = `0d1f50007f` (2026-09-15), worktree `.worktrees/ch041`, rama `feat/ch041-outbound-governor` · **Regla:** 100 % medido; model-visible ⟺ logged.
+**Fecha:** 2026-11-06 · **Estado:** CERRADO 2026-11-06 — implementado opt-in; gate −20 % total falsado por medición y recalibrado por decisión del propietario; el −20 % se traslada a P2 · **Base:** `origin/master` = `0d1f50007f` (2026-09-15), worktree `.worktrees/ch041`, rama `feat/ch041-outbound-governor` · **Regla:** 100 % medido; model-visible ⟺ logged.
 
 ## 1 · Objetivo, implementación y gate medido
 
@@ -78,3 +78,11 @@
 - Commits locales en `feat/ch041-outbound-governor` (sin push): `6212348` (S1 + docs + catálogo), `dbb8778` (S2 + helper en token-meter + docs + registro del paquete), `a019ea4` (composición Loader real + Agent Note bilingüe).
 - El `request/header` durable es el registro de la decisión: contiene los schemas gobernados, así que model-visible ⟺ logged se cumple sin evento adicional (un evento por ensamblado solo añadiría volumen para un diagnóstico opt-in).
 - Pendiente de decisión del propietario: recalibrar el gate/plan (mover −20 % total a P2), activar o no los opt-ins en presets, y publicar la PR.
+
+## 8 · Cierre (decisión del propietario, 2026-11-06)
+
+- **Gate recalibrado y aceptado:** CH-041 se cierra con el resultado medido — **1.393 tok/petición (0,45 %)** de superficie gobernada (catálogo 810.798 tok en 582 peticiones; MCP 0 por estar ya bajo el presupuesto de 3k). El objetivo **−20 % total por petición se traslada a P2 (CH-042, result pruner)**, que es donde está el volumen (cache read de conversación, ~301 k tok/petición).
+- **Activación:** los dos opt-ins **no se montan en presets publicados** (política de la casa: opt-ins fuera de defaults); no hay diffs de snapshots.
+- **Registro:** se acepta el evento durable `request/header` como registro de la decisión (contiene los schemas gobernados; model-visible ⟺ logged). No se añade un evento de sesión por ensamblado.
+- **Publicación:** sin PR ni push; la rama `feat/ch041-outbound-governor` queda local con `6212348`, `dbb8778`, `a019ea4`.
+- **Verificación final:** 42 tests focales (tool-skill 35 + governor 7, incluido Loader real), 252 en las suites tocadas, `pnpm run typecheck` exit 0, `pnpm run test:docs` 20/20. Worktree limpio; checkout principal intacto.
