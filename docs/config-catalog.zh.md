@@ -2762,6 +2762,27 @@ export interface Config {
 
 来源：[`packages/core/system-prompt/src/index.ts:248`](../packages/core/system-prompt/src/index.ts)
 
+<a id="deepseek-aidsh-system-prompt-governor"></a>
+
+## `@deepseek-ai/dsh-system-prompt-governor`
+
+```ts config-catalog
+/** Deployment-varying limits for the outbound prompt governor. */
+export interface Config {
+  /**
+   * Token budget for the schema surface of all MCP tools combined. Tools
+   * beyond the budget keep their name, required arguments, and exact parameter
+   * structure; only parameter descriptions/examples and long tool
+   * descriptions are dropped, so every tool remains callable.
+   */
+  mcpSchemaTokenBudget?: number
+  /** Maximum tool description length for governed MCP tools; minimum 3. */
+  mcpToolDescriptionMaxLength?: number
+}
+```
+
+Source: [`packages/core/system-prompt-governor/src/index.ts:26`](../packages/core/system-prompt-governor/src/index.ts)
+
 <a id="deepseek-aidsh-terminal-bash"></a>
 
 ## `@deepseek-ai/dsh-terminal-bash`
@@ -3122,17 +3143,26 @@ export interface Config {
 
 ## `@deepseek-ai/dsh-tool-skill`
 
-需要：`agents` · `tools` · `skills`
+Requires: `agents` · `tools` · `skills`
 
 ```ts config-catalog
 /** Model-facing skill catalog configuration. */
 export interface Config {
   /** Maximum normalized description length rendered in the session catalog; minimum 3. */
   catalogDescriptionMaxLength?: number
+  /**
+   * Number of skills rendered with the full description. Every other skill
+   * stays listed under its name with a one-line summary, so all names remain
+   * discoverable through the catalog and the `skill` tool. `0` renders every
+   * skill with the full description (default, previous behavior).
+   */
+  catalogTopK?: number
+  /** Summary description length for skills outside the top-K; minimum 3. */
+  catalogSummaryDescriptionMaxLength?: number
 }
 ```
 
-来源：[`packages/skill/tool-skill/src/index.ts:61`](../packages/skill/tool-skill/src/index.ts)
+Source: [`packages/skill/tool-skill/src/index.ts:161`](../packages/skill/tool-skill/src/index.ts)
 
 <a id="deepseek-aidsh-tool-str-replace-editor"></a>
 

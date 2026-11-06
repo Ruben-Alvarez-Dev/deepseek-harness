@@ -232,6 +232,7 @@
     { "path": "./packages/identity/anonymous-user-id" },
     { "path": "./packages/session/session-telemetry-otel" },
     { "path": "./packages/core/system-prompt" },
+    { "path": "./packages/core/system-prompt-governor" },
     { "path": "./packages/core/agent" },
     { "path": "./packages/core/agent-default-model" },
     { "path": "./packages/interaction/commands" },

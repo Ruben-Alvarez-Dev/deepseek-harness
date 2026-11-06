@@ -6,7 +6,7 @@
  * @module @deepseek-ai/dsh-token-meter/estimate
  */
 
-import type { ContentBlock, Message } from '@deepseek-ai/dsh-llm'
+import type { ContentBlock, Message, ToolSchema } from '@deepseek-ai/dsh-llm'
 import type { EpochHeader } from '@deepseek-ai/dsh-session'
 
 /** Fixed text-density estimate used until exact tokenization is needed. */
@@ -94,6 +94,18 @@ export function estimateMessage(message: Message): number {
 }
 
 /**
+ * Price a list of model-facing tool schemas with the same fixed heuristic the
+ * request envelope uses, so a governor can budget a subset without building an
+ * envelope.
+ * @param tools - tool schemas as they would enter a request header.
+ * @returns heuristic tool-schema tokens; 0 for an empty list.
+ */
+export function estimateToolSchemasTokens(tools: readonly ToolSchema[]): number {
+  if (tools.length === 0) return 0
+  return Math.ceil(JSON.stringify(tools).length / CHARS_PER_TOKEN) + BLOCK_OVERHEAD
+}
+
+/**
  * Price the tool-schema part of a canonical request envelope — the envelope's
  * only priced field, since the system prompt is a surface node.
  * @param header - canonical envelope, or undefined before any request.
@@ -101,5 +113,5 @@ export function estimateMessage(message: Message): number {
  */
 export function estimateToolsTokens(header: EpochHeader | undefined): number {
   if (header?.tools === undefined || header.tools.length === 0) return 0
-  return Math.ceil(JSON.stringify(header.tools).length / CHARS_PER_TOKEN) + BLOCK_OVERHEAD
+  return estimateToolSchemasTokens(header.tools)
 }
