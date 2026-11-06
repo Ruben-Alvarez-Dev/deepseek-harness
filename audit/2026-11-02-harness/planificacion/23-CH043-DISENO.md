@@ -58,3 +58,16 @@ P3 = **B-1 (Skill/MCPRouter)** + **B-2 (escape hatch garantizado)**:
 | Tokenización de queries no inglesas | `unicode61` + citado por token; el fixture incluye queries en español/inglés |
 | Ocultar tools por selección | No se oculta: el router solo rankea y ofrece búsqueda; el ensamblado no cambia |
 | Sobreajuste al fixture | 60 queries con relevancia graduada, corpus separado del de skills reales; el gate es interno, no una afirmación de calidad universal |
+
+## 6 · Medición del gate (2026-11-06)
+
+**Corpus:** 20 skills + 12 tools MCP (32 entradas), **59 queries etiquetadas** con relevancia graduada (0–3); relevante = grado ≥2.
+
+| Ranking | recall@8 | nDCG@8 |
+|---|---|---|
+| Baseline léxico (overlap de tokens, CH-041) | 0,890 | 0,883 |
+| **Router FTS5/BM25 (porter+unicode61)** | **0,915** | **0,932** |
+
+Objetivos del gate (`recall@8 ≥ 0,90`, `nDCG@8 ≥ 0,80`): **cumplidos** (0,915 / 0,932) y el router **supera al baseline** en ambas métricas. Medición reproducible en `packages/skill/skill-mcp-router/tests/router-quality.spec.ts` (test del paquete) y fixture `tests/fixtures/corpus.ts`.
+
+**Límite declarado:** el corpus es sintético y el gate es una señal interna de regresión, no una afirmación de calidad universal. La consulta "roll back a bad release" no recupera nada (no comparte raíz con "rollback"); se documenta como limitación léxica en el README.
