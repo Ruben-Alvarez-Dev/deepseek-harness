@@ -530,4 +530,36 @@ async function admitCommandAttachments(
   return Object.freeze(blocks)
 }
 
+/**
+ * Register one command whose in-flight handler promises drain on teardown.
+ *
+ * The drain yields before registration because composite teardown is LIFO: no
+ * new invocation can enter while already-started handlers quiesce. Both
+ * retirement branches run without rethrowing, so the derived observer promise
+ * cannot become an unhandled mirror of an expected handler rejection.
+ * @param ctx - context carrying the command registry.
+ * @param definition - command definition without the handler.
+ * @param execute - command body.
+ * @param label - effect label recorded for the lifecycle.
+ */
+export function registerDrainingCommand(
+  ctx: Context,
+  definition: Omit<CommandDefinition, 'handler'>,
+  execute: (invocation: CommandInvocation) => CommandResult | Promise<CommandResult>,
+  label: string,
+): void {
+  const active = new Set<Promise<CommandResult>>()
+  const handler = (invocation: CommandInvocation): Promise<CommandResult> => {
+    const operation = Promise.resolve(execute(invocation))
+    active.add(operation)
+    const retire = (): void => { active.delete(operation) }
+    void operation.then(retire, retire)
+    return operation
+  }
+  ctx.effect(function* () {
+    yield async () => { await Promise.allSettled(active) }
+    yield ctx.commands.register({ ...definition, handler })
+  }, label)
+}
+
 export default CommandRuntime

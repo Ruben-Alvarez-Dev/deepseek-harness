@@ -11,7 +11,7 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import type { ToolSchema } from '@deepseek-ai/dsh-llm'
+import { boundDescription, type ToolSchema } from '@deepseek-ai/dsh-llm'
 import { estimateToolSchemasTokens } from '@deepseek-ai/dsh-token-meter'
 import type { PromptAssembly } from '@deepseek-ai/dsh-system-prompt'
 
@@ -106,7 +106,7 @@ export function governPromptTools(assembly: PromptAssembly, limits: GovernorLimi
 function compactTool(tool: ToolSchema, descriptionMaxLength: number): ToolSchema {
   return {
     name: tool.name,
-    description: truncateDescription(tool.description, descriptionMaxLength),
+    description: boundDescription(tool.description, descriptionMaxLength),
     parameters: stripSchemaHints(tool.parameters) as Record<string, unknown>,
   }
 }
@@ -121,12 +121,6 @@ function stripSchemaHints(value: unknown): unknown {
     result[key] = stripSchemaHints(child)
   }
   return result
-}
-
-/** Normalize and cap one tool description. */
-function truncateDescription(value: string, maxLength: number): string {
-  const normalized = value.replaceAll(/\s+/g, ' ').trim()
-  return normalized.length <= maxLength ? normalized : `${normalized.slice(0, maxLength - 3)}...`
 }
 
 function assertPositiveInteger(name: string, value: number, minimum = 1): void {

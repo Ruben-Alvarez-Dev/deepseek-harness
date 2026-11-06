@@ -5325,7 +5325,7 @@ SHA-256: `326a9bfda27dda5882fb3cbe6e715df41dae2298fdae3d66437457268a665693`
 
 SHA-256: `e50b0a3ed8e6c80b672e4f855c91984f03b5c3fdd5d475bf171171f391a86c83`
 
-来源：[`packages/llm/llm/src/message.ts:148`](../packages/llm/llm/src/message.ts)
+来源：[`packages/llm/llm/src/message.ts:159`](../packages/llm/llm/src/message.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
@@ -5353,7 +5353,7 @@ SHA-256: `86e1e384495ee09ac2d60c9db3610f1f1fddac2d248f6f1d6000e78054680219`
 
 SHA-256: `23c7cce57d20589897f4e2bd5898affc6fc611b87cd0cc8b95be1cfdd8b3a7eb`
 
-来源：[`packages/llm/llm/src/message.ts:131`](../packages/llm/llm/src/message.ts)
+来源：[`packages/llm/llm/src/message.ts:142`](../packages/llm/llm/src/message.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
@@ -5368,7 +5368,7 @@ SHA-256: `23c7cce57d20589897f4e2bd5898affc6fc611b87cd0cc8b95be1cfdd8b3a7eb`
 
 SHA-256: `4c965666d5b42116945bc356087cd5e1fd549e6dece560785ed60511059a8283`
 
-来源：[`packages/llm/llm/src/message.ts:128`](../packages/llm/llm/src/message.ts)
+来源：[`packages/llm/llm/src/message.ts:139`](../packages/llm/llm/src/message.ts)
 
 以下类型之一：
 
@@ -5414,7 +5414,7 @@ SHA-256: `719c51f67074f97034a6c94297fe1f4b5d3c8d392c57586dab732aa5398c7a91`
 
 SHA-256: `302b01ddddcbb3b16cfa3fba2a5d99f5082a55fbd9dc5c83a179a228b8a6a0ca`
 
-来源：[`packages/llm/llm/src/message.ts:158`](../packages/llm/llm/src/message.ts)
+来源：[`packages/llm/llm/src/message.ts:169`](../packages/llm/llm/src/message.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
@@ -5442,7 +5442,7 @@ SHA-256: `d9c462b9f62fdd3efc76a44b9524dc8781f6b91cd9c7e584b17d971defafebab`
 
 SHA-256: `1b573e2d5c094fa87e2a8bf409ddd4ac5ba92a123085e168de44b9ccdbd5244c`
 
-来源：[`packages/llm/llm/src/message.ts:164`](../packages/llm/llm/src/message.ts)
+来源：[`packages/llm/llm/src/message.ts:175`](../packages/llm/llm/src/message.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
@@ -5457,7 +5457,7 @@ SHA-256: `1b573e2d5c094fa87e2a8bf409ddd4ac5ba92a123085e168de44b9ccdbd5244c`
 
 SHA-256: `4de5e7644130ed715ef6b5a4d86a87b30dca4096d1a6683c66acf6f7809379c7`
 
-来源：[`packages/llm/llm/src/message.ts:143`](../packages/llm/llm/src/message.ts)
+来源：[`packages/llm/llm/src/message.ts:154`](../packages/llm/llm/src/message.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|

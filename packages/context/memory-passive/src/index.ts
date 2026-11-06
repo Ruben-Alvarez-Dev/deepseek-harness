@@ -8,7 +8,7 @@
 import { createHash } from 'node:crypto'
 import type { Context } from '@deepseek-ai/cordis'
 import type { PreStepDecision } from '@deepseek-ai/dsh-agent'
-import { createUserMessage, type UserMessage } from '@deepseek-ai/dsh-llm'
+import { contentText, createUserMessage, type UserMessage } from '@deepseek-ai/dsh-llm'
 import { boundCaptureText, captureExchange, type ExchangeState } from './capture.ts'
 import { Config, resolveConfig } from './config.ts'
 import { MemoryStore } from './store.ts'
@@ -40,11 +40,11 @@ export function apply(ctx: Context, config: Config): void {
     const state = exchanges.get(session) ?? { user: '', assistant: '' }
     if (event.type === 'user/message') {
       if (event.data.source.kind === 'user') {
-        const text = messageText(event.data.content)
+        const text = contentText(event.data.content)
         if (text.length > 0) state.user = boundCaptureText(text, resolved.captureMaxChars)
       }
     } else if (event.type === 'assistant/message') {
-      const text = messageText(event.data.message.content)
+      const text = contentText(event.data.message.content)
       if (text.length > 0) state.assistant = boundCaptureText(text, resolved.captureMaxChars)
     }
     exchanges.set(session, state)
@@ -89,14 +89,6 @@ export function apply(ctx: Context, config: Config): void {
     })
     return { ...decision, messages: [...decision.messages, injected] }
   }, { prepend: true })
-}
-
-/** Concatenated text blocks of one message content. */
-function messageText(content: readonly { type: string; text?: string }[]): string {
-  return content
-    .filter(block => block.type === 'text' && typeof block.text === 'string')
-    .map(block => block.text as string)
-    .join('\n')
 }
 
 /** Latest direct user text, or undefined when the step has none. */

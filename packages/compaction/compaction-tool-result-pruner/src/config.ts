@@ -70,7 +70,7 @@ export function resolveConfig(config: ToolResultPruneConfig = {}): ResolvedConfi
 
   // Schemastery normalizes an absent optional object field to an empty object;
   // an empty block means "not configured", while a partial block fails loud.
-  const pressure = config.pressure === undefined || config.pressure === null
+  const pressure = config.pressure === undefined
     || Object.keys(config.pressure).length === 0
     ? undefined
     : resolvePressure(config.pressure, emittedChars)
@@ -84,7 +84,7 @@ export function resolveConfig(config: ToolResultPruneConfig = {}): ResolvedConfi
  * @returns a detached immutable pressure policy.
  */
 function resolvePressure(raw: PressureConfig, emittedChars: number): PressureConfig {
-  if (typeof raw !== 'object' || raw === null) {
+  if (typeof raw !== 'object') {
     throw new Error('ToolResultPruneConfig: pressure must be an object')
   }
   for (const key of Object.keys(raw)) {

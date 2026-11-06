@@ -114,6 +114,17 @@ export interface MessageSourceMap {
 export const CONTEXT_SUMMARY_MAX_CHARS = 120
 
 /**
+ * Normalize whitespace and cap one model-facing description.
+ * @param value - raw description text.
+ * @param maxLength - maximum returned length, suffix included.
+ * @returns the collapsed description, or a capped one ending in `...`.
+ */
+export function boundDescription(value: string, maxLength: number): string {
+  const normalized = value.replaceAll(/\s+/g, ' ').trim()
+  return normalized.length <= maxLength ? normalized : `${normalized.slice(0, maxLength - 3)}...`
+}
+
+/**
  * Bound one `notice` summary to {@link CONTEXT_SUMMARY_MAX_CHARS}.
  * @param summary - the producer's one-line account, of any length.
  * @returns the account, ellipsized when it exceeds the bound.

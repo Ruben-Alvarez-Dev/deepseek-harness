@@ -1,6 +1,6 @@
 /** Structured, goal-oriented checkpoint derived from the live session state. */
 
-import type { Message } from '@deepseek-ai/dsh-llm'
+import { contentText, type Message } from '@deepseek-ai/dsh-llm'
 import type { Session } from '@deepseek-ai/dsh-session'
 import type { ResolvedConfig } from './config.ts'
 
@@ -74,7 +74,7 @@ function lastUserText(messages: readonly Message[]): string {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const message = messages[index]
     if (message === undefined || message.role !== 'user' || message.source.kind !== 'user') continue
-    const text = messageText(message.content)
+    const text = contentText(message.content)
     if (text.length > 0) return text
   }
   return ''
@@ -84,7 +84,7 @@ function lastAssistantText(messages: readonly Message[]): string {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const message = messages[index]
     if (message === undefined || message.role !== 'assistant') continue
-    const text = messageText(message.content)
+    const text = contentText(message.content)
     if (text.length > 0) return text
   }
   return ''
@@ -113,13 +113,6 @@ function mentionedFiles(text: string): string[] {
     if (files.size >= MAX_FILES) break
   }
   return [...files]
-}
-
-function messageText(content: readonly { type: string; text?: string }[]): string {
-  return content
-    .filter(block => block.type === 'text' && typeof block.text === 'string')
-    .map(block => block.text as string)
-    .join('\n')
 }
 
 function bound(text: string, maxChars: number): string {

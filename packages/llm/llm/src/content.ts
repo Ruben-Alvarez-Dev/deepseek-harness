@@ -7,6 +7,17 @@ import type {
 } from '@deepseek-ai/dsh-attachment'
 import { assertNever } from '@deepseek-ai/dsh-util-values'
 
+/**
+ * Join the text blocks of one message content, in block order.
+ * Non-text blocks contribute nothing; callers that need their projection ask
+ * the dedicated content helpers.
+ * @param content - message content blocks.
+ * @returns the text blocks joined by a newline.
+ */
+export function contentText(content: readonly ContentBlock[]): string {
+  return content.flatMap(block => block.type === 'text' ? [block.text] : []).join('\n')
+}
+
 /** Execution-world path that model tools can use to read one normalized attachment. */
 export interface ImageAttachmentAccess {
   /** Absolute path to immutable normalized bytes; callers must treat it as read-only. */

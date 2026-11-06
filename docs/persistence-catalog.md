@@ -5323,7 +5323,7 @@ Sources: [`packages/llm/llm/src/call-config.ts:36`](../packages/llm/llm/src/call
 
 SHA-256: `e50b0a3ed8e6c80b672e4f855c91984f03b5c3fdd5d475bf171171f391a86c83`
 
-Sources: [`packages/llm/llm/src/message.ts:148`](../packages/llm/llm/src/message.ts)
+Sources: [`packages/llm/llm/src/message.ts:159`](../packages/llm/llm/src/message.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5351,7 +5351,7 @@ Sources: [`packages/llm/llm/src/message.ts:65`](../packages/llm/llm/src/message.
 
 SHA-256: `23c7cce57d20589897f4e2bd5898affc6fc611b87cd0cc8b95be1cfdd8b3a7eb`
 
-Sources: [`packages/llm/llm/src/message.ts:131`](../packages/llm/llm/src/message.ts)
+Sources: [`packages/llm/llm/src/message.ts:142`](../packages/llm/llm/src/message.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5366,7 +5366,7 @@ Sources: [`packages/llm/llm/src/message.ts:131`](../packages/llm/llm/src/message
 
 SHA-256: `4c965666d5b42116945bc356087cd5e1fd549e6dece560785ed60511059a8283`
 
-Sources: [`packages/llm/llm/src/message.ts:128`](../packages/llm/llm/src/message.ts)
+Sources: [`packages/llm/llm/src/message.ts:139`](../packages/llm/llm/src/message.ts)
 
 One of:
 
@@ -5412,7 +5412,7 @@ Sources: [`packages/llm/llm/src/message.ts:24`](../packages/llm/llm/src/message.
 
 SHA-256: `302b01ddddcbb3b16cfa3fba2a5d99f5082a55fbd9dc5c83a179a228b8a6a0ca`
 
-Sources: [`packages/llm/llm/src/message.ts:158`](../packages/llm/llm/src/message.ts)
+Sources: [`packages/llm/llm/src/message.ts:169`](../packages/llm/llm/src/message.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5440,7 +5440,7 @@ Sources: [`packages/llm/llm/src/message.ts:29`](../packages/llm/llm/src/message.
 
 SHA-256: `1b573e2d5c094fa87e2a8bf409ddd4ac5ba92a123085e168de44b9ccdbd5244c`
 
-Sources: [`packages/llm/llm/src/message.ts:164`](../packages/llm/llm/src/message.ts)
+Sources: [`packages/llm/llm/src/message.ts:175`](../packages/llm/llm/src/message.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5455,7 +5455,7 @@ Sources: [`packages/llm/llm/src/message.ts:164`](../packages/llm/llm/src/message
 
 SHA-256: `4de5e7644130ed715ef6b5a4d86a87b30dca4096d1a6683c66acf6f7809379c7`
 
-Sources: [`packages/llm/llm/src/message.ts:143`](../packages/llm/llm/src/message.ts)
+Sources: [`packages/llm/llm/src/message.ts:154`](../packages/llm/llm/src/message.ts)
 
 | Property | Presence | Type |
 |---|---|---|

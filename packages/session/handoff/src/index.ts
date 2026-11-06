@@ -7,8 +7,8 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import type { PreStepDecision } from '@deepseek-ai/dsh-agent'
+import { registerDrainingCommand } from '@deepseek-ai/dsh-commands'
 import { CommandDefinitionId } from '@deepseek-ai/dsh-commands/brand'
-import type { CommandResult } from '@deepseek-ai/dsh-commands'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import type {} from '@deepseek-ai/dsh-session/types'
 import { executeHandoff } from './command.ts'
@@ -62,24 +62,9 @@ export function apply(ctx: Context, config: Config): void {
     return { ...decision, messages: [...decision.messages, message] }
   }, { prepend: true })
 
-  const active = new Set<Promise<CommandResult>>()
-  const handler = (invocation: Parameters<typeof executeHandoff>[1]): Promise<CommandResult> => {
-    const operation = Promise.resolve(executeHandoff(ctx, invocation, limits))
-    active.add(operation)
-    const retire = (): void => { active.delete(operation) }
-    // Both branches retire without rethrowing, so no unhandled mirror can form.
-    void operation.then(retire, retire)
-    return operation
-  }
-  ctx.effect(function* () {
-    // Yield drain before registration: composite teardown is LIFO, so no new
-    // invocation enters while already-started handlers quiesce.
-    yield async () => { await Promise.allSettled(active) }
-    yield ctx.commands.register({
-      definitionId: CommandDefinitionId('@deepseek-ai/dsh-handoff'),
-      name: 'handoff',
-      description: 'Start a linked continuation session from a goal checkpoint',
-      handler,
-    })
-  }, 'handoff lifecycle')
+  registerDrainingCommand(ctx, {
+    definitionId: CommandDefinitionId('@deepseek-ai/dsh-handoff'),
+    name: 'handoff',
+    description: 'Start a linked continuation session from a goal checkpoint',
+  }, invocation => executeHandoff(ctx, invocation, limits), 'handoff lifecycle')
 }

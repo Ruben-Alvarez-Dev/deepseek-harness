@@ -10,8 +10,8 @@ import z from '@deepseek-ai/schemastery'
 import type { Agent, PreStepDecision } from '@deepseek-ai/dsh-agent'
 import type { SkillMcpRouter } from '@deepseek-ai/dsh-skill-mcp-router'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionSeq, type UserMessage } from '@deepseek-ai/dsh-session'
+import { boundDescription, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { SessionSeq, type SessionEvent, type UserMessage } from '@deepseek-ai/dsh-session'
 import {
   escapeText,
   isModelInvocable,
@@ -55,7 +55,7 @@ function catalogSourceEntries(
 ): SkillCatalogSource['entries'] {
   return skills.map(skill => ({
     name: skill.name,
-    description: catalogDescription(skill.description, descriptionMaxLengthFor(skill.name)),
+    description: boundDescription(skill.description, descriptionMaxLengthFor(skill.name)),
   }))
 }
 
@@ -165,26 +165,36 @@ function catalogRelevance(skill: SkillSummary, query: Set<string>): number {
 }
 
 /**
+ * Newest durable user message accepted by `accept`, or undefined.
+ * The reverse walk is the last remaining historical read in this package and
+ * stays the documented exception; callers own the acceptance predicate.
+ */
+function latestUserMessage(
+  agent: Agent,
+  accept: (event: SessionEvent<'user/message'>) => boolean,
+): SessionEvent<'user/message'> | undefined {
+  for (let index = agent.session.seq - 1; index >= 0; index -= 1) {
+    // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
+    const event = agent.session.eventAt(SessionSeq(index))
+    if (event === undefined) {
+      throw new Error(`skill catalog cannot read seq ${String(index)} below the current Session length`)
+    }
+    if (event.type !== 'user/message') continue
+    if (accept(event)) return event
+  }
+  return undefined
+}
+
+/**
  * Text of the request the catalog is being published for: the last claimed
  * direct user message, else the last direct user message in the durable log.
  * Non-user sources cannot steer selection, mirroring the gesture rule.
  */
 function catalogQueryText(claimed: readonly UserMessage[], agent: Agent): string {
   const direct = claimed.filter(message => (message.source as { kind?: unknown }).kind === 'user')
-  let message: UserMessage | undefined = direct[direct.length - 1]
-  if (message === undefined) {
-    for (let index = agent.session.seq - 1; index >= 0; index -= 1) {
-      // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
-      const event = agent.session.eventAt(SessionSeq(index))
-      if (event === undefined) {
-        throw new Error(`skill catalog cannot read seq ${String(index)} below the current Session length`)
-      }
-      if (event.type !== 'user/message') continue
-      if ((event.data.source as { kind?: unknown }).kind !== 'user') continue
-      message = event.data
-      break
-    }
-  }
+  const claimedMessage: UserMessage | undefined = direct[direct.length - 1]
+  const message = claimedMessage
+    ?? latestUserMessage(agent, event => (event.data.source as { kind?: unknown }).kind === 'user')?.data
   if (message === undefined) return ''
   return message.content
     .flatMap(block => block.type === 'text' ? [block.text] : [])
@@ -524,20 +534,14 @@ function readCatalogEntries(source: unknown): SkillCatalogSource['entries'] | un
 function catalogHistory(agent: Agent): { visibleDigest?: string; published: boolean } {
   const visible = new Set(agent.session.surface.nodes)
   let published = false
-  for (let index = agent.session.seq - 1; index >= 0; index -= 1) {
-    // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
-    const event = agent.session.eventAt(SessionSeq(index))
-    if (event === undefined) {
-      throw new Error(`skill catalog cannot read seq ${String(index)} below the current Session length`)
-    }
-    if (event.type !== 'user/message' || event.data.source.kind !== 'skill-catalog') continue
-    const entries = readCatalogEntries(event.data.source)
-    if (entries === undefined) continue
-    const digest = digestCatalogEntries(entries)
-    published = true
-    if (visible.has(event.seq)) return { visibleDigest: digest, published }
-  }
-  return { published }
+  const latest = latestUserMessage(agent, event => event.data.source.kind === 'skill-catalog'
+    && readCatalogEntries(event.data.source) !== undefined)
+  if (latest === undefined) return { published }
+  const entries = readCatalogEntries(latest.data.source)
+  if (entries === undefined) return { published }
+  published = true
+  const digest = digestCatalogEntries(entries)
+  return visible.has(latest.seq) ? { visibleDigest: digest, published } : { published }
 }
 
 function catalogMessage(
@@ -549,11 +553,6 @@ function catalogMessage(
     if (entries !== undefined) return { message, entries }
   }
   return undefined
-}
-
-function catalogDescription(value: string, maxLength: number): string {
-  const normalized = value.replaceAll(/\s+/g, ' ').trim()
-  return normalized.length <= maxLength ? normalized : `${normalized.slice(0, maxLength - 3)}...`
 }
 
 function assertPositiveInteger(name: string, value: number, minimum = 1): void {
