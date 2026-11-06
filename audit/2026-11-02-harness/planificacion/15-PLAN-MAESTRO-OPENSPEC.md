@@ -32,7 +32,7 @@
 | CH-044 | **CERRADO (opt-in, gate medido)** | `@deepseek-ai/dsh-memory-passive` en `.worktrees/ch044` (commit `c3e2e86`, sin push), no activado. Medido: **recall@5 1,000** (39 queries), máx. 1.033 chars con cuota 4.000, 0 tools, 6 reglas de redacción verificadas, captura real en `session/disposed`. C-4 (consolidación) diferido. |
 | CH-045 | **CERRADO (opt-in, gate proxy medido; CRITICAL remediado)** | `@deepseek-ai/dsh-handoff` en `.worktrees/ch045` (`fcf0dc2` + remediación `944c37b`, sin push), no activado: `/handoff <goal>` con checkpoint acotado, hija enlazada por `parentSession` y guía a `session_event_search`/`session_trace`; el checkpoint se entrega como mensaje de petición en el primer paso (superficie limpia, system prompt en nodo 0). Medido: **15/15 hechos, 0 vs 15 pasos**. |
 | CH-046 | **CERRADO (opt-in, auditoría 0 BLOCKER/CRITICAL)** | `@deepseek-ai/dsh-redaction` + `@deepseek-ai/dsh-telemetry-redaction` en `.worktrees/ch046` (commit `3a641b2`, sin push). Medido: **20/20 registros sin fugas**, entrada intacta, ciclo fail-closed; invariants **39/39**. Auditoría F4 en `auditorias/09-AUDITORIA-P6-F4.md`: 1 CRITICAL de handoff remediado (`944c37b`), **0 abiertos**; 2 MAJOR (reglas duplicadas, tracking sin acotar) y 4 MINOR con plan de integración. E-3 diferido a decisión. |
-| CH-047 | **PENDIENTE** | P7 no iniciado. |
+| CH-047 | **EN CURSO** | Diseño publicado (`planificacion/27-CH047-DISENO.md`); rama local `.worktrees/ch047`. Librería `dsh-longitudinal-eval` (recall@k/nDCG@k, resumen de uso desde logs, kill-criteria) + baseline sobre las 3 sesiones de CH-040 y decisión aplicada. Límite declarado: la ventana de 30 días no ha transcurrido. |
 
 ---
 
