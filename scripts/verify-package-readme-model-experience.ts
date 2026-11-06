@@ -65,6 +65,7 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/experimental/ptc-runtime-python': { kind: 'indirect', reason: 'Explicit source-checkout compositions delegate model rendering to PTC mode in dsh-tools.' },
   'packages/client/ui-agent-preset': { kind: 'indirect', reason: 'Browser-side settings row; the preset it selects owns every model-facing effect.' },
   'packages/util/crypto': { kind: 'indirect', reason: 'Pure identifier minting; the ids consumers mint with it never enter prompts as semantic content.' },
+  'packages/skill/skill-mcp-router': { kind: 'none', reason: 'Pure zero-embedding ranking service; consumers (for example the skill catalog) own every model-visible surface built from ranked names.' },
   'packages/util/deque': { kind: 'none', reason: 'In-process collection primitive; registers nothing model-facing.' },
   'packages/util/chunked-list': { kind: 'none', reason: 'Immutable collection primitive; registers nothing model-facing.' },
   'packages/util/package-manifest': { kind: 'none', reason: 'Type declarations only; registers nothing model-facing.' },
