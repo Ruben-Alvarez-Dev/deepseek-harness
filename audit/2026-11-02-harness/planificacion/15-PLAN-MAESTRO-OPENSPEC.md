@@ -29,7 +29,8 @@
 | CH-041 | **CERRADO (opt-in, gate recalibrado)** | S1+S2 en rama local (`6212348`, `dbb8778`, `a019ea4`), no activados en presets. Medido: **1.393 tok/petición = 0,45 %** (MCP 0; catálogo 810.798 tok/582 peticiones). Decisión 2026-11-06: el −20 % total pasa a **P2/CH-042**. |
 | CH-042 | **CERRADO (opt-in, gate −20 % demostrado en simulación)** | A-2 dispatch gate (12 vectores, audit/enforce) + A-3 pruner por presión; commits locales `d6816f7`, `e08ac49`, `626833c`, sin push ni activación. Medido por replay: **12,94 % conservador / 20,54 % agresivo** (36.870.187 tok de 179.461.588). Activación futura condicionada a evaluación en vivo y re-grabado de snapshots. |
 | CH-043 | **CERRADO (opt-in, gate medido)** | Router FTS5 (`node:sqlite`, porter+unicode61) de skills+MCP, integración opt-in en `tool-skill` por `ctx.get('skillRouter')`; commits `acd3e30`+`2b04540` (rama apilada sobre CH-041), sin activar, sin push. Medido: **recall@8 0,915 / nDCG@8 0,932** vs 0,890/0,883 del baseline léxico (59 queries, 32 entradas). |
-| CH-044…047 | **PENDIENTE** | P4–P7 no iniciados. |
+| CH-044 | **EN CURSO** | Diseño publicado (`planificacion/24-CH044-DISENO.md`); rama local `.worktrees/ch044`. Memoria pasiva local: captura redactada en `session/disposed`, índice `MEMORY.md` ≤200 líneas, inyector volátil con cuota y valla, evento log-only `memory/injected`; C-4 diferido. Gate: recall@k ≥0,80, 0 tools, cuota y redacción. |
+| CH-045…047 | **PENDIENTE** | P5–P7 no iniciados. |
 
 ---
 

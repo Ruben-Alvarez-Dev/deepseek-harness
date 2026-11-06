@@ -19,6 +19,7 @@
 7. **CH-041:** recalibrar tras medir → **cerrado** con 0,45 % en superficie gobernada y **−20 % total trasladado a P2** (decisión 2026-11-06); opt-ins no activados; sin PR.
 8. **CH-042:** implementado y **cerrado opt-in** — dispatch gate (12 vectores) + pruner por presión; medido 20,54 % con política agresiva (12,94 % conservadora) por simulación; sin activar en presets, sin PR ni push.
 9. **CH-043:** implementado y **cerrado opt-in** — router FTS5 zero-embeddings de skills/MCP con integración opcional en el catálogo; gate medido (recall@8 0,915 / nDCG@8 0,932 vs 0,890/0,883); commits `acd3e30`+`2b04540` en rama apilada sobre CH-041, sin activar y sin push.
+10. **CH-044:** arrancado — diseño P4 (memoria pasiva local: captura redactada, índice con límite, inyector con cuota y valla) publicado; implementación en `.worktrees/ch044`; C-4 (DreamScheduler) diferido.
 
 ### 0.2 F0 — cerrado (gates medidos)
 
@@ -91,7 +92,7 @@ audit/2026-11-02-harness/
 ## 6 · Próximo paso concreto
 
 1. **CH-012 — hecho:** commit `45c3443` en la rama local `audit/2026-11-02-harness`, solo con `audit/2026-11-02-harness/`; sin push. Los 6 tracked modificados y 19 untracked ajenos siguen sin tocar.
-2. **F4 / CH-044 (P4) — siguiente:** memoria pasiva (inyección determinista en los hitos de sesión, sin tool calls) según `planificacion/13-PLAN-SOTA-DSH.md`. CH-043 quedó cerrado opt-in en `.worktrees/ch043` (`acd3e30`, `2b04540`, rama apilada sobre CH-041, gate 0,915/0,932); CH-042 y CH-041 igual, cerrados opt-in y sin push.
+2. **F4 / CH-044 (P4) — en curso:** memoria pasiva local (captura redactada, índice `MEMORY.md`, inyector con cuota y valla, evento log-only) según `planificacion/24-CH044-DISENO.md`; trabajo en `.worktrees/ch044` (rama local, sin push). Gate: recall@k ≥0,80, 0 tools explícitas, cuota y redacción verificada; C-4 diferido. CH-043 quedó cerrado opt-in en `.worktrees/ch043` (gate 0,915/0,932).
 3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
 
 ## 7 · Avisos
