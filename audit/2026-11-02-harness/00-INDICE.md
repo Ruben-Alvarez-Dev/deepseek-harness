@@ -46,6 +46,7 @@ audit/2026-11-02-harness/
 | 21 | `planificacion/20-BASELINE-CH040.md` | Baseline medido de tokens (CH-040/P0): 3 sesiones, 582 peticiones, 308.353 tok/petición ponderado |
 | 22 | `planificacion/21-CH041-DISENO.md` | Diseño de CH-041 (P1 governor outbound): seams verificados, alcance, gate −20 % y verificación |
 | 23 | `planificacion/22-CH042-DISENO.md` | Diseño de CH-042 (P2): dispatch gate audit→enforce con 12 vectores + pruner por presión; seams, gate y verificación |
+| 24 | `planificacion/23-CH043-DISENO.md` | Diseño de CH-043 (P3): router FTS5 de skills/MCP zero-embeddings, escape hatch y gate nDCG/recall@k |
 
 **Relación entre documentos:** 01–12 son la evidencia; 13–15 son las decisiones; 17 es la trazabilidad de fuentes. El plan ejecutable es 15. **cortex queda fuera del alcance desde el 2026-11-05**: su evidencia y su plan viven en `/Users/ruben/Code/JARTOS/Jart-CORTEX/audit/2026-11-02-cortex/`.
 
