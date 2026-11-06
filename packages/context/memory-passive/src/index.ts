@@ -65,7 +65,9 @@ export function apply(ctx: Context, config: Config): void {
     const decision = await next()
     if (decision.kind === 'reject') return decision
     if (resolved.injectOncePerTurn && step !== 1) return decision
-    if (decision.messages.some(message => message.source.kind === 'memory-injected')) return decision
+    if (decision.messages.some(message => message.source.kind === 'plugin' && message.source.plugin === 'memory-passive')) {
+      return decision
+    }
     const query = lastDirectUserText(messages)
     if (query === undefined) return decision
     const entries = await store.select(query, resolved.injectLimit)
@@ -83,7 +85,7 @@ export function apply(ctx: Context, config: Config): void {
     })
     const injected = createUserMessage({
       content: [{ type: 'text', text: rendered.text }],
-      source: { kind: 'memory-injected', version: 1, ids: rendered.ids },
+      source: { kind: 'plugin', plugin: 'memory-passive' },
     })
     return { ...decision, messages: [...decision.messages, injected] }
   }, { prepend: true })

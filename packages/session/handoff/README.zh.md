@@ -50,7 +50,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-检查点来自实时投影（`session.deriveMessages()`），从不使用已废弃的历史读取。它先写目标，再写父链接与实测上下文大小，然后是有界的最后请求/结果与工作集，最后是命名父会话 id 与 `session_event_search`/`session_trace` 工具的固定指引。子会话创建时设置 `header.parentSession`，检查点作为 `handoff/checkpoint` 仅日志记录追加。在子会话首个模型步骤，`agent/pre-step` 监听器把该检查点作为标记为 `handoff-checkpoint` 的请求级用户消息注入；因此子会话表面在循环加入自己的系统提示词之前保持为空，且只投递一次。不做 fork 复制父历史，不运行压缩，父会话保留自己的轨迹。
+检查点来自实时投影（`session.deriveMessages()`），从不使用已废弃的历史读取。它先写目标，再写父链接与实测上下文大小，然后是有界的最后请求/结果与工作集，最后是命名父会话 id 与 `session_event_search`/`session_trace` 工具的固定指引。子会话创建时设置 `header.parentSession`，检查点作为 `handoff/checkpoint` 仅日志记录追加。在子会话首个模型步骤，`agent/pre-step` 监听器把该检查点作为 `plugin` 来源（`plugin: 'handoff'`）的请求级用户消息注入；因此子会话表面在循环加入自己的系统提示词之前保持为空，且只投递一次。不做 fork 复制父历史，不运行压缩，父会话保留自己的轨迹。
 
 ### 源码导图
 

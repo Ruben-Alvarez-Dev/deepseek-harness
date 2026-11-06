@@ -213,7 +213,10 @@ describe('memory-passive injection', () => {
     const agent = memoryAgent(session)
     const request = openTurn(session, 'rollback a failed production deploy')
     const messages = await fire(ctx, agent, 1, 1, [request])
-    const injected = messages.filter(message => (message as { source: { kind: string } }).source.kind === 'memory-injected')
+    const injected = messages.filter((message) => {
+      const source = (message as { source: { kind: string; plugin?: string } }).source
+      return source.kind === 'plugin' && source.plugin === 'memory-passive'
+    })
     expect(injected).toHaveLength(1)
     const text = JSON.stringify(injected[0])
     expect(text).toContain('deploy-rollback')

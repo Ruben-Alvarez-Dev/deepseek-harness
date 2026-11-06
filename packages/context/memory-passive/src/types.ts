@@ -33,20 +33,6 @@ export interface CaptureRecord {
   readonly assistant: string
 }
 
-/** Source attached to the volatile message carrying selected memory. */
-export interface InjectedMemorySource {
-  readonly kind: 'memory-injected'
-  readonly version: 1
-  /** Identifiers of every memory entry rendered into the message. */
-  readonly ids: readonly string[]
-}
-
-declare module '@deepseek-ai/dsh-llm' {
-  interface MessageSourceMap {
-    'memory-injected': InjectedMemorySource
-  }
-}
-
 declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /**
