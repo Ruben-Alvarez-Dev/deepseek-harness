@@ -274,6 +274,7 @@
     { "path": "./packages/shell/tool-pwsh-persistent" },
     { "path": "./packages/terminal/tool-terminal" },
     { "path": "./packages/ptc-runtime/ptc-runtime" },
+    { "path": "./packages/experimental/longitudinal-eval" },
     { "path": "./packages/experimental/ptc-runtime-python" },
     { "path": "./packages/ptc-runtime/ptc-runtime-node" },
     { "path": "./packages/llm/llm-deepseek" },
