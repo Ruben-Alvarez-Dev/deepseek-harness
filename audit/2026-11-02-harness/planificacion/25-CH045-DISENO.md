@@ -70,3 +70,9 @@ Seis tests focados verdes (`checkpoint`, límites, creación enlazada, inmutabil
 
 - **Implementado opt-in, sin activar en presets.** Paquete `@deepseek-ai/dsh-handoff` (`packages/session/handoff`): constructor de checkpoint, comando `/handoff`, hija enlazada por `header.parentSession`, mensaje `handoff-checkpoint` registrado, guía fija a `session_event_search`/`session_trace`; el padre no se fork-ea ni se compacta. Agent Note bilingüe `proposed/feature/2026-11-06-session-handoff`.
 - **Sin push ni PR.** **Pendiente de decisión del propietario:** montar el comando en presets/composiciones y evaluar la continuación con modelo real antes de activarlo.
+
+## 8 · Remediación de auditoría (2026-11-06)
+
+La auditoría `/auditoria-dev` de P6 encontró un **CRITICAL**: la primera versión de este change añadía `turn/start` + `user/message` a la superficie de la hija, de modo que el system prompt del bucle quedaba **después** del checkpoint (orden `user,system`), y el `turn/start` se duplicaba al arrancar.
+
+**Corrección aplicada (rama `feat/ch045-session-handoff`):** el comando ya no escribe en la superficie; registra el checkpoint como evento **log-only `handoff/checkpoint`** (texto exacto, padre, goal, tokens). Un listener `agent/pre-step` del paquete inyecta ese texto como **mensaje de petición** (source `handoff-checkpoint`) en el primer paso del hijo y lo consume una sola vez. Verificado por ejecución: superficie de la hija **0 mensajes** antes del bucle; tras arrancar, `system` es el nodo 0; el checkpoint llega como mensaje de petición. Tests (6) y gates de docs (20/20) verdes; gate proxy 15/15 hechos sin cambios.

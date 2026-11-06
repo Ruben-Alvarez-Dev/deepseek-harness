@@ -71,3 +71,9 @@ El pin de integridad de plugins requiere decidir sobre confianza de terceros y f
 - **G-3 medido:** `pnpm run verify-package-invariants` → **39 companions conformes, 0 violaciones**; ninguno de los dos paquetes publica `./invariant` (transform puro, sin relación entre observaciones independientes) y ambos README declaran la omisión con la frase exigida.
 - **E-3:** diferido a decisión del propietario (fuera del gate de P6); **G-1/G-2** documentados como plugins de mercado, sin código nuevo.
 - **Pendiente para el cierre:** `/auditoria-dev` final sobre F4 (CH-043…045) + este change; el cierre de CH-046 exige **0 BLOCKER / 0 CRITICAL** en ese informe.
+
+## 7 · Auditoría final y cierre (2026-11-06)
+
+`/auditoria-dev` sobre F4 (CH-043…046) en `auditorias/09-AUDITORIA-P6-F4.md`: **0 BLOCKER y 0 CRITICAL abiertos**. Un **CRITICAL** de CH-045 (superficie de la hija con el checkpoint antes del system prompt, `turn/start` duplicado) se detectó y remedió en `944c37b`, con re-verificación por ejecución (superficie vacía antes del bucle, `system` en nodo 0, checkpoint como mensaje de petición).
+
+Quedan **2 MAJOR** (reglas de redacción duplicadas entre CH-044 y `dsh-redaction`, que se resuelven al integrar; tracking de captura sin acotar) y **4 MINOR** documentados con plan y esfuerzo; ninguno bloquea P6. CH-046 se cierra **opt-in, sin activar en presets y sin push**; E-3 sigue diferido a decisión del propietario.
