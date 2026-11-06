@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
+import AgentRegistry, { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
 import CommandRuntime, { type CommandResult } from '@deepseek-ai/dsh-commands'
 import { createMessage, createUserMessage, type AssistantMessage, type ToolCallId } from '@deepseek-ai/dsh-llm'
 import { Session, SessionId, SessionStore } from '@deepseek-ai/dsh-session'
@@ -60,6 +60,7 @@ function appendExchange(
 async function harness(): Promise<{ ctx: Context; parent: Session; agent: Agent }> {
   const ctx = context = new Context()
   await ctx.plugin(CommandRuntime)
+  await ctx.plugin(AgentRegistry)
   await ctx.plugin(SessionStore)
   await ctx.plugin(SessionProjectionRegistry)
   await ctx.plugin(TokenMeter)
@@ -126,11 +127,27 @@ describe('handoff command', () => {
     if (child === undefined) throw new Error('expected a child session')
     expect(child.header.parentSession).toBe(parent.id)
     expect(String(result.kind === 'success' ? result.text : '')).toContain(String(child.id))
-    const messages = child.deriveMessages()
-    const first = JSON.stringify(messages[0])
-    expect(first).toContain('Handoff checkpoint')
-    expect(first).toContain('finish the migration and keep the API stable')
-    expect(first).toContain('handoff-parent')
+    // The checkpoint is log-only until the child's first step: the child
+    // surface must stay empty so the system prompt remains node 0.
+    expect(child.deriveMessages()).toHaveLength(0)
+    const checkpointEvent = child.snapshotEvents().find(event => event.type === 'handoff/checkpoint')
+    expect(JSON.stringify(checkpointEvent?.data)).toContain('finish the migration and keep the API stable')
+    const delivered = await agentEvents(ctx, { session: child, status: 'running', options: {} } as unknown as Agent).waterfall(
+      'agent/pre-step',
+      { messages: [], turn: 1, step: 1, signal: new AbortController().signal },
+      () => Promise.resolve({ kind: 'enter' as const, messages: [] }),
+    )
+    if (delivered.kind !== 'enter') throw new Error('expected an enter decision')
+    const injected = JSON.stringify(delivered.messages)
+    expect(injected).toContain('Handoff checkpoint')
+    expect(injected).toContain('finish the migration and keep the API stable')
+    expect(injected).toContain('handoff-parent')
+    const second = await agentEvents(ctx, { session: child, status: 'running', options: {} } as unknown as Agent).waterfall(
+      'agent/pre-step',
+      { messages: [], turn: 1, step: 2, signal: new AbortController().signal },
+      () => Promise.resolve({ kind: 'enter' as const, messages: [] }),
+    )
+    expect(second.kind === 'enter' ? second.messages : []).toHaveLength(0)
     expect(parent.deriveMessages()).toHaveLength(before)
   })
 

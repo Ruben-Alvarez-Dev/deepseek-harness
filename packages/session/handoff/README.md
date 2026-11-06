@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-handoff` adds a human command, `/handoff <goal>`, that turns the current session into a continuation: it reads the live session state, renders a bounded checkpoint (goal, parent session id, measured context tokens, last request, last outcome, recent tool calls, referenced files, and fixed guidance), creates a child session whose header links to the parent, and appends the checkpoint as the child's first message. The parent session is not modified beyond the ordinary command lifecycle; the child never has to rediscover the goal or the working set, and can still read the parent through the existing session tools.
+`dsh-handoff` adds a human command, `/handoff <goal>`, that turns the current session into a continuation: it reads the live state, renders a bounded checkpoint (goal, parent id, measured tokens, last exchange, tool calls, files, guidance), creates a child session linked through `header.parentSession`, and records that checkpoint as a log-only event delivered to the child's first model step as a request-scoped message. The parent is not forked or compacted; the child starts small and can still read the parent through the existing session tools.
 
 ## Table of Contents
 
@@ -50,7 +50,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-a
 
 ### Design concept
 
-The checkpoint is derived from the live projection (`session.deriveMessages()`), never from deprecated historical reads. It states the goal first, then the parent link and the measured context size, then the bounded last request/outcome and working set, and finally the guidance that names the parent session id and the `session_event_search`/`session_trace` tools. The child is created with `header.parentSession` set, receives `turn/start` plus one user-role message tagged with the `handoff-checkpoint` source, and starts from that message alone. No fork copies the parent history, no compaction runs, and the parent keeps its own trajectory.
+The checkpoint is derived from the live projection (`session.deriveMessages()`), never from deprecated historical reads. It states the goal first, then the parent link and the measured context size, then the bounded last request/outcome and working set, and finally the guidance that names the parent session id and the `session_event_search`/`session_trace` tools. The child is created with `header.parentSession` set and its checkpoint is appended as a `handoff/checkpoint` log-only record. On the child's first model step, an `agent/pre-step` listener injects that checkpoint as a request-scoped user message tagged `handoff-checkpoint`; the child's surface therefore stays empty until the loop adds its own system prompt, and the delivery happens once. No fork copies the parent history, no compaction runs, and the parent keeps its own trajectory.
 
 ### Source map
 
@@ -78,7 +78,7 @@ The package publishes no `./invariant`: it owns no relation between independent 
 
 #### What the model sees
 
-In the child session, the first user-role message is the checkpoint: a `## Handoff checkpoint (from the previous session)` heading, the goal, the parent session id, the measured context size, the guidance for `session_event_search`/`session_trace`, the bounded last request and last outcome, and the recent tool calls and referenced files. The parent session's model sees nothing new: the command and its result are human-only command lifecycle records.
+In the child's first model step, the request carries one additional user-role message after the claimed messages: a `## Handoff checkpoint (from the previous session)` heading, the goal, the parent session id, the measured context size, the guidance for `session_event_search`/`session_trace`, the bounded last request and last outcome, and the recent tool calls and referenced files. The checkpoint is a request-scoped delivery, not a surface message, so the child's system prompt remains surface node 0. The parent session's model sees nothing new: the command and its result are human-only command lifecycle records.
 
 #### Token effect
 
@@ -86,7 +86,7 @@ The child starts with one bounded message instead of the parent's full history; 
 
 #### KV Cache effect
 
-A new session starts with no provider cache: its cacheable prefix is the checkpoint message plus the child's later turns. Editing the checkpoint changes only the new prefix; the parent's cached history is untouched.
+A new session starts with no provider cache: its cacheable prefix is the child's system prompt plus the delivered checkpoint and later turns. Editing the checkpoint changes only the new prefix; the parent's cached history is untouched.
 
 ## Known Limitations and Deferred Work
 

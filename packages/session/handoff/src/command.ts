@@ -2,7 +2,6 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import type { CommandInvocation, CommandResult } from '@deepseek-ai/dsh-commands'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import type {} from '@deepseek-ai/dsh-session'
 import type {} from '@deepseek-ai/dsh-token-meter'
 import { buildHandoffCheckpoint } from './checkpoint.ts'
@@ -36,11 +35,14 @@ export function executeHandoff(
       ...header.cwd === undefined ? {} : { cwd: header.cwd },
     },
   })
-  child.append('turn/start', { turn: 1 })
-  child.append('user/message', createUserMessage({
-    content: [{ type: 'text', text: checkpoint.text }],
-    source: { kind: 'handoff-checkpoint', version: 1, parentSession: session.id, goal },
-  }), { surfaceOp: 'append' })
+  // The checkpoint is a log-only record; the child's first pre-step delivers it
+  // as a request-scoped message so the system prompt stays surface node 0.
+  child.append('handoff/checkpoint', {
+    parentSession: String(session.id),
+    goal,
+    tokens,
+    text: checkpoint.text,
+  })
   return {
     kind: 'success',
     text: `Handoff ready in session ${child.id} (parent ${session.id}, ${tokens} tokens summarized as a checkpoint). Continue there.`,
