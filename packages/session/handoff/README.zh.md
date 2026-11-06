@@ -70,7 +70,7 @@ kind: "package-reference"
 <a id="dev-note"></a>
 ## 开发备注
 
-本包不发布 invariant 伴随包，因为它不拥有可能出现分歧的独立观测关系。继续性门禁位于 `tests/handoff.spec.ts`；它是确定性的代理指标（检查点中存在的事实 vs 每个缺失事实一次恢复搜索），不是模型实跑基准。
+本包不发布 invariant 伴随包，因为它不拥有可能出现分歧的独立观测关系。继续性门禁位于 `tests/handoff.spec.ts`；它是确定性的定义（检查点中存在的事实 vs 每个缺失事实一次恢复搜索），不是模型实跑基准。
 
 <a id="model-experience"></a>
 ## 模型体验

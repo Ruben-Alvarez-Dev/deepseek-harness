@@ -70,7 +70,7 @@ The checkpoint is derived from the live projection (`session.deriveMessages()`),
 <a id="dev-note"></a>
 ## Dev Note
 
-No invariant companion is published because it owns no relation between independent observations that could diverge. The continuation gate lives in `tests/handoff.spec.ts`; it is a deterministic proxy (facts present in the checkpoint versus a per-fact recovery search), not a model-run benchmark.
+No invariant companion is published because it owns no relation between independent observations that could diverge. The continuation gate lives in `tests/handoff.spec.ts`; it is a deterministic definition (facts present in the checkpoint versus a per-fact recovery search), not a model-run benchmark.
 
 <a id="model-experience"></a>
 ## Model Experience
