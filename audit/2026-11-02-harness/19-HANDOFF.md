@@ -1,6 +1,6 @@
 # HANDOFF — sesión de auditoría/planificación SOTA (2026-11-02)
 
-**Para la siguiente sesión:** este documento resume el estado exacto. Todo el material está en `audit/2026-11-02-harness/` (269 ficheros). **CH-012 cerrado 2026-11-06:** versionado en la rama local `audit/2026-11-02-harness` (commit `45c3443`, sin push).
+**Para la siguiente sesión:** este documento resume el estado exacto. Todo el material está en `audit/2026-11-02-harness/` (270 ficheros). **CH-012 cerrado 2026-11-06:** versionado en la rama local `audit/2026-11-02-harness` (commit `45c3443`, sin push).
 **Actualización 2026-11-05:** cortex sale del alcance de DSH. Su material (C5–C8, F0 cortex, F2) se migró a `~/Code/Jart-CORTEX/audit/2026-11-02-cortex/`; este expediente mantiene PI-agent, DSH, dossier QWEN y router.
 **Actualización 2026-11-06 (esta sesión):** F0 cerrado con gates medidos; las 4 decisiones del propietario resueltas; plan adaptado a las desviaciones verificadas. Detalle en §0.
 
@@ -24,6 +24,7 @@
 - **CH-004 (`demo/tmp/d1.db`):** eliminada la copia del expediente (184.320 B, SHA-256 `780f0c46…09283`, modo 0644). Gate `grep -r "PRIVATE KEY" demo/` → **0**. La **copia original** de `PROJECTS/QWEN-code/auditoria-pi-agent/demo/tmp/d1.db` (mismo SHA-256) se **eliminó** después con tu autorización expresa: `find /Users/ruben -name d1.db` → 0. Gate final: 0 claves privadas en ambas ubicaciones.
 - **CH-005 (rescate):** `router.bundle` verificado (`git bundle verify` → *complete history*; 32 commits; `main = 12d0940…`) y manifiesto SHA-256 de **183 ficheros** en `rescate/MANIFIESTO-SHA256.txt`. **Pérdida declarada:** 38 commits colgantes, 81 ficheros de test de `e54c5d9^` (526 casos) y E-031…E-057 (CH-034) no son recuperables porque el repo PI-agent ya no existe en disco.
 - **CH-012 (versionado):** expediente commiteado en rama local `audit/2026-11-02-harness` (commit `45c3443`, 269 ficheros, solo `audit/2026-11-02-harness/`); `master` intacto; sin push.
+- **CH-040 (baseline P0):** medido con usage exacto del log v4 en 3 sesiones (cordis/standard/sota): **582 peticiones**, **308.353 tok/petición** ponderado (input no cacheado 6.175 · cache read 301.159 · output 1.019; 97,7 % cache read). Publicado en `planificacion/20-BASELINE-CH040.md`; P1 propone −20 % (decisión pendiente).
 
 ### 0.3 Desviaciones verificadas frente al handoff del 11-05
 
@@ -86,7 +87,7 @@ audit/2026-11-02-harness/
 ## 6 · Próximo paso concreto
 
 1. **CH-012 — hecho:** commit `45c3443` en la rama local `audit/2026-11-02-harness`, solo con `audit/2026-11-02-harness/`; sin push. Los 6 tracked modificados y 19 untracked ajenos siguen sin tocar.
-2. **F4 / CH-040:** baseline token-meter en 3 sesiones con las cuotas ya fijadas (K=8/3k/1k); requiere actualizar `master` (666 commits por detrás) y el proceso DSH (PR + Agent Note).
+2. **F4 / CH-041 (P1):** governor outbound con el gate de P1; antes hay que actualizar `master` (666 commits por detrás) y seguir el proceso DSH (PR + Agent Note). CH-040 (P0) quedó cerrado con baseline publicado.
 3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
 
 ## 7 · Avisos
