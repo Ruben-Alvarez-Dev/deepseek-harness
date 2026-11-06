@@ -61,3 +61,13 @@ El pin de integridad de plugins requiere decidir sobre confianza de terceros y f
 | Filtrar un secreto no cubierto | Las seis familias cubren las credenciales del ecosistema; el gate exige 0 fugas y la extracción a util deja una sola casa para ampliar reglas |
 | Redacción tardía respecto al backend | El seam aplica las transformaciones antes de `emit()`; el coordinador entrega el resultado del waterfall |
 | Auditoría convierte P6 en un cambio enorme | Se audita el diff F4 (ramas locales) con evidencia y se limita a 0 BLOCKER/CRITICAL, no a una reescritura |
+
+## 6 · Implementación y medición (2026-11-06)
+
+- **E-1 implementado opt-in** (dos paquetes, commits locales en `.worktrees/ch046`, sin push):
+  - `@deepseek-ai/dsh-redaction` (`packages/util/redaction`) — única casa de las 7 reglas fijas (PEM, `sk-`, Bearer, JWT, GitHub, AWS, asignaciones), con conteos por regla y nombres auditables.
+  - `@deepseek-ai/dsh-telemetry-redaction` (`packages/session/telemetry-redaction`) — listener del waterfall `session-telemetry/record` que recorre `body`/`attributes` (strings, arrays, objetos), no muta el registro de entrada, no toca el log canónico y **retiene fail-closed** un registro con ciclo.
+- **Gate de redacción medido:** **20/20 registros sin fugas** con las 6 familias en body, valores anidados y attributes; entrada intacta verificada; ciclo retenido. 6 tests verdes (3 por paquete).
+- **G-3 medido:** `pnpm run verify-package-invariants` → **39 companions conformes, 0 violaciones**; ninguno de los dos paquetes publica `./invariant` (transform puro, sin relación entre observaciones independientes) y ambos README declaran la omisión con la frase exigida.
+- **E-3:** diferido a decisión del propietario (fuera del gate de P6); **G-1/G-2** documentados como plugins de mercado, sin código nuevo.
+- **Pendiente para el cierre:** `/auditoria-dev` final sobre F4 (CH-043…045) + este change; el cierre de CH-046 exige **0 BLOCKER / 0 CRITICAL** en ese informe.
