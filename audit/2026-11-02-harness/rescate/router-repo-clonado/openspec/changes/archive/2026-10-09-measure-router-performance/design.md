@@ -1,0 +1,7 @@
+# Measurement design
+
+Use monotonic performance.now() inside each native Pi child. Measure headers and first actual content/tool delta relative to the native payload hook (after reservation). Finish on native assistant message_end, which includes parsing and lease cleanup. Separately measure parent CLI wall time, which includes cold process startup and shutdown; measure agent preparation to payload but do not call it isolated router overhead.
+
+A benchmark-only mode runs four text requests, one per account, with output integers 1 through 48 and max_tokens 256. A pilot capped at 128 tokens did not complete the requested sequence; its HTTP-200 timing evidence is retained separately as a failed output-validation sample, not silently counted as success. Require exact output completion, HTTP 200 and expected proactive account order. Requests are serial and start at least seven seconds apart. Keep the existing real tool-verification report unchanged by writing benchmark evidence to a separate private file.
+
+Compute effective output tokens/second over the complete measured inference, not an unverified model-generation rate. Track content chunk count and first/last delta timing to detect buffered delivery. Four observations are a descriptive sample, not p95/SLA evidence or a sustained throughput/independent-quota test. No single-account baseline is run, so speedup and router-only overhead remain unproven.

@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-10-12
+goal: EWMA latency-aware account selection (L1) — lower-latency accounts win tie-breaks in least-pressure selector
+affected_areas:
+  - policy
+  - state

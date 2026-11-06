@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "provider": { "adapter": "agnes" },
+  "accounts": [{ "id": "local", "quotaGroup": "free", "credential": { "piProvider": "agnes-ai" } }],
+  "quotaGroups": [
+    { "id": "free", "maxConcurrent": 1, "limits": [{ "requests": 10, "windowMs": 60000 }] }
+  ]
+}

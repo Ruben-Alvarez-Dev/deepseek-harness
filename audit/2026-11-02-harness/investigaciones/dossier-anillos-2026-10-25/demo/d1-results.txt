@@ -1,0 +1,11 @@
+PASS  T1 intermediate: cuota anti-gaming por familia/fuente  ::  10 admitidas, 11ª rechazada reason=quota.maxPerFamilyPerSource
+PASS  T2 intermediate: router en dos etapas (find + route)  ::  hits=1 routeKeys=query,selected,escapeHatch,appliedBeta selected=[{"capability":{"rowid":1,"id":"cap-1","kind":"tool","name":"alpha translator","family":"fam-a","description":"traduce a
+PASS  T3 intermediate: TokenRing por capas + CCR lossless + TokenGovernor  ::  compress: tokens=400 reversible=false roundtrip=n/a | caveman(ultra): applied=false saved=0 | governor: report={"source":400,"output":400} used=800
+PASS  T4 intermediate: gate fail-closed sobre fuente desconocida  ::  allowed=false reason=sandbox required but unavailable
+PASS  T5 memory: persistencia real entre instancias (dbPath file)  ::  decision={"admit":true,"action":"persist","score":0.753,"factors":{"futureUtility":0.56," recuperado tras reapertura con dbPath file
+PASS  T6 memory: search lexical tras reapertura, con scope explícito y default  ::  hits(scope=s1)=1 first=m1 | hits(scope default 'project')=0 (gotcha: default implícito)
+PASS  T7 memory: consolidate + checkpoint + rollback  ::  consolidate={"checkpoint":"ckpt_1_1792917267496","merged":0,"archived":0,"summaries":0} checkpoints=1 rollback=true
+PASS  T8 memory: forget + forgetSalience  ::  forgetSalience(0.999)=4 forget(m3)=false m3 tras forget=archived
+PASS  T9 memory: aislamiento por prefijo de scope (tenant)  ::  s1=4 t2=1 sin fuga cruzada por prefijo
+
+TOTAL 9  PASS 9  FAIL 0

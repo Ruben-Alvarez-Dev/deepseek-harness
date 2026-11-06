@@ -1,0 +1,64 @@
+{
+  "name": "pi-account-router",
+  "version": "0.1.0",
+  "description": "Standard Pi extension for proactive routing across authorized account quota pools",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "router",
+    "agnes-ai"
+  ],
+  "files": [
+    "src",
+    "examples",
+    "catalog",
+    "README.md",
+    "LICENSE",
+    "docs"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/extension.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/ tests/ --error-on-warnings",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "test:live": "tsx scripts/live-smoke.ts",
+    "test:live:accounts": "tsx scripts/live-accounts.ts",
+    "test:live:performance": "tsx scripts/live-accounts.ts --benchmark",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "check:specs": "openspec validate --all --strict --no-interactive",
+    "check:providers": "tsx scripts/check-contracts.ts",
+    "check:models": "tsx scripts/check-models.ts",
+    "prepack": "npm run typecheck && npm run lint",
+    "verify": "npm run check && npm run check:specs && npm run check:providers && npm run check:models",
+    "verify:live": "PI_ROUTER_LIVE=1 npm run test:live",
+    "verify:full": "npm run check && npm run check:specs && PI_ROUTER_LIVE=1 npm run test:live && mkdir -p dist && npm pack --pack-destination dist && npm audit --audit-level=low && npm audit --omit=dev"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "dependencies": {
+    "proper-lockfile": "4.1.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@earendil-works/pi-ai": "1.1.0",
+    "@earendil-works/pi-coding-agent": "1.1.0",
+    "@types/node": "22.19.19",
+    "@types/proper-lockfile": "4.1.4",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

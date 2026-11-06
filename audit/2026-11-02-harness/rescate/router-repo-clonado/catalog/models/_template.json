@@ -1,0 +1,37 @@
+{
+  "_comment": "Plantilla de ficha de modelo. Copia a {provider}/{modelo}-v1.json. `id` debe ser un UUIDv7 con prefijo mdl_ (Zod lo rechaza sin prefijo). Cambios de especificación = nueva versión (v2) + `supersededBy` en la anterior; nunca editar una ficha publicada.",
+  "id": "mdl_REEMPLAZAR_CON_UUIDv7",
+  "modelId": "provider/modelo",
+  "provider": "provider",
+  "version": 1,
+  "name": "Nombre humano (solo texto imprimible, sin caracteres de control)",
+  "context": { "maxInput": 32000, "maxOutput": 4096 },
+  "capabilities": {
+    "input": ["text"],
+    "streaming": true,
+    "toolCalling": false,
+    "reasoning": false,
+    "vision": false,
+    "audio": false,
+    "caching": false
+  },
+  "pricing": {
+    "currency": "USD",
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "note": "Documentar el precio publicado aunque sea 0; indicar que la factura real es la fuente de verdad."
+  },
+  "quirks": {
+    "rateLimitHeaders": false,
+    "notes": "Peculiaridades que afectan al router: headers de rate limit, Retry-After, formato de tool calls, discrepancias de conteo de tokens."
+  },
+  "engine": { "note": "Modelo de API: {} vacío. Para motores locales documentar flags por engine (fuera de alcance actual de esta extensión)." },
+  "supersedes": null,
+  "supersededBy": null,
+  "verifiedAt": "2026-10-17T00:00:00Z",
+  "sources": [
+    { "url": "https://fuente.official/docs", "description": "Descripción de la fuente", "verifiedAt": "2026-10-17T00:00:00Z" }
+  ]
+}

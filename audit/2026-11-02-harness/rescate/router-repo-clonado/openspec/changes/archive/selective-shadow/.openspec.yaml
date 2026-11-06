@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-10-12
+goal: Dispatch one regeneration on a different account on transient failure (L3 selective shadow)
+affected_areas:
+  - transport
+  - footer

@@ -1,0 +1,362 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Compaction documentation for OpenCode."><meta name="theme-color" content="#000000"><script>
+      const applyTheme = () => {
+        const theme =
+          localStorage.getItem("docs-theme") ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+        document.documentElement.dataset.theme = theme
+        document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#ffffff" : "#000000")
+      }
+
+      applyTheme()
+      document.addEventListener("astro:after-swap", applyTheme)
+      matchMedia("(prefers-color-scheme: light)").addEventListener("change", applyTheme)
+      document.addEventListener("click", (event) => {
+        if (!(event.target instanceof Element) || !event.target.closest("[data-theme-toggle]")) return
+        localStorage.setItem("docs-theme", document.documentElement.dataset.theme === "light" ? "dark" : "light")
+        applyTheme()
+      })
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="swap"><script type="module" src="/v2/_astro/ClientRouter.astro_astro_type_script_index_0_lang.DdAKuC9Y.js"></script><link rel="canonical" href="https://opencode.ai/v2/docs/compaction/"><link rel="icon" type="image/svg+xml" href="/v2/favicon.svg"><title>Compaction | OpenCode</title><link rel="stylesheet" href="/v2/_astro/DocsLayout.Bxr2Ucih.css"></head><body><a class="skip-link" href="#docs-content">Skip to content</a><header class="site-header"><div class="header-inner"><a class="brand" href="/v2/docs/" aria-label="OpenCode docs home"><img class="logo-dark" src="/v2/assets/logo-dark.svg" alt="OpenCode"><img class="logo-light" src="/v2/assets/logo-light.svg" alt="OpenCode"></a><nav aria-label="Documentation sections"><a href="/v2/docs/" aria-current="page">Docs</a><a href="/v2/docs/cli/">CLI</a><a href="/v2/docs/build/">Build</a><a href="/v2/docs/api">API</a><a href="/v2/docs/console/">Console</a><a href="/docs">V1</a></nav><div class="header-spacer"></div><button class="search-trigger" type="button" data-search-open aria-label="Search documentation"><span>Search</span><kbd>⌘K</kbd></button><button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme"><svg class="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg><svg class="theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path></svg></button><a class="github-link" href="https://github.com/anomalyco/opencode" aria-label="OpenCode on GitHub">GitHub</a></div></header><dialog class="search-dialog" data-search-dialog data-pagefind-path="/v2/docs/pagefind/pagefind.js" data-base-url="/v2/docs/" aria-label="Search documentation"><form method="dialog" class="search-bar"><span aria-hidden="true">&gt;</span><input data-search-input type="search" placeholder="Search docs" aria-label="Search docs" autocomplete="off"><button type="submit" aria-label="Close search">Esc</button></form><div class="search-results" data-search-results><p>Start typing to search the documentation.</p></div></dialog><script>
+  let pagefind
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault()
+      const dialog = document.querySelector("[data-search-dialog]")
+      dialog?.showModal()
+      dialog?.querySelector("[data-search-input]")?.focus()
+    }
+  })
+
+  const setupSearch = () => {
+    const dialog = document.querySelector("[data-search-dialog]")
+    const input = document.querySelector("[data-search-input]")
+    const results = document.querySelector("[data-search-results]")
+    const trigger = document.querySelector("[data-search-open]")
+    if (trigger && !trigger.dataset.searchReady) {
+      trigger.dataset.searchReady = "true"
+      trigger.addEventListener("click", () => {
+        dialog?.showModal()
+        input?.focus()
+      })
+    }
+
+    if (input && results && !input.dataset.searchReady) input.addEventListener("input", async () => {
+      input.dataset.searchReady = "true"
+      const query = input.value.trim()
+      if (!query) {
+        results.innerHTML = "<p>Start typing to search the documentation.</p>"
+        return
+      }
+
+      const pagefindPath = dialog?.dataset.pagefindPath
+      if (!pagefindPath) return
+      const api = pagefind ?? (pagefind = await import(pagefindPath))
+      const search = await api.search(query)
+      const pages = await Promise.all(search.results.slice(0, 8).map((result) => result.data()))
+      results.replaceChildren(
+        ...pages.map((page) => {
+          const link = document.createElement("a")
+          const base = dialog.dataset.baseUrl ?? "/"
+          link.href = page.url.startsWith(base)
+            ? page.url
+            : `${dialog.dataset.baseUrl?.replace(/\/$/, "")}${page.url}`
+          const title = document.createElement("strong")
+          title.textContent = page.meta.title
+          const excerpt = document.createElement("span")
+          excerpt.innerHTML = page.excerpt
+          link.append(title, excerpt)
+          return link
+        }),
+      )
+      if (!pages.length) results.innerHTML = "<p>No results found.</p>"
+    })
+  }
+
+  setupSearch()
+  document.addEventListener("astro:page-load", setupSearch)
+</script><details class="mobile-navigation"><summary>Docs navigation</summary><nav class="docs-sidebar" aria-label="Documentation"><section><ul><li><a href="/v2/docs/">Intro</a></li><li><a href="/v2/docs/config/">Config</a></li><li><a href="/v2/docs/migrate-v1/">Migrate from V1</a></li><li><a href="/v2/docs/troubleshooting/">Troubleshooting</a></li></ul></section><section><h2>Configure</h2><ul><li><a href="/v2/docs/agents/">Agents</a></li><li><a href="/v2/docs/models/">Models</a></li><li><a href="/v2/docs/skills/">Skills</a></li><li><a href="/v2/docs/themes/">Themes</a></li><li><a href="/v2/docs/commands/">Commands</a></li><li><a href="/v2/docs/plugins/">Plugins</a></li><li><a href="/v2/docs/providers/">Providers</a></li><li><a href="/v2/docs/websearch/">Web search</a></li><li><a href="/v2/docs/network/">Network</a></li><li><a href="/v2/docs/snapshots/">Snapshots</a></li><li><a href="/v2/docs/compaction/" aria-current="page">Compaction</a></li><li><a href="/v2/docs/formatters/">Formatters</a></li><li><a href="/v2/docs/references/">References</a></li><li><a href="/v2/docs/attachments/">Attachments</a></li><li><a href="/v2/docs/tools/">Tools</a></li><li><a href="/v2/docs/mcp-servers/">MCP servers</a></li><li><a href="/v2/docs/permissions/">Permissions</a></li><li><a href="/v2/docs/policies/">Policies</a></li><li><a href="/v2/docs/instructions/">Instructions</a></li><li><a href="/v2/docs/warming/">Warming</a></li></ul></section></nav></details><div class="docs-frame"><aside class="sidebar-column"><nav class="docs-sidebar" aria-label="Documentation"><section><ul><li><a href="/v2/docs/">Intro</a></li><li><a href="/v2/docs/config/">Config</a></li><li><a href="/v2/docs/migrate-v1/">Migrate from V1</a></li><li><a href="/v2/docs/troubleshooting/">Troubleshooting</a></li></ul></section><section><h2>Configure</h2><ul><li><a href="/v2/docs/agents/">Agents</a></li><li><a href="/v2/docs/models/">Models</a></li><li><a href="/v2/docs/skills/">Skills</a></li><li><a href="/v2/docs/themes/">Themes</a></li><li><a href="/v2/docs/commands/">Commands</a></li><li><a href="/v2/docs/plugins/">Plugins</a></li><li><a href="/v2/docs/providers/">Providers</a></li><li><a href="/v2/docs/websearch/">Web search</a></li><li><a href="/v2/docs/network/">Network</a></li><li><a href="/v2/docs/snapshots/">Snapshots</a></li><li><a href="/v2/docs/compaction/" aria-current="page">Compaction</a></li><li><a href="/v2/docs/formatters/">Formatters</a></li><li><a href="/v2/docs/references/">References</a></li><li><a href="/v2/docs/attachments/">Attachments</a></li><li><a href="/v2/docs/tools/">Tools</a></li><li><a href="/v2/docs/mcp-servers/">MCP servers</a></li><li><a href="/v2/docs/permissions/">Permissions</a></li><li><a href="/v2/docs/policies/">Policies</a></li><li><a href="/v2/docs/instructions/">Instructions</a></li><li><a href="/v2/docs/warming/">Warming</a></li></ul></section></nav></aside><main id="docs-content"><article class="prose" data-pagefind-body data-pagefind-meta="title:Compaction"><h1>Compaction<button type="button" aria-label="Copy page as Markdown" data-copy-markdown data-pagefind-ignore><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg></button></h1><p>Compaction makes room in a long session by replacing older conversation with a
+summary, so the session can keep going past the model’s context limit.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>When a session approaches the model’s context limit, OpenCode summarizes the
+entire current conversation. It also keeps the most recent conversation, about
+15,000 tokens by default, beside the summary so exact recent details remain
+available.</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>before   [ system prompt ][ older conversation ............ ][ recent 15k ][ pending work ]</span></span>
+<span class="line"><span>request  [ system prompt ][ older conversation ............ ][ recent 15k ][ summary instructions ]</span></span>
+<span class="line"><span>after    [ system prompt ][ summary of older + recent ][ recent 15k ][ pending work ]</span></span></code></pre>
+<p>Sending the full conversation lets the summary request reuse the normal request’s
+prompt cache when the provider supports it. Later compactions update the existing
+summary using the conversation since that checkpoint.</p>
+<h2 id="start">Start</h2>
+<p>Automatic compaction is on by default:</p>
+<figure class="astro-code-figure"><figcaption class="astro-code-title">opencode.jsonc</figcaption><pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="jsonc"><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;$schema&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;https://opencode.ai/config.json&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;compaction&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;auto&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">true</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;keep&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;tokens&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">15000</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span></code></pre></figure>
+<p>Compaction is lossy. Increase <code>keep.tokens</code> when exact recent details matter,
+or request compaction yourself before the automatic one.</p>
+<h2 id="manual">Manual</h2>
+<p>Request compaction at any time, even for a short history:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">opencode</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> api</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> post</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> /api/session/ses_example/compact</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --data</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> &#39;{}&#39;</span></span></code></pre>
+<p>The <code>api</code> command discovers and authenticates with the background service. Its
+response confirms the request was accepted; it does not wait for the summary.
+Follow <code>session.compaction.*</code> events to learn when it finishes. See the
+<a href="/v2/docs/api">API reference</a> for the full operation.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="docs-table-scroll" tabindex="0"><table><thead><tr><th>Rule</th><th>Behavior</th></tr></thead><tbody><tr><td>Timing</td><td>Runs at the next safe point, before prompts that are still waiting.</td></tr><tr><td>Repeats</td><td>Requests made while one is pending merge into it.</td></tr><tr><td>Automation</td><td>Works when <code>compaction.auto</code> is <code>false</code>.</td></tr></tbody></table></div>
+<p>Pass an <code>id</code> to make an exact retry idempotent. Reusing that ID for a different
+request returns a conflict.</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">opencode</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> api</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> post</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> /api/session/ses_example/compact</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --data</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> &#39;{&quot;id&quot;:&quot;msg_compact_once&quot;}&#39;</span></span></code></pre>
+<h2 id="settings">Settings</h2>
+<p>Add <code>compaction</code> to any <a href="/v2/docs/config">OpenCode configuration file</a>:</p>
+<figure class="astro-code-figure"><figcaption class="astro-code-title">opencode.jsonc</figcaption><pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="jsonc"><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;$schema&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;https://opencode.ai/config.json&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;compaction&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;auto&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">false</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;keep&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;tokens&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">24000</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;buffer&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;20%&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span></code></pre></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="docs-table-scroll" tabindex="0"><table><thead><tr><th>Field</th><th style="text-align:right">Default</th><th>Behavior</th></tr></thead><tbody><tr><td><code>auto</code></td><td style="text-align:right"><code>true</code></td><td>Compact automatically near the context limit, and recover once when a provider rejects a request as too long. Manual compaction always works.</td></tr><tr><td><code>keep.tokens</code></td><td style="text-align:right"><code>15000</code></td><td>Approximate recent conversation kept beside the summary. Larger values preserve more detail but leave less room for new work.</td></tr><tr><td><code>buffer</code></td><td style="text-align:right"><code>&quot;15%&quot;</code>, at least 16k</td><td>Share of the model’s context window kept free. Automatic compaction starts once the conversation reaches the rest. Larger values compact earlier.</td></tr></tbody></table></div>
+<p><code>keep.tokens</code> accepts a non-negative integer.</p>
+<h3 id="buffer">Buffer</h3>
+<p><code>buffer</code> is a percentage of each model’s window, so one setting fits every model:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="docs-table-scroll" tabindex="0"><table><thead><tr><th style="text-align:right">Model window</th><th style="text-align:right"><code>&quot;buffer&quot;: &quot;20%&quot;</code> compacts at</th></tr></thead><tbody><tr><td style="text-align:right">128k</td><td style="text-align:right">~102k</td></tr><tr><td style="text-align:right">1M</td><td style="text-align:right">800k</td></tr></tbody></table></div>
+<ul>
+<li>It is the room kept free, not the point where compaction starts: <code>&quot;20%&quot;</code> compacts at 80% full.</li>
+<li>Accepts <code>&quot;1%&quot;</code> to <code>&quot;99%&quot;</code>, including decimals such as <code>&quot;12.5%&quot;</code>.</li>
+<li>A token count such as <code>20000</code> also works. The same count is a large share of a small window and a small share of a large one.</li>
+<li>A token count at least as large as the model’s window is ignored and the default applies.</li>
+</ul>
+<h2 id="model">Model</h2>
+<p>By default OpenCode writes the summary itself, using the session’s model. Set
+<code>agents.compaction.model</code> to use another model for summaries:</p>
+<figure class="astro-code-figure"><figcaption class="astro-code-title">opencode.jsonc</figcaption><pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="jsonc"><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;$schema&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;https://opencode.ai/config.json&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;agents&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;compaction&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;model&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;anthropic/claude-sonnet-5-5&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span></code></pre></figure>
+<p>If that model cannot be resolved, OpenCode falls back to the session’s model.</p>
+<h2 id="background-compaction">Background compaction</h2>
+<aside class="callout callout-warning" aria-label="Warning"><strong>Warning</strong><div><p>Experimental. This may change, break, or be removed in any release without notice.</p></div></aside>
+<p>Automatic compaction normally pauses the session while the summary is written. With background compaction, OpenCode
+writes the summary ahead of time and swaps it in when compaction is due:</p>
+<figure class="astro-code-figure"><figcaption class="astro-code-title">opencode.jsonc</figcaption><pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="jsonc"><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;$schema&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;https://opencode.ai/config.json&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;experimental&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;background_compaction&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">true</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span></code></pre></figure>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>85% of the threshold   summary of the conversation so far starts in the background</span></span>
+<span class="line"><span>                       the session keeps going; the summary is held, not applied</span></span>
+<span class="line"><span>threshold              the held summary is swapped in; everything since it is kept as is</span></span></code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="docs-table-scroll" tabindex="0"><table><thead><tr><th>Rule</th><th>Behavior</th></tr></thead><tbody><tr><td>Cost</td><td>The summary request reuses the prompt cache. A summary that is never used still costs tokens.</td></tr><tr><td>Falls back</td><td>Compaction summarizes as usual if too much conversation arrived since the held summary, or if the model, instructions, or start of the conversation changed.</td></tr><tr><td>Skipped</td><td>Not used for native compaction, in sessions under about 64k tokens, right after a model switch, or when a provider rejects a request as too long.</td></tr><tr><td>Storage</td><td>Held summaries live in memory and are lost on restart.</td></tr></tbody></table></div>
+<h2 id="providers">Providers</h2>
+<p>Some providers can compact the conversation on their side instead. Enable it per
+provider or model with <code>settings.compaction</code>:</p>
+<figure class="astro-code-figure"><figcaption class="astro-code-title">opencode.jsonc</figcaption><pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="jsonc"><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;$schema&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;https://opencode.ai/config.json&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;providers&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;openai&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">      &quot;settings&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;compaction&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;type&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;native&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> } },</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">      &quot;models&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">        &quot;gpt-6.1-sol&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;settings&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;compaction&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;type&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#032F62;--shiki-dark:#9ECBFF">&quot;summary&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> } } },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">      },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span></code></pre></figure>
+<p>A model setting overrides the provider setting. <code>native</code> uses the provider’s
+compaction; <code>summary</code> uses OpenCode’s own.</p>
+<p>With native compaction, OpenCode sends the conversation to the provider’s
+compaction endpoint. The provider returns an opaque, encrypted item that stands
+in for the older conversation. Your recent messages and attachments, up to
+<code>keep.tokens</code>, are kept alongside it:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>before   [ older conversation ........................ ][ recent user messages ]</span></span>
+<span class="line"><span>after    [ encrypted checkpoint + recent user messages ]</span></span></code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="docs-table-scroll" tabindex="0"><table><thead><tr><th>Topic</th><th>Behavior</th></tr></thead><tbody><tr><td>Support</td><td>OpenAI Responses models. Support varies by deployment and model.</td></tr><tr><td>Threshold</td><td>Same <code>auto</code> and <code>buffer</code> settings as summary compaction. Manual requests work too.</td></tr><tr><td>Portability</td><td>An encrypted checkpoint only works with the same provider and model. If you switch models, the session continues from the original conversation instead.</td></tr><tr><td>Too long</td><td>If the provider rejects a compaction as too long, OpenCode retries it with a smaller request. It does not switch to a summary.</td></tr></tbody></table></div>
+<h2 id="summaries">Summaries</h2>
+<p>The summary is structured so another agent could pick the work up from it:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="md"><code><span class="line"><span style="color:#005CC5;--shiki-light-font-weight:bold;--shiki-dark:#79B8FF;--shiki-dark-font-weight:bold">## Objective</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">Finish the authentication migration.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#005CC5;--shiki-light-font-weight:bold;--shiki-dark:#79B8FF;--shiki-dark-font-weight:bold">## Next Move</span></span>
+<span class="line"><span style="color:#E36209;--shiki-dark:#FFAB70">-</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> Update the callback handler.</span></span>
+<span class="line"><span style="color:#E36209;--shiki-dark:#FFAB70">-</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> Verify the login flow.</span></span></code></pre>
+<p>It covers the objective and requirements, decisions, completed and active work,
+blockers and next moves, and relevant files. In the recent conversation kept
+beside it, long tool output is shortened and attachment data is replaced by a
+short description.</p>
+<p>After compaction, the current versions of your instruction files become the
+session’s baseline; see <a href="/v2/docs/instructions">Instructions</a>.</p>
+<h2 id="limits">Limits</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="docs-table-scroll" tabindex="0"><table><thead><tr><th>Limit</th><th>Result</th></tr></thead><tbody><tr><td>Model</td><td>Summary compaction honors <code>agents.compaction.model</code>; otherwise it uses the session’s model. Native compaction always uses the session’s model.</td></tr><tr><td>History</td><td>Compaction needs older conversation to replace. It cannot create room when a request is mostly fixed instructions and tool schemas.</td></tr><tr><td>Size</td><td>If the conversation to compact is itself too long, OpenCode sends a shortened text version and may leave out the oldest exchanges.</td></tr><tr><td>Recovery</td><td>A request rejected as too long is compacted and retried once. A second rejection is returned as an error.</td></tr><tr><td>Storage</td><td>Earlier messages remain stored even when they are no longer sent to the model.</td></tr></tbody></table></div>
+<p>For example, compaction cannot help here:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="text"><code><span class="line"><span>128k context = 120k fixed instructions and tools + 8k conversation</span></span></code></pre>
+<h2 id="migration">Migration</h2>
+<p>V1 used tail-turn and pruning behavior. V2 uses summaries and
+<code>compaction.keep.tokens</code>:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8;overflow-x:auto" tabindex="0" data-language="jsonc"><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">  &quot;compaction&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">    &quot;keep&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: { </span><span style="color:#005CC5;--shiki-dark:#79B8FF">&quot;tokens&quot;</span><span style="color:#24292E;--shiki-dark:#E1E4E8">: </span><span style="color:#005CC5;--shiki-dark:#79B8FF">15000</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> }</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">}</span></span></code></pre>
+<p>The settings and behavior on this page apply to V2.</p></article></main><aside class="toc-column"><nav class="docs-toc" aria-label="On this page"><h2>On this page</h2><ul><li><a href="#how-it-works">How it works</a></li><li><a href="#start">Start</a></li><li><a href="#manual">Manual</a></li><li><a href="#settings">Settings</a></li><li class="nested"><a href="#buffer">Buffer</a></li><li><a href="#model">Model</a></li><li><a href="#background-compaction">Background compaction</a></li><li><a href="#providers">Providers</a></li><li><a href="#summaries">Summaries</a></li><li><a href="#limits">Limits</a></li><li><a href="#migration">Migration</a></li></ul></nav></aside></div><footer class="site-footer"><div class="footer-inner"><a class="system-status" href="/status" data-status="unknown" data-astro-reload>System status</a></div></footer><script type="module">globalThis.process??={},globalThis.process.env??={};var e={operational:`All systems operational`,degraded:`Degraded performance`,outage:`Service disruption`},t=fetch(`/status/api/summary`,{signal:AbortSignal.timeout(1e4)}).then(e=>e.ok?e.json():void 0).then(e=>{let t=e&&typeof e==`object`&&`status`in e?e.status:void 0;if(t===`operational`||t===`degraded`||t===`outage`)return t}).catch(()=>void 0);document.addEventListener(`astro:page-load`,async()=>{let n=await t,r=document.querySelector(`.system-status`);n&&r&&(r.dataset.status=n,r.textContent=e[n])});</script><script>
+      const addHeadingAnchors = () => {
+        for (const heading of document.querySelectorAll(".prose :is(h2, h3)[id]")) {
+          if (heading.querySelector(".heading-anchor")) continue
+          const anchor = document.createElement("a")
+          anchor.className = "heading-anchor"
+          anchor.href = `#${heading.id}`
+          anchor.setAttribute("aria-label", `Link to ${heading.textContent ?? "section"}`)
+          anchor.textContent = "#"
+          heading.append(anchor)
+        }
+      }
+
+      addHeadingAnchors()
+      document.addEventListener("astro:page-load", addHeadingAnchors)
+    </script><script type="module">globalThis.process??={},globalThis.process.env??={},document.addEventListener(`click`,async e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`[data-copy-markdown]`);if(!t)return;t.dataset.copied=`true`,t.setAttribute(`aria-label`,`Copied`),window.setTimeout(()=>{delete t.dataset.copied,t.setAttribute(`aria-label`,`Copy page as Markdown`)},1500);let n=await fetch(window.location.href,{headers:{Accept:`text/markdown`}});n.ok&&await navigator.clipboard.writeText(await n.text())});</script></body></html>

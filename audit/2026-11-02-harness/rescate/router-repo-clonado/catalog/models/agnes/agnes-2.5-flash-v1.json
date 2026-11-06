@@ -1,0 +1,36 @@
+{
+  "id": "mdl_6f7e6a7d-4fd8-7411-a91e-2eb950813f38",
+  "modelId": "agnes-2.5-flash",
+  "provider": "agnes",
+  "version": 1,
+  "name": "Agnes 2.5 Flash (account router)",
+  "context": { "maxInput": 512000, "maxOutput": 65536 },
+  "capabilities": {
+    "input": ["text"],
+    "streaming": true,
+    "toolCalling": true,
+    "reasoning": true,
+    "vision": false,
+    "audio": false,
+    "caching": false
+  },
+  "pricing": {
+    "currency": "USD",
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "note": "Precio publicado 0 (wiki 2026-10-10). Verificar la factura real antes de asumir gratuidad."
+  },
+  "quirks": {
+    "rateLimitHeaders": false,
+    "notes": "Comparte la API y los límites del contrato agnes/free-v1 (10 RPM efectivos por clave). Sin headers de rate limit; el 429 (insufficient_quota) es la única señal de agotamiento."
+  },
+  "engine": { "note": "Modelo de API (HTTPS) de Agnes; no disponible para inferencia local. Parámetros de motor vacíos a propósito." },
+  "supersedes": null,
+  "supersededBy": null,
+  "verifiedAt": "2026-10-09T00:00:00Z",
+  "sources": [
+    { "url": "https://wiki.agnes-ai.com/en/docs/pricing", "description": "Precio publicado USD 0", "verifiedAt": "2026-10-10T00:00:00Z" }
+  ]
+}

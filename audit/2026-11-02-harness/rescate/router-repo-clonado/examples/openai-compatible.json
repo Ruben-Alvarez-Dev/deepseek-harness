@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "provider": {
+    "adapter": "openai-compatible",
+    "baseUrl": "http://127.0.0.1:8080/v1",
+    "models": [
+      {
+        "id": "local-model",
+        "name": "Local model pool",
+        "reasoning": false,
+        "input": ["text"],
+        "contextWindow": 32000,
+        "maxTokens": 4096
+      }
+    ]
+  },
+  "accounts": [
+    { "id": "local", "quotaGroup": "local-server", "credential": { "env": "LOCAL_MODEL_API_KEY" } }
+  ],
+  "quotaGroups": [
+    { "id": "local-server", "maxConcurrent": 2, "limits": [{ "requests": 60, "windowMs": 60000 }] }
+  ]
+}

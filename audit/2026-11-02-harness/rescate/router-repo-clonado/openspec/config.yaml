@@ -1,0 +1,26 @@
+schema: spec-driven
+
+context: |
+  Standard Pi extension targeting the installed public Pi 1.1.0 API, not a custom harness.
+  Clarified user goal: preserve started tasks through temporary rate limits, including two simultaneous Pi instances, with a provider-neutral core.
+  Economic advantage and additive throughput are optional, not mandatory criteria introduced by the assistant.
+  Global continuity acceptance remains open until native multi-process behavior and standard activation are evidenced.
+  Four working keys or successful API calls alone do not establish independent quota pools; measured enforcement scope does (2026-10-10: Agnes free RPM is enforced per key).
+  Preserve credential privacy, existing usage history, verified provider limits and standard Pi compatibility.
+  Distinguish implementation completion, formal spec validation, evaluation completion and original-goal attainment.
+
+rules:
+  proposal:
+    - Trace scope to the original user objective and state measurable acceptance criteria and unresolved prerequisites.
+    - Do not omit a hard original-goal criterion merely to make the change closeable.
+  design:
+    - State observed facts, assumptions, blockers and real-versus-simulated evidence separately.
+  tasks:
+    - Execute dependency stages serially and check only evidence-backed completion.
+    - Format validation and test count are not substitutes for requirement-to-evidence acceptance.
+
+operations:
+  archive:
+    guidance:
+      - Report precisely which scope is complete; never imply technical-change closure is full project acceptance.
+      - Keep original-goal blockers and unknowns explicit; do not archive global acceptance as success while they remain.

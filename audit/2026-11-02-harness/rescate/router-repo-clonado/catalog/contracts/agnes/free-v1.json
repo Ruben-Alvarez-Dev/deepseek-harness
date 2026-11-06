@@ -1,0 +1,54 @@
+{
+  "id": "ctr_d424a0c2-132f-7a32-ad87-2d1217934923",
+  "contractId": "agnes/free-v1",
+  "provider": "agnes",
+  "contractType": "free",
+  "displayName": "Agnes Free Tier (verificado 2026-10-10)",
+  "verifiedAt": "2026-10-10T00:00:00Z",
+  "supersedes": null,
+  "supersededBy": null,
+  "auth": {
+    "method": "api_key",
+    "headerName": "Authorization",
+    "headerFormat": "Bearer {key}"
+  },
+  "api": {
+    "baseUrl": "https://apihub.agnes-ai.com/v1",
+    "chatEndpoint": "/chat/completions",
+    "apiType": "openai-completions"
+  },
+  "models": [
+    { "id": "agnes-3.0-flash", "contextWindow": 512000, "maxOutputTokens": 65536 },
+    { "id": "agnes-2.5-flash", "contextWindow": 512000, "maxOutputTokens": 65536 }
+  ],
+  "limits": {
+    "rpm": 10,
+    "rpmNominal": 30,
+    "rpd": null,
+    "maxConcurrent": null,
+    "notes": "Límite de 10 RPM efectivo verificado empíricamente el 2026-10-10 (wiki 2026-09-23; el README de julio decía 20). La wiki mezcla 30 RPM nominales; no usar el nominal como capacidad disponible. El límite se aplica por clave, no por usuario."
+  },
+  "knownQuirks": {
+    "rateHeaders": false,
+    "retryAfter": false,
+    "insufficientQuotaCode": "insufficient_quota",
+    "notes": "Agnes no envía headers de rate limit; la única señal de agotamiento es el 429. Selección least-pressure y coordinación multi-proceso sobre estado compartido son esenciales."
+  },
+  "sources": [
+    {
+      "url": "https://wiki.agnes-ai.com/en/docs/tokenplan",
+      "description": "Token Plan y límites de cuota (10 RPM efectivos, actualizado 2026-09-23)",
+      "verifiedAt": "2026-10-10T00:00:00Z"
+    },
+    {
+      "url": "https://wiki.agnes-ai.com/en/docs/pricing",
+      "description": "Precios oficiales: USD 0 para agnes-2.5-flash y agnes-3.0-flash",
+      "verifiedAt": "2026-10-10T00:00:00Z"
+    },
+    {
+      "url": "https://wiki.agnes-ai.com/en/docs/terms-of-service",
+      "description": "Términos §5.4 (rate limiting), §4.1 (credenciales), §8.2 (datos)",
+      "verifiedAt": "2026-10-10T00:00:00Z"
+    }
+  ]
+}

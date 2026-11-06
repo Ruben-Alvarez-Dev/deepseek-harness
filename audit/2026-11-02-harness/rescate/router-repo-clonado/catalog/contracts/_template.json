@@ -1,0 +1,19 @@
+{
+  "_comment": "Plantilla de contrato de proveedor. Copia a {provider}/{slug}-v1.json. `id` debe ser un UUIDv7 con prefijo ctr_ (Zod lo rechaza sin prefijo). Cuando el proveedor cambie sus condiciones, crea v2 y añade `supersededBy` solo a v1 (inmutabilidad).",
+  "id": "ctr_REEMPLAZAR_CON_UUIDv7",
+  "contractId": "provider/slug-v1",
+  "provider": "provider",
+  "contractType": "free",
+  "displayName": "Proveedor — tipo de contrato (verificado AAAA-MM-DD)",
+  "verifiedAt": "2026-10-17T00:00:00Z",
+  "supersedes": null,
+  "supersededBy": null,
+  "auth": { "method": "api_key", "headerName": "Authorization", "headerFormat": "Bearer {key}" },
+  "api": { "baseUrl": "https://ejemplo.dev/v1", "chatEndpoint": "/chat/completions", "apiType": "openai-completions" },
+  "models": [{ "id": "modelo-gratis-1", "contextWindow": 32000, "maxOutputTokens": 4096 }],
+  "limits": { "rpm": 10, "rpmNominal": null, "rpd": null, "maxConcurrent": null, "notes": "Solo cifras verificadas; no extrapolar." },
+  "knownQuirks": { "rateHeaders": false, "retryAfter": false, "insufficientQuotaCode": null, "notes": "" },
+  "sources": [
+    { "url": "https://ejemplo.dev/docs", "description": "Fuente verificada", "verifiedAt": "2026-10-17T00:00:00Z" }
+  ]
+}

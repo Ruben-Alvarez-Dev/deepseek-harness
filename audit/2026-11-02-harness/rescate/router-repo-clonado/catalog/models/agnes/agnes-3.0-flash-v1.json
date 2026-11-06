@@ -1,0 +1,37 @@
+{
+  "id": "mdl_e3a96b8c-92c4-73e6-90df-c9ec54f64e13",
+  "modelId": "agnes-3.0-flash",
+  "provider": "agnes",
+  "version": 1,
+  "name": "Agnes 3.0 Flash (account router)",
+  "context": { "maxInput": 512000, "maxOutput": 65536 },
+  "capabilities": {
+    "input": ["text"],
+    "streaming": true,
+    "toolCalling": true,
+    "reasoning": true,
+    "vision": false,
+    "audio": false,
+    "caching": false
+  },
+  "pricing": {
+    "currency": "USD",
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "note": "Precio publicado 0 (wiki 2026-10-10). La factura de la cuenta y sus permisos son la fuente de verdad para cargos reales; verificar antes de asumir gratuidad."
+  },
+  "quirks": {
+    "rateLimitHeaders": false,
+    "notes": "Agnes no envía headers de rate limit ni Retry-After; la única señal de agotamiento es el 429 (insufficient_quota). Contexto 512K y salida 65.536 son cifras documentadas de la wiki, no medidas por tamaño. La wiki anuncia entrada por URL de imagen no probada; vision=false por falta de verificación. Streaming y tool calling verificados en 2026-10-09 (finish_reason: tool_calls)."
+  },
+  "engine": { "note": "Modelo de API (HTTPS) de Agnes; no disponible para inferencia local. Parámetros de motor vacíos a propósito." },
+  "supersedes": null,
+  "supersededBy": null,
+  "verifiedAt": "2026-10-09T00:00:00Z",
+  "sources": [
+    { "url": "https://wiki.agnes-ai.com/en/docs/agnes-30-flash", "description": "Especificación del modelo", "verifiedAt": "2026-10-09T00:00:00Z" },
+    { "url": "https://wiki.agnes-ai.com/en/docs/pricing", "description": "Precios publicados (USD 0)", "verifiedAt": "2026-10-10T00:00:00Z" }
+  ]
+}

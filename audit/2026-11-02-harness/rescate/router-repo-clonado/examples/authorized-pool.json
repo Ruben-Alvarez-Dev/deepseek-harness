@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "provider": { "adapter": "agnes" },
+  "accounts": [
+    { "id": "account-a", "quotaGroup": "authorized-a", "credential": { "env": "AGNES_ACCOUNT_A" } },
+    { "id": "account-b", "quotaGroup": "authorized-b", "credential": { "env": "AGNES_ACCOUNT_B" } },
+    { "id": "account-c", "quotaGroup": "authorized-c", "credential": { "env": "AGNES_ACCOUNT_C" } }
+  ],
+  "quotaGroups": [
+    { "id": "authorized-a", "maxConcurrent": 1, "limits": [{ "requests": 10, "windowMs": 60000 }] },
+    { "id": "authorized-b", "maxConcurrent": 1, "limits": [{ "requests": 10, "windowMs": 60000 }] },
+    { "id": "authorized-c", "maxConcurrent": 1, "limits": [{ "requests": 10, "windowMs": 60000 }] }
+  ],
+  "maxWaitMs": 30000
+}

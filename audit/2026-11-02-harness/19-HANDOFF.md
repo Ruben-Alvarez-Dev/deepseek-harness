@@ -1,0 +1,94 @@
+# HANDOFF — sesión de auditoría/planificación SOTA (2026-11-02)
+
+**Para la siguiente sesión:** este documento resume el estado exacto. Todo el material está en `audit/2026-11-02-harness/` (269 ficheros). Nada está commiteado (git está fuera de alcance por decisión del usuario; sigue pendiente CH-012).
+**Actualización 2026-11-05:** cortex sale del alcance de DSH. Su material (C5–C8, F0 cortex, F2) se migró a `~/Code/Jart-CORTEX/audit/2026-11-02-cortex/`; este expediente mantiene PI-agent, DSH, dossier QWEN y router.
+**Actualización 2026-11-06 (esta sesión):** F0 cerrado con gates medidos; las 4 decisiones del propietario resueltas; plan adaptado a las desviaciones verificadas. Detalle en §0.
+
+---
+
+## 0 · Actualización 2026-11-06 — decisiones, F0 cerrado y desviaciones
+
+### 0.1 Decisiones del propietario (resueltas)
+
+1. **CH-010:** cortex canónico → **archivar `@pi-agent/memory@1.0.0`**; F3 (CH-030…034) **cancelado**.
+2. **CH-003:** autorizada la rotación de la clave `omniroute` y la purga de copias. **Ejecutado** (ver §0.2).
+3. **Claves agnes sueltas:** mover al keychain y limpiar duplicados. **Ejecutado** (ver §4).
+4. **Cuotas iniciales:** **K=8 skills · 3k schemas MCP · 1k inyección**, firmes (CH-040).
+5. **Repo PI-agent ausente:** **pérdida declarada** y plan adaptado (CH-011/034 cancelados como pérdida; CH-005 reducido a lo rescatado).
+
+### 0.2 F0 — cerrado (gates medidos)
+
+- **CH-003 (clave `omniroute`):** rotada en OmniRoute. `registered_keys`: `9d5b904e…` → `is_active=0, revoked_at=2026-11-06 05:32:21`; nueva `4ad1222e…` → `is_active=1`; `~/.pi/agent/models.json` actualizado a la nueva clave. Purga: **6 `.bak` borrados** y **23 ficheros redactados** (15 transcripciones + 7 documentos de `JARTOS/ZERO-COST-ROUTER` + 1 log de Antigravity IDE). Gate: escaneo amplio de **1.222.019 ficheros** → 1 sola copia residual (un backup de `jart-os-development`, protegido por la regla de no tocar originales). Eliminada el mismo día con tu autorización expresa: **0 copias** de la clave antigua en disco.
+  - Nota de mecanismo: el CLI `omniroute keys rotate` devuelve **404** (el servidor empaquetado 0.1.5-rc.2 no tiene `/rotate`); la rotación se hizo con las funciones canónicas de la BD (`issueRegisteredKey`/`revokeRegisteredKey`, formato `ork_` + base64url(24 B), SHA-256). El servidor local no exige clave para peticiones desde localhost, así que la exposición remota era baja, pero la clave queda revocada igualmente.
+- **CH-004 (`demo/tmp/d1.db`):** eliminada la copia del expediente (184.320 B, SHA-256 `780f0c46…09283`, modo 0644). Gate `grep -r "PRIVATE KEY" demo/` → **0**. La **copia original** de `PROJECTS/QWEN-code/auditoria-pi-agent/demo/tmp/d1.db` (mismo SHA-256) se **eliminó** después con tu autorización expresa: `find /Users/ruben -name d1.db` → 0. Gate final: 0 claves privadas en ambas ubicaciones.
+- **CH-005 (rescate):** `router.bundle` verificado (`git bundle verify` → *complete history*; 32 commits; `main = 12d0940…`) y manifiesto SHA-256 de **183 ficheros** en `rescate/MANIFIESTO-SHA256.txt`. **Pérdida declarada:** 38 commits colgantes, 81 ficheros de test de `e54c5d9^` (526 casos) y E-031…E-057 (CH-034) no son recuperables porque el repo PI-agent ya no existe en disco.
+
+### 0.3 Desviaciones verificadas frente al handoff del 11-05
+
+| Declarado | Real verificado 2026-11-06 |
+|---|---|
+| `~/Code/PI-agent` con 97 borrados y 6 untracked | **No es un repo git**: solo `pi-jart-ura/state/proxy.log` (32 KB). `Code/AGENTS/PI-agent` es una copia de 293 MB **sin `.git`** y **sin `src/pi-memory`**. Sin Time Machine ni snapshots locales. |
+| `@pi-agent/memory@1.0.0` en HEAD de PI-agent (no desplegado) | Vive en **`~/.pi/agent/memory-contract`** (git limpio, `main`; `vendor/palimpsest` = `@pi-agent/memory` 1.0.0, 46 fuentes + probes). C1/C2/B1 verificados allí en las líneas citadas. |
+| 4 claves agnes en keychain | **5** entradas `pi.provider.agnes-ai*` (incl. `-3`) + servicio `agnes-ai`; además 2 nuevas (`agnes-e`, `agnes-f`) tras la decisión 3. |
+| omniroute: keychain vs `models.json` divergentes | **No había entrada keychain de omniroute**. La clave literal estaba en **22 ficheros** (7 `models.json*`, 6 sesiones Pi, 2 Qwen, 7 Claude) y el escaneo amplio encontró **9 más** (7 docs de ZERO-COST-ROUTER, 1 log de Antigravity, 1 backup de jart-os-development). |
+| Dossier QWEN original intacto | Movido por la reorganización a `PROJECTS/QWEN-code/auditoria-pi-agent/` (tenía `d1.db`, eliminado después con autorización; ver CH-004). `~/Code/QWEN-code` ya no existe. |
+| DSH master al día | `master` @ `c291e7961a`, **666 commits por detrás** de `origin/master` (`0d1f50007f`). |
+| Rutas | 28 referencias a rutas antiguas en el expediente; `~/Code/deepseek-harness` quedó como carpeta residual con un `.dsh-project-memory` de 24 KB (la memoria real, 64 MB, está en el repo). |
+
+---
+
+## 1 · Qué se hizo (todo verificado)
+
+1. **Auditoría del pack PI-agent** (00-INFORME, 14 hallazgos, 2 BLOCKER).
+2. **Arqueología forense** (05): se recuperaron el bundle del router (32 commits), los 526 tests (`e54c5d9^`) y la D-revision; se identificaron 27 entradas de expediente perdidas (E-031…E-057).
+3. **Auditoría del dossier QWEN** (08): clave privada en `d1.db`, caducidad, contradicciones v5↔S1-S4.
+4. **Auditoría línea por línea** (14): pases de pi-memory (46 ficheros en HEAD) y seams de DSH (14,7k); el pase de cortex (25k líneas) está migrado a su repo. 8 CRITICAL documentados; 3 claims del dossier ya corregidos en HEAD por la ola W.
+5. **Investigaciones SOTA** (09, 10, 11, 16): handoff, frontera, cortex/pi-memory, NCM + Jev.
+6. **Plan maestro** (13): 20 mejoras, 7 frentes, 8 fases con gates numéricos.
+7. **Planificación OpenSpec** (15): 27 changes serializados con dependencias y gates.
+8. **Reorganización del expediente**: subcarpetas + copias completas + 17 fuentes descargadas a disco.
+9. **Prueba atómica de claves agnes** y limpieza: 6 claves válidas, 1 inválida eliminada de 8 ficheros.
+10. **F0 ejecutado (2026-11-06):** CH-003, CH-004 y CH-005 (reducido) cerrados con gates medidos (§0.2).
+
+## 2 · Hallazgos vivos (ordenados por urgencia)
+
+| # | Hallazgo | Evidencia | Estado |
+|---|---|---|---|
+| C1/C2 | pi-memory: bypass `memory.import`; fuga cross-tenant por canal ANN | `memory-mcp-server.ts:252-255`; `fabric.ts:107-113` (en `~/.pi/agent/memory-contract/vendor/palimpsest/`) | latentes (1.0.0 no desplegado; linaje archivado) |
+| B1 | `merged = r.archived` (métrica falsa) | `memory-control.ts:242` (misma ruta) | latente |
+| — | cortex (C5/C8/C6/C7) | material migrado a `~/Code/JARTOS/Jart-CORTEX/audit/2026-11-02-cortex/01-HALLAZGOS.md` | fuera de alcance |
+
+## 3 · Decisiones pendientes del usuario
+
+Resueltas el 2026-11-06 (ver §0.1). Única autorización que falta: **commit de CH-012** (versionar el expediente en DSH); sin ella no se commitea nada.
+
+## 4 · Estado de las claves (2026-11-06)
+
+- **agnes:** 5 entradas keychain `pi.provider.agnes-ai*` + `agnes-ai` + **2 nuevas** (`pi.provider.agnes-e`, `pi.provider.agnes-f`) creadas en esta sesión. En `~/.pi/agent/auth.json`, las 3 entradas sueltas (`new2`, `remote2`, `remote1`) ya **no contienen la clave**: usan la indirección soportada por Pi 1.5.0 (`!security find-generic-password -w -s … -a pi`), verificado en `dist/core/resolve-config-value.js`. Los 4 proveedores `agnes-*` restantes siguen con clave literal en `auth.json` (0600) — no formaban parte de la decisión.
+- **omniroute:** clave antigua revocada en OmniRoute y nueva activa en `models.json`; copias purgadas: **0** en disco.
+- **Otras 7 claves** (`kilo-gateway`, `pollinations`, `lmstudio`, `orchestra-*`, `litellm`, `account-router`) siguen como placeholders en `models.json` (no son secretos reales).
+- **Rotador agnes:** el LaunchAgent `com.ruben.pi.agnes-key-rotator` apuntaba a `~/.pi/proxy/agnes-key-rotator.js` (inexistente). Desinstalado y limpiado el 2026-11-06 (`launchctl bootout` + `disable`, plist, logs y estado `agnes-rotation.json`); sin proceso ni entrada en launchd.
+
+## 5 · Estructura del entregable
+
+```
+audit/2026-11-02-harness/
+├── 00-INDICE.md · 19-HANDOFF.md
+├── auditorias/ (7) · investigaciones/ (7 + dossier-anillos + fuentes/)
+├── planificacion/ (3 + original/ con las 4 planificaciones rescatadas)
+├── referencias/ (bibliografía) · rescate/ (bundle + repo + D-revision + MANIFIESTO-SHA256.txt)
+└── 18-NOTAS-TRABAJO.md
+```
+`demo/tmp/d1.db` del expediente **eliminado** (CH-004).
+
+## 6 · Próximo paso concreto
+
+1. **CH-012:** versionar el expediente en DSH — **requiere tu autorización expresa de commit**. Hay 6 tracked modificados y 19 untracked ajenos al expediente: el commit debe limitarse a `audit/2026-11-02-harness/` (excluyendo cualquier secreto).
+2. **F4 / CH-040:** baseline token-meter en 3 sesiones con las cuotas ya fijadas (K=8/3k/1k); requiere actualizar `master` (666 commits por detrás) y el proceso DSH (PR + Agent Note).
+3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
+
+## 7 · Avisos
+
+- Ninguna de las dos copias del dossier contiene ya `d1.db`: eliminadas el 2026-11-06 (CH-004; la original con autorización expresa).
+- El expediente **no está versionado**: si autorizas, es el CH-012.
+- No tocar los originales: dossier QWEN, `~/Code/PI-agent`, `~/Code/JARTOS/jart-os-development` y `~/Code/JEV-AI` solo se han leído o copiado.
