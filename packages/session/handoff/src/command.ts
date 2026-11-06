@@ -8,6 +8,7 @@ import { buildHandoffCheckpoint } from './checkpoint.ts'
 import type { ResolvedConfig } from './config.ts'
 import './types.ts'
 
+/** Usage line shown when the command is invoked without a goal. */
 export const HANDOFF_USAGE = 'Usage: /handoff <goal>'
 
 /**
