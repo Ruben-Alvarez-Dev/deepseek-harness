@@ -30,7 +30,8 @@
 | CH-042 | **CERRADO (opt-in, gate −20 % demostrado en simulación)** | A-2 dispatch gate (12 vectores, audit/enforce) + A-3 pruner por presión; commits locales `d6816f7`, `e08ac49`, `626833c`, sin push ni activación. Medido por replay: **12,94 % conservador / 20,54 % agresivo** (36.870.187 tok de 179.461.588). Activación futura condicionada a evaluación en vivo y re-grabado de snapshots. |
 | CH-043 | **CERRADO (opt-in, gate medido)** | Router FTS5 (`node:sqlite`, porter+unicode61) de skills+MCP, integración opt-in en `tool-skill` por `ctx.get('skillRouter')`; commits `acd3e30`+`2b04540` (rama apilada sobre CH-041), sin activar, sin push. Medido: **recall@8 0,915 / nDCG@8 0,932** vs 0,890/0,883 del baseline léxico (59 queries, 32 entradas). |
 | CH-044 | **CERRADO (opt-in, gate medido)** | `@deepseek-ai/dsh-memory-passive` en `.worktrees/ch044` (commit `c3e2e86`, sin push), no activado. Medido: **recall@5 1,000** (39 queries), máx. 1.033 chars con cuota 4.000, 0 tools, 6 reglas de redacción verificadas, captura real en `session/disposed`. C-4 (consolidación) diferido. |
-| CH-045…047 | **PENDIENTE** | P5–P7 no iniciados. |
+| CH-045 | **CERRADO (opt-in, gate proxy medido)** | `@deepseek-ai/dsh-handoff` en `.worktrees/ch045` (commit `fcf0dc2`, sin push), no activado: `/handoff <goal>` con checkpoint acotado, hija enlazada por `parentSession` y guía a `session_event_search`/`session_trace`. Medido: **15/15 hechos, 0 pasos de recuperación vs 15 sin handoff** (3 tareas × 5 hechos; proxy determinista) y padre intacto. |
+| CH-046…047 | **PENDIENTE** | P6–P7 no iniciados. |
 
 ---
 

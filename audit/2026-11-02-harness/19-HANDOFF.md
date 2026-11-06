@@ -20,6 +20,7 @@
 8. **CH-042:** implementado y **cerrado opt-in** — dispatch gate (12 vectores) + pruner por presión; medido 20,54 % con política agresiva (12,94 % conservadora) por simulación; sin activar en presets, sin PR ni push.
 9. **CH-043:** implementado y **cerrado opt-in** — router FTS5 zero-embeddings de skills/MCP con integración opcional en el catálogo; gate medido (recall@8 0,915 / nDCG@8 0,932 vs 0,890/0,883); commits `acd3e30`+`2b04540` en rama apilada sobre CH-041, sin activar y sin push.
 10. **CH-044:** implementado y **cerrado opt-in** — memoria pasiva local (índice acotado, inyección con cuota y valla, captura redactada sin red) con commit `c3e2e86` en `.worktrees/ch044`, sin activar ni push; gate recall@5 1,000 (39 queries) y redacción verificada; C-4 diferido.
+11. **CH-045:** implementado y **cerrado opt-in** — handoff `/handoff <goal>` con checkpoint estructurado e hija enlazada por `parentSession`; commit `fcf0dc2` en `.worktrees/ch045`, sin activar ni push; gate proxy 15/15 hechos y 0 pasos de recuperación frente a 15.
 
 ### 0.2 F0 — cerrado (gates medidos)
 
@@ -92,7 +93,7 @@ audit/2026-11-02-harness/
 ## 6 · Próximo paso concreto
 
 1. **CH-012 — hecho:** commit `45c3443` en la rama local `audit/2026-11-02-harness`, solo con `audit/2026-11-02-harness/`; sin push. Los 6 tracked modificados y 19 untracked ajenos siguen sin tocar.
-2. **F4 / CH-045 (P5) — siguiente:** handoff de sesión (`/handoff <goal>` y enlace padre→hijo por tool) según `planificacion/13-PLAN-SOTA-DSH.md`. CH-044 quedó cerrado opt-in en `.worktrees/ch044` (recall@5 1,000, redacción verificada, `c3e2e86`); CH-043 (`acd3e30`/`2b04540`), CH-042 y CH-041 también cerrados opt-in y sin push.
+2. **F4 / CH-046 (P6) — siguiente:** telemetría redactada por defecto (`session-telemetry/record`) + invariants y fencing generalizado, con `/auditoria-dev` final según `planificacion/13-PLAN-SOTA-DSH.md`. CH-045 quedó cerrado opt-in en `.worktrees/ch045` (`fcf0dc2`; gate proxy 15/15, 0 vs 15 pasos); CH-044, CH-043, CH-042 y CH-041 también cerrados opt-in y sin push.
 3. **Cerrado:** residuo de la clave en `jart-os-development`, `d1.db` original de QWEN-code y rotador agnes (eliminados/desinstalados con tu autorización del 2026-11-06).
 
 ## 7 · Avisos
