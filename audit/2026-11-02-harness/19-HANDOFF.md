@@ -258,7 +258,7 @@ Push/PR, E-3 (pin de integridad de plugins; sigue diferido a aceptar riesgo de t
 
 ## 12 · PRODUCTO SOTA — preset `sota`, redacción host y paquete de publicación (2026-11-08)
 
-**Estado:** **implementado y validado en el árbol integrado**, listo para publicar. HEAD final `4ff329d144` (41 commits, 215 ficheros, +10.001/−219) en la rama local `feat/ch050-integration`; **sin push** (requiere credenciales del propietario). No es una release: es el paquete de publicación más una activación opt-in real.
+**Estado:** **implementado, validado y verificado de forma independiente**, listo para publicar. HEAD final del producto `45045b828e` (42 commits, 215 ficheros, +10.031/−219) en la rama local `feat/ch050-integration`; **sin push** (requiere credenciales del propietario). El árbol integrado auditado en §10 sigue siendo `0175f5610b`; el delta de producto lo cubre la §6 del informe de auditoría. No es una release: es el paquete de publicación más una activación opt-in real.
 
 ### 12.1 · Qué se añade sobre el árbol auditado del §10
 
@@ -269,7 +269,7 @@ Push/PR, E-3 (pin de integridad de plugins; sigue diferido a aceptar riesgo de t
 - **Agent Notes bilingües** de la publicación: `.agents/notes/proposed/feature/2026-11-06-f4-integration.*` (árbol/auditoría/cierre) y `.agents/notes/proposed/feature/2026-11-08-sota-preset.*` (producto/activación). Mecanismos delegados a las siete notas de cada change.
 - **e2e real** ampliado: `apps/cli/tests/web-agent-presets.e2e.ts` arranca la composición Web shipped, lista cinco presets, monta `sota` y comprueba catálogo idéntico a `standard`, router/pruner confinados al realm del preset y handoff registrado.
 
-### 12.2 · Evidencia de validación (HEAD `4ff329d144`)
+### 12.2 · Evidencia de validación (HEAD final `45045b828e`)
 
 | Gate / prueba | Resultado |
 |---|---|
@@ -281,12 +281,21 @@ Push/PR, E-3 (pin de integridad de plugins; sigue diferido a aceptar riesgo de t
 | `pnpm run verify-package-invariants` | **39/39** |
 | `pnpm run verify-runtime-closure` | **5 presets / 145 paquetes, cerrado** |
 | `pnpm run verify-package-dependencies` | **63 conformes** |
-| Tests de `agent-presets` (incluye roster shipped) | **190/190** |
-| `memory-passive` | **16/16** |
-| `ui-agent-preset` locales | **6/6** |
-| **e2e REAL de composición Web con `sota`** | **33/33** |
+| `pnpm run verify-tool-catalog` / `verify-package-paths` / `verify-optional-dependency-imports` / `verify-config-source-ownership` | **PASS** |
+| Tests de `agent-presets` + `memory-passive` + `ui-agent-preset` | **365/365** |
+| `packages/bundle` (cierre añadido tras el hallazgo MAJOR-4) | **129/129** |
+| **e2e REAL de composición Web con `sota`** | **34/34** |
 | `pnpm run test:snapshot` | **152 passed / 2 skipped** (requiere `python3 >= 3.10` en `PATH`; el Python del sistema 3.9.6 solo falla en el escenario PTC-python, límite de entorno, no del diff) |
 | Preset por defecto / snapshots existentes | **sin cambios** (`standard` intacto; ninguna grabación selecciona `sota`) |
+
+### 12.2-bis · Verificación independiente del delta (informe §6)
+
+La auditoría independiente revisó el delta de producto sobre `4ff329d144` y encontró **2 MAJOR**, ambos reproducidos y corregidos en `45045b828e`:
+
+- **MAJOR-4 (telemetría host rota):** la fila de redacción se había insertado entre el `name:` y el `config:` de `session-telemetry-otel`, dejando a OTel sin exporter/processor y a redaction con una config que ignora; el Loader contenía la fila y la app arrancaba sin backend de telemetría. **Corregido:** config completo devuelto a OTel (`packages/bundle/base/cordis.patch.yml:184-197`) y redaction después, sin config (`:199-205`). Evidencia: `packages/bundle` **129/129** (antes 1 failed | 128) y sonda del auditor montando `OpenTelemetrySessionBackend` con telemetría activa: `FEEDBACK_ONLY`, exporter de producción, `sessionTelemetry` definido y redacción efectiva en el seam.
+- **MAJOR-5 (router inerte en `sota`):** la fila `tool-skill` no pedía top-K, así que `catalogTopK` caía a 0 y el router montado nunca se consultaba. **Corregido:** `catalogTopK: 8` + `catalogSummaryDescriptionMaxLength: 64` (`presets/sota/agent.cordis.yml:125-132`); el e2e comprueba el wiring parseando el preset y el comportamiento del ranking lo cubre la suite de `tool-skill` (36/36) con `SkillMcpRouter` montado.
+- **Veredicto del auditor:** sello puede referenciar **`45045b828e`** (0 BLOCKER/CRITICAL/MAJOR); el árbol integrado auditado en §5 sigue en `0175f5610b`.
+- **Deuda declarada tras el sello:** MINOR-6 (añadir un arranque e2e con telemetría activa; hoy lo cubre una sonda local), MINOR-7 (aserción explícita de que el host no ve `toolResultPruner`), INFO-6…9 (deriva de la copia de `standard`, volumen de eventos de auditoría, `mkdir` en resolución de config y simulaciones de valor).
 
 ### 12.3 · Cómo se usa y cómo se activa
 
@@ -306,7 +315,7 @@ Push/PR, E-3 (pin de integridad de plugins; sigue diferido a aceptar riesgo de t
 
 ### 12.5 · Paquete de publicación (pendiente del propietario)
 
-- **Rama:** `feat/ch050-integration`, HEAD `4ff329d144`, **sin push ni PR**; las credenciales y la decisión de publicación son del propietario.
+- **Rama:** `feat/ch050-integration`, HEAD `45045b828e`, **sin push ni PR**; las credenciales y la decisión de publicación son del propietario.
 - **Título de PR propuesto:** `feat(f4): integrate the seven opt-ins and ship the sota preset`.
 - **Cuerpo:** el borrador completo está en el mensaje de publicación de esta sesión; resume integración + remediaciones + preset `sota` + redacción host + gates y enlaza las dos Agent Notes y las siete notas por change.
 - **Después de publicar:** activar por perfil según §11/§12.3, re-grabar snapshots solo si se cambia el comportamiento por defecto (no es el caso), y arrancar la ventana de 30 días para memoria/skills.
