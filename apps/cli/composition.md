@@ -66,6 +66,8 @@ flowchart LR
   cfg --> plugin_dsh_base_session_projection_cache
   plugin_dsh_base_session_telemetry_otel["session-telemetry-otel<br/>@deepseek-ai/dsh-session-telemetry-otel"]
   cfg --> plugin_dsh_base_session_telemetry_otel
+  plugin_dsh_base_session_telemetry_redaction["session-telemetry-redaction<br/>@deepseek-ai/dsh-telemetry-redaction"]
+  cfg --> plugin_dsh_base_session_telemetry_redaction
   plugin_dsh_base_subprocess["subprocess<br/>@deepseek-ai/dsh-subprocess-local"]
   cfg --> plugin_dsh_base_subprocess
   plugin_dsh_base_sandbox["sandbox<br/>@deepseek-ai/dsh-sandbox-local"]
@@ -215,6 +217,7 @@ flowchart LR
 | `storage-domain` | `@deepseek-ai/dsh-storage-domain` |
 | `session-projection-cache` | `@deepseek-ai/dsh-session-projection-cache` |
 | `session-telemetry-otel` | `@deepseek-ai/dsh-session-telemetry-otel` |
+| `session-telemetry-redaction` | `@deepseek-ai/dsh-telemetry-redaction` |
 | `subprocess` | `@deepseek-ai/dsh-subprocess-local` |
 | `sandbox` | `@deepseek-ai/dsh-sandbox-local` |
 | `sandbox-policy` | `@deepseek-ai/dsh-sandbox-policy` |

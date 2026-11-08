@@ -183,6 +183,13 @@
     # on SIGINT/SIGTERM.
     - id: session-telemetry-otel
       name: '@deepseek-ai/dsh-session-telemetry-otel'
+
+    # Redact secrets in every outbound telemetry record. The canonical session
+    # log is untouched; this only scrubs what leaves the process. Mounting it
+    # at the host plane is what makes the guarantee true for every profile that
+    # carries dsh-base, whatever agent preset a session runs.
+    - id: session-telemetry-redaction
+      name: '@deepseek-ai/dsh-telemetry-redaction'
       config:
         mode: !!js process.env.DSH_TELEMETRY_MODE || 'FEEDBACK_ONLY'
         shutdownTimeoutMillis: 3000
