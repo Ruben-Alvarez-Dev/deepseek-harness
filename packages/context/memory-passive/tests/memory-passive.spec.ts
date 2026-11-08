@@ -1,6 +1,6 @@
 /** Passive memory: store, redaction, capture, injection and the recall gate. */
 
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -102,6 +102,14 @@ describe('memory-passive store', () => {
     await writeFile(join(temporary, 'MEMORY.md'), 'not an index line\n', 'utf8')
     const store = new MemoryStore(temporary, 200)
     await expect(store.loadIndex()).rejects.toThrow('malformed MEMORY.md line 1')
+  })
+
+  it('creates the memory directory when it is missing', async () => {
+    temporary = await mkdtemp(join(tmpdir(), 'memory-create-'))
+    const memoryDir = join(temporary, 'memory')
+    const resolved = memoryPassive.resolveConfig({ memoryDir })
+    expect(resolved.memoryDir).toBe(memoryDir)
+    expect((await stat(memoryDir)).isDirectory()).toBe(true)
   })
 
   it('rejects path traversal in topic ids', async () => {

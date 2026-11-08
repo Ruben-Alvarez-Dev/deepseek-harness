@@ -1714,7 +1714,7 @@ Source: [`packages/mcp/mcp-client/src/index.ts:104`](../packages/mcp/mcp-client/
 ```ts config-catalog
 /** Deployment-owned passive-memory policy. */
 export interface Config {
-  /** Directory holding `MEMORY.md` and one `<id>.md` file per topic. */
+  /** Directory holding `MEMORY.md` and one `<id>.md` file per topic; created when missing. */
   memoryDir: string
   /** Maximum entries rendered into one injection. */
   injectLimit?: number

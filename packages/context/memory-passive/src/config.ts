@@ -1,11 +1,11 @@
 /** Deployment configuration for passive memory. */
 
-import { existsSync, statSync } from 'node:fs'
+import { existsSync, mkdirSync, statSync } from 'node:fs'
 import z from '@deepseek-ai/schemastery'
 
 /** Deployment-owned passive-memory policy. */
 export interface Config {
-  /** Directory holding `MEMORY.md` and one `<id>.md` file per topic. */
+  /** Directory holding `MEMORY.md` and one `<id>.md` file per topic; created when missing. */
   memoryDir: string
   /** Maximum entries rendered into one injection. */
   injectLimit?: number
@@ -54,7 +54,8 @@ export function resolveConfig(config: Config): ResolvedConfig {
   if (typeof memoryDir !== 'string' || memoryDir.length === 0) {
     throw new Error('memory-passive: memoryDir must be a non-empty path')
   }
-  if (!existsSync(memoryDir) || !statSync(memoryDir).isDirectory()) {
+  if (!existsSync(memoryDir)) mkdirSync(memoryDir, { recursive: true })
+  if (!statSync(memoryDir).isDirectory()) {
     throw new Error(`memory-passive: memoryDir "${memoryDir}" is not a directory`)
   }
   const injectLimit = config.injectLimit ?? 5
