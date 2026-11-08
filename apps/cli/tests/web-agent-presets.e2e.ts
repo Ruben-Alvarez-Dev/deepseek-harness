@@ -30,6 +30,7 @@ import type {} from '@deepseek-ai/dsh-session-projection'
 import type {} from '@deepseek-ai/dsh-token-meter'
 import type {} from '@deepseek-ai/dsh-skill-mcp-router'
 import type {} from '@deepseek-ai/dsh-compaction-tool-result-pruner'
+import type {} from '@deepseek-ai/dsh-plan-mode'
 import type {} from '@deepseek-ai/dsh-handoff'
 
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
@@ -286,11 +287,15 @@ describe('the shipped Web composition', () => {
         'subagent', 'subagent_fork', 'todo_write', 'update_goal', 'web_fetch', 'web_search',
         'workflow', 'write',
       ])
-      // The router and the pressure pruner are preset-owned; the host realm
-      // must not see them, or a standard session would inherit the router.
-      expect(ctx.agentPresets.serviceFor(handle.agent, 'skillRouter')).toBeDefined()
-      expect(ctx.get('skillRouter')).toBeUndefined()
-      expect(ctx.agentPresets.serviceFor(handle.agent, 'toolResultPruner')).toBeDefined()
+      // Every preset-owned service lives in the preset's realm and stays
+      // invisible to the host: a service published into the root realm is
+      // process-global, so a `standard` session would inherit it. Both sides of
+      // each realm are asserted, not just the router — MINOR-7 of the audit
+      // (§6) asked for `toolResultPruner`, `compaction` and `planMode` too.
+      for (const service of ['skillRouter', 'toolResultPruner', 'compaction', 'planMode'] as const) {
+        expect(ctx.agentPresets.serviceFor(handle.agent, service), `${service} in the preset realm`).toBeDefined()
+        expect(ctx.get(service), `${service} leaked into the host realm`).toBeUndefined()
+      }
       expect(ctx.agentPresets.serviceFor(handle.agent, 'toolResultPruner')?.config.pressure)
         .toEqual({ maxContextTokens: 100_000, pruneThresholdChars: 8192 })
       // Handoff registers its command and the host-only delivery projection.
