@@ -183,13 +183,6 @@
     # on SIGINT/SIGTERM.
     - id: session-telemetry-otel
       name: '@deepseek-ai/dsh-session-telemetry-otel'
-
-    # Redact secrets in every outbound telemetry record. The canonical session
-    # log is untouched; this only scrubs what leaves the process. Mounting it
-    # at the host plane is what makes the guarantee true for every profile that
-    # carries dsh-base, whatever agent preset a session runs.
-    - id: session-telemetry-redaction
-      name: '@deepseek-ai/dsh-telemetry-redaction'
       config:
         mode: !!js process.env.DSH_TELEMETRY_MODE || 'FEEDBACK_ONLY'
         shutdownTimeoutMillis: 3000
@@ -202,6 +195,14 @@
           maxQueueSize: 2048
           maxExportBatchSize: 2048
           exportTimeoutMillis: 1500
+
+    # Redact secrets in every outbound telemetry record. The canonical session
+    # log is untouched; this only scrubs what leaves the process. Mounting it
+    # at the host plane is what makes the guarantee true for every profile that
+    # carries dsh-base, whatever agent preset a session runs. The row takes no
+    # config: the rules are fixed and shared with capture and outbound records.
+    - id: session-telemetry-redaction
+      name: '@deepseek-ai/dsh-telemetry-redaction'
 
     - id: subprocess
       name: '@deepseek-ai/dsh-subprocess-local'

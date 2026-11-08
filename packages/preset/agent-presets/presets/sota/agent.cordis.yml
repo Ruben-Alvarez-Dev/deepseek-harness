@@ -124,6 +124,12 @@
 
     - id: tool-skill
       name: '@deepseek-ai/dsh-tool-skill'
+      # K=8 is the CH-040 skill quota. The router picks up to eight skills for
+      # full descriptions and the rest fall back to one-line summaries, so the
+      # catalog stays ranked without dropping a name from discovery.
+      config:
+        catalogTopK: 8
+        catalogSummaryDescriptionMaxLength: 64
 
 # ── passive memory (CH-044) ─────────────────────────────────────────────────
 

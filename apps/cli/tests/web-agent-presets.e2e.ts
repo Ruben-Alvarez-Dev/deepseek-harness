@@ -20,6 +20,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { SUBAGENT_MODEL_SELECTION_SETTINGS_NAMESPACE } from '@deepseek-ai/dsh-tool-subagent/model-selection-settings'
 import { SETTINGS_NAMESPACE, SHIPPED_PRESET_ROOT } from '@deepseek-ai/dsh-agent-presets'
 import { applyChildComposition, childSessionMeta } from '@deepseek-ai/dsh-subagent'
+import { loadCordisYaml } from '../../../scripts/cordis-yaml.ts'
 import { ToolCallId } from '@deepseek-ai/dsh-llm'
 import type {} from '@deepseek-ai/dsh-compaction-basic'
 import type {} from '@deepseek-ai/dsh-skill'
@@ -301,6 +302,28 @@ describe('the shipped Web composition', () => {
       process.env.DSH_HOME = previousHome
       await rm(home, { recursive: true, force: true })
     }
+  })
+
+
+  it('wires the sota catalog to the router top-K', async () => {
+    // The router only ranks when its consumer asks for a top-K. This asserts
+    // the preset row carries it; tool-skill's own suite proves that a mounted
+    // router then selects the full-description set (its ranking test mounts
+    // SkillMcpRouter). The e2e cannot drive a model loop to observe the
+    // rendered catalog, so the wiring and the behavior are tested at the two
+    // ends that own them.
+    const document = loadCordisYaml(
+      await readFile(join(SHIPPED_PRESET_ROOT, 'sota', 'agent.cordis.yml'), 'utf8'),
+    )
+    const rows = Array.isArray(document) ? document as Array<Record<string, unknown>> : []
+    const groups = rows.flatMap(row => Array.isArray(row.config) ? row.config as Array<Record<string, unknown>> : [])
+    const toolSkill = [...rows, ...groups].find(row => row.id === 'tool-skill') as
+      { config?: Record<string, unknown> } | undefined
+    if (toolSkill === undefined) throw new Error('sota preset must mount tool-skill')
+    expect(toolSkill.config).toMatchObject({
+      catalogTopK: 8,
+      catalogSummaryDescriptionMaxLength: 64,
+    })
   })
 
   it('applies the default-off subagent model allowlist only to new sessions', async () => {
