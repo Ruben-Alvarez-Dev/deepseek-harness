@@ -60,6 +60,7 @@ describe('release families', () => {
       '@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp',
       '@deepseek-ai/dsh-experimental-computer-use-cua-driver-native',
       '@deepseek-ai/dsh-experimental-inspector',
+      '@deepseek-ai/dsh-experimental-longitudinal-eval',
       '@deepseek-ai/dsh-experimental-ptc-runtime-python',
       '@deepseek-ai/dsh-experimental-tool-agent-team',
       '@deepseek-ai/dsh-experimental-webworker-packer',
