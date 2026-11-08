@@ -319,3 +319,59 @@ La auditoría independiente revisó el delta de producto sobre `4ff329d144` y en
 - **Título de PR propuesto:** `feat(f4): integrate the seven opt-ins and ship the sota preset`.
 - **Cuerpo:** el borrador completo está en el mensaje de publicación de esta sesión; resume integración + remediaciones + preset `sota` + redacción host + gates y enlaza las dos Agent Notes y las siete notas por change.
 - **Después de publicar:** activar por perfil según §11/§12.3, re-grabar snapshots solo si se cambia el comportamiento por defecto (no es el caso), y arrancar la ventana de 30 días para memoria/skills.
+
+-----
+
+## 13 · Handoff para una sesión limpia (2026-11-08)
+
+**Estado en una frase:** el objetivo de producto está terminado y verificado; lo único que queda es **publicar** (requiere tus credenciales) y **medir en vivo** (tiempo). Nada está pusheado, nada está activo por defecto y el DSH que usas ahora mismo es la release instalada, no este build.
+
+### 13.1 · Dos HEADs que no hay que confundir
+
+| Qué | Dónde | HEAD | Estado |
+|---|---|---|---|
+| Árbol integrado F4 auditado | worktree `.worktrees/ch050`, rama `feat/ch050-integration` | `0175f5610b` | Auditado en §5 del informe; base de la publicación |
+| **Producto final** (preset `sota` + redacción host + fixes) | misma rama | **`45045b828e`** | Auditado en §6; **sellado**; 42 commits, 215 ficheros, +10.031/−219 |
+| Expediente | checkout principal, rama `audit/2026-11-02-harness` | `90dfb46c60` | Informe + §10-§13; commit local, sin push |
+
+### 13.2 · Artefactos para retomar
+
+- **Código:** `/Users/ruben/Code/PROJECTS/DEEPSEEK-harness/.worktrees/ch050` (worktree limpio; no tocar el checkout principal, que tiene cambios ajenos sin commitear).
+- **Informe de auditoría:** `auditorias/10-AUDITORIA-CH050.md` — §5 (árbol integrado `0175f5610b`) y **§6 (producto `45045b828e`, 0 BLOCKER/CRITICAL/MAJOR; deuda declarada)**.
+- **Estado y evidencia:** este documento, §10 (integración/sello), §11 (plan de activación), **§12 (producto SOTA)**.
+- **Paquete de publicación:** `planificacion/28-PR-F4-SOTA.md` (título, cuerpo y checklist listos para copiar).
+- **Agent Notes bilingües:** `.agents/notes/proposed/feature/2026-11-06-f4-integration.md` y `2026-11-08-sota-preset.md` (en el worktree).
+- **e2e que valida el preset:** `apps/cli/tests/web-agent-presets.e2e.ts` (34/34; monta la composición Web real y `sota`).
+
+### 13.3 · Cómo retomar (comandos exactos)
+
+```sh
+cd /Users/ruben/Code/PROJECTS/DEEPSEEK-harness/.worktrees/ch050
+git status --short          # debe estar vacío
+git log --oneline -6        # HEAD 45045b828e
+pnpm run check:ci:static    # 55/55
+pnpm run test:docs          # 20/20
+pnpm run typecheck          # exit 0
+pnpm run lint:contracts-ready
+pnpm run duplication
+pnpm exec vitest run packages/bundle packages/preset/agent-presets packages/context/memory-passive packages/client/ui-agent-preset
+pnpm exec vitest run --config vitest.e2e.config.ts --retry=0 apps/cli/tests/web-agent-presets.e2e.ts
+PATH=/opt/homebrew/bin:$PATH pnpm run test:snapshot   # requiere Python >= 3.10 en PATH
+```
+
+Notas de entorno: Node 26 + pnpm 11.7; las libs ya están construidas; si se toca código, `pnpm run build:lib:host` antes de los e2e; el snapshot PTC-python falla con el Python 3.9.6 del sistema (límite de entorno, no del árbol).
+
+### 13.4 · Próximos pasos, en orden
+
+1. **Publicar** (decisión y credenciales del propietario): push de `feat/ch050-integration` y PR con el cuerpo de `planificacion/28-PR-F4-SOTA.md`; las dos Agent Notes viajan en la PR. Sin push no hay release.
+2. **Activar `sota`** en un perfil no-default (o en la instalación una vez publicada): es selección de modo; `standard` sigue intacto. Secuencia: gate una semana en `audit` → derivar allowlist → `enforce`; memoria con `capture: false` hasta la ventana de 30 días.
+3. **Medir en vivo** con `@deepseek-ai/dsh-experimental-longitudinal-eval`: ventana de 30 días (memoria/skills) y evaluación de calidad del pruner/gate; aplicar kill-criteria.
+4. **Deuda declarada:** MINOR-6 (arranque e2e con telemetría activa), MINOR-7 (aserción explícita del realm del pruner), INFO-6…9 (deriva de la copia de `standard`, volumen de eventos de audit, `mkdir` en resolución de config, simulaciones de valor). E-3 y la higiene de `auth.json` siguen fuera de alcance.
+5. **Rollback:** no seleccionar `sota` deja todo como `standard`; para quitar la redacción host, parchear su fila en `dsh-base`.
+
+### 13.5 · Decisión pendiente del propietario
+
+- **Publicar o no** las 9 ramas y abrir PR(s): el árbol está listo (`45045b828e`), auditado y verde; no hay más trabajo técnico que me corresponda.
+- Elegir perfil piloto y ventana de medición; aceptar o no E-3 y la deuda declarada.
+
+**Prompt para la sesión limpia (copiar/pegar):** «Reanuda desde `audit/2026-11-02-harness/19-HANDOFF.md` §13. Estado: producto `sota` listo en `feat/ch050-integration` HEAD `45045b828e`, auditado (0 BLOCKER/CRITICAL/MAJOR), sin push. Quiero [publicar la PR | activar `sota` en un perfil piloto | ambas], y después montar la medición de 30 días.»
