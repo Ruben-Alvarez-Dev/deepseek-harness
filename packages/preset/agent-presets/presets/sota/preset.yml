@@ -1,0 +1,3 @@
+name: SOTA 模式
+description: 功能完整的编码 Agent，另加 F4/F5 优化：上下文治理、工具分发审计、压力剪枝、Skills 路由、被动记忆与会话交接。
+order: 5

@@ -100,7 +100,13 @@
     "js-yaml": "^4.2.0",
     "node-addon-require-builtin": "^0.1.6",
     "@deepseek-ai/dsh-http-proxy": "workspace:^",
-    "@deepseek-ai/dsh-mcp-resources": "workspace:^"
+    "@deepseek-ai/dsh-mcp-resources": "workspace:^",
+    "@deepseek-ai/dsh-system-prompt-governor": "workspace:^",
+    "@deepseek-ai/dsh-tool-dispatch-gate": "workspace:^",
+    "@deepseek-ai/dsh-skill-mcp-router": "workspace:^",
+    "@deepseek-ai/dsh-memory-passive": "workspace:^",
+    "@deepseek-ai/dsh-handoff": "workspace:^",
+    "@deepseek-ai/dsh-telemetry-redaction": "workspace:^"
   },
   "devDependencies": {
     "@agentclientprotocol/sdk": "1.4.0",

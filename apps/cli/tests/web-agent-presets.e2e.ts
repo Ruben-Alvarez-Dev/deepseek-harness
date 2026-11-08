@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, mkdtemp, readFile, stat, symlink, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -27,6 +27,9 @@ import type {} from '@deepseek-ai/dsh-tools'
 // Type-only: resolves `ctx.get('sessionProjections')` and `ctx.get('tokenMeter')`.
 import type {} from '@deepseek-ai/dsh-session-projection'
 import type {} from '@deepseek-ai/dsh-token-meter'
+import type {} from '@deepseek-ai/dsh-skill-mcp-router'
+import type {} from '@deepseek-ai/dsh-compaction-tool-result-pruner'
+import type {} from '@deepseek-ai/dsh-handoff'
 
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 /** The shipped Web surface: the dsh-base and dsh-web-app bundle patches over an empty preset root. */
@@ -236,7 +239,7 @@ describe('the shipped Web composition', () => {
   it('supplies both shipped presets, and only those, from the system root', async () => {
     const listed = await ctx.agentPresets.list()
 
-    expect(listed.map(preset => preset.id).sort()).toEqual(['cordis', 'minimal', 'ptc', 'standard'])
+    expect(listed.map(preset => preset.id).sort()).toEqual(['cordis', 'minimal', 'ptc', 'sota', 'standard'])
     expect(listed.every(preset => preset.trust === 'system')).toBe(true)
     expect(ctx.agentPresets.defaultId).toBe('standard')
   })
@@ -261,6 +264,42 @@ describe('the shipped Web composition', () => {
       expect(ctx.commands.find(handle.agent, 'goal')).toBeDefined()
     } finally {
       await handle.dispose()
+    }
+  })
+
+  it('composes the SOTA preset with its opt-ins confined to the preset realm', async () => {
+    // The preset resolves memoryDir through dshHomePath at mount time; pin a
+    // throwaway home so this test never writes under the real ~/.dsh.
+    const previousHome = process.env.DSH_HOME
+    const home = await mkdtemp(join(tmpdir(), 'dsh-sota-memory-'))
+    process.env.DSH_HOME = home
+    const handle = await ctx.agents.create({
+      sessionId: SessionId('preset-sota'),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'sota').then(() => undefined),
+    })
+    try {
+      // The opt-ins add no model-facing tool: the catalog is standard's.
+      expect(toolNames(ctx, handle.agent).filter(name => name !== 'glob' && name !== 'grep')).toEqual([
+        'ask_user_question', 'bash', 'create_goal', 'edit', 'exit_plan_mode',
+        'get_goal', 'interrupt_agent', 'job_kill', 'job_list', 'job_output', 'list_agents', 'present', 'read', 'read_image', 'send_message', 'skill',
+        'subagent', 'subagent_fork', 'todo_write', 'update_goal', 'web_fetch', 'web_search',
+        'workflow', 'write',
+      ])
+      // The router and the pressure pruner are preset-owned; the host realm
+      // must not see them, or a standard session would inherit the router.
+      expect(ctx.agentPresets.serviceFor(handle.agent, 'skillRouter')).toBeDefined()
+      expect(ctx.get('skillRouter')).toBeUndefined()
+      expect(ctx.agentPresets.serviceFor(handle.agent, 'toolResultPruner')).toBeDefined()
+      expect(ctx.agentPresets.serviceFor(handle.agent, 'toolResultPruner')?.config.pressure)
+        .toEqual({ maxContextTokens: 100_000, pruneThresholdChars: 8192 })
+      // Handoff registers its command and the host-only delivery projection.
+      expect(ctx.commands.find(handle.agent, 'handoff')).toBeDefined()
+      expect(ctx.get('sessionProjections')?.stateOf(handle.agent.session, 'handoff'))
+        .toEqual({ delivered: false })
+    } finally {
+      await handle.dispose()
+      process.env.DSH_HOME = previousHome
+      await rm(home, { recursive: true, force: true })
     }
   })
 
@@ -973,7 +1012,7 @@ describe('a composition that configures its own preset roots', () => {
     ])
 
     const listed = await rootsCtx.agentPresets.list()
-    expect(listed.map(preset => preset.id).sort()).toEqual(['cordis', 'minimal', 'ptc', 'standard', 'team-spec'])
+    expect(listed.map(preset => preset.id).sort()).toEqual(['cordis', 'minimal', 'ptc', 'sota', 'standard', 'team-spec'])
     expect(listed.every(preset => preset.broken === undefined)).toBe(true)
     // The shipped root comes first: a configured directory claiming a shipped
     // id is shadowed, never the other way around.
