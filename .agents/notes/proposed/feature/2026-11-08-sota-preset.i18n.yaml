@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-08-sota-preset.md
+2026-11-08-sota-preset.md: 785654b2aa89f4b2ffb0c88745f7ab4703fc68fa
+2026-11-08-sota-preset.zh.md: 3d217495627d7251bd68a6954346df55eb2e8c67
