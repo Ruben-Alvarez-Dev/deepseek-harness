@@ -219,7 +219,7 @@ El plan F0/F1/F4/F5 está cerrado. Para una nueva iteración: partir del árbol 
 
 -----
 
-## 11 · Plan de activación de opt-ins — propuesta para el propietario (no ejecutada)
+## 11 · Plan de activación de opt-ins — implementado como preset `sota` (ver §12)
 
 **Estado:** propuesta. **Ningún preset ni bundle está modificado** por F5; el árbol integrado mantiene todos los opt-ins desmontados. Activar sigue siendo una decisión del propietario y, por la regla de ejecución del plan, cada activación es un change propio (con sus gates, snapshots y evaluación en vivo), no una edición suelta.
 
@@ -253,3 +253,60 @@ Notas por opt-in:
 ### 11.3 · Fuera de esta propuesta
 
 Push/PR, E-3 (pin de integridad de plugins; sigue diferido a aceptar riesgo de terceros), ventana de 30 días (no medible antes de activar), migración de las claves literales preexistentes de `auth.json` (higiene ajena a F5) y `auth.json`/dossier QWEN/PI-agent: no tocados.
+
+-----
+
+## 12 · PRODUCTO SOTA — preset `sota`, redacción host y paquete de publicación (2026-11-08)
+
+**Estado:** **implementado y validado en el árbol integrado**, listo para publicar. HEAD final `4ff329d144` (41 commits, 215 ficheros, +10.001/−219) en la rama local `feat/ch050-integration`; **sin push** (requiere credenciales del propietario). No es una release: es el paquete de publicación más una activación opt-in real.
+
+### 12.1 · Qué se añade sobre el árbol auditado del §10
+
+- **Preset shipped `sota`** (`packages/preset/agent-presets/presets/sota/`): parte de `standard` y monta un opt-in por fila — governor MCP (3.000 tokens, descripciones 120), dispatch gate en `audit`, pruner por presión conservador (`maxContextTokens: 100000`, `pruneThresholdChars: 8192`), router FTS5 + `tool-skill` en realm aislado, memoria pasiva local (`capture: false`) y handoff. **`standard` sigue siendo el preset por defecto y no cambia**; una sesión que no nombra `sota` se compone igual que antes.
+- **Redacción de telemetría por defecto en el host** (`dsh-base`): la garantía cubre todos los perfiles y presets; no es model-visible y no toca el log canónico.
+- **Memoria pasiva operativa**: `memoryDir` se crea en el primer montaje si falta (antes un preset shipped fallaba al activar la fila).
+- **Cierre del runtime**: los paquetes opt-in entran en la closure de `apps/cli` y `python/sdk-runtime`; `verify-runtime-closure` queda cerrado (5 presets, 145 paquetes).
+- **Agent Notes bilingües** de la publicación: `.agents/notes/proposed/feature/2026-11-06-f4-integration.*` (árbol/auditoría/cierre) y `.agents/notes/proposed/feature/2026-11-08-sota-preset.*` (producto/activación). Mecanismos delegados a las siete notas de cada change.
+- **e2e real** ampliado: `apps/cli/tests/web-agent-presets.e2e.ts` arranca la composición Web shipped, lista cinco presets, monta `sota` y comprueba catálogo idéntico a `standard`, router/pruner confinados al realm del preset y handoff registrado.
+
+### 12.2 · Evidencia de validación (HEAD `4ff329d144`)
+
+| Gate / prueba | Resultado |
+|---|---|
+| `pnpm run check:ci:static` | **55/55** |
+| `pnpm run test:docs` | **20/20** |
+| `pnpm run typecheck` | **exit 0** |
+| `pnpm run lint:contracts-ready` | **0 warnings / 0 errors** |
+| `pnpm run duplication` | **0 clones** |
+| `pnpm run verify-package-invariants` | **39/39** |
+| `pnpm run verify-runtime-closure` | **5 presets / 145 paquetes, cerrado** |
+| `pnpm run verify-package-dependencies` | **63 conformes** |
+| Tests de `agent-presets` (incluye roster shipped) | **190/190** |
+| `memory-passive` | **16/16** |
+| `ui-agent-preset` locales | **6/6** |
+| **e2e REAL de composición Web con `sota`** | **33/33** |
+| `pnpm run test:snapshot` | **152 passed / 2 skipped** (requiere `python3 >= 3.10` en `PATH`; el Python del sistema 3.9.6 solo falla en el escenario PTC-python, límite de entorno, no del diff) |
+| Preset por defecto / snapshots existentes | **sin cambios** (`standard` intacto; ninguna grabación selecciona `sota`) |
+
+### 12.3 · Cómo se usa y cómo se activa
+
+- **Uso desde el repo:** construir/arrancar la Web (`pnpm run build:lib`, `pnpm run dsh web`) y elegir **SOTA mode** al crear una tarea. La selección es el único interruptor: no se reescribe ningún ajuste ni se migra ninguna sesión.
+- **Distribución:** al publicar el árbol, el preset viaja en el paquete `dsh-agent-presets`; `apps/cli` y `python/sdk-runtime` garantizan que sus plugins estén instalados.
+- **Secuencia de activación recomendada:** (1) `sota` en un perfil no-default; (2) dispatch gate una semana en `audit` y derivar la allowlist de los eventos `tool/dispatch-gate`; (3) pasar a `enforce`; (4) mantener `capture: false` de memoria hasta la ventana de 30 días; (5) medir con `dsh-experimental-longitudinal-eval` y aplicar kill-criteria.
+- **Rollback:** no seleccionar `sota` (o eliminarlo) deja el producto exactamente como `standard`. Para la redacción host-wide, un despliegue que necesite telemetría sin redactar debe parchear la fila explícitamente.
+
+### 12.4 · Riesgos y deudas declaradas
+
+- **Drift de `standard`:** `sota` copia sus filas (mismo patrón que `ptc`); una fila nueva en `standard` debe replicarse a mano. El e2e detecta tools model-facing ausentes, no servicios ni secciones de prompt.
+- **Audit no es enforcement:** hasta derivar la allowlist, `sota` observa las llamadas no listadas, no las bloquea.
+- **Simulaciones, no medición en vivo:** governor 0,45 % y pruner 12,94 % son replay; router y memoria son fixtures sintéticas. La ventana de 30 días sigue pendiente.
+- **Compatibilidad de lectura:** los tres eventos opt-in no son ignorables; un lector anterior rechaza una sesión escrita con ellos. No hay sesiones afectadas mientras no se usen los opt-ins.
+- **Redacción host-wide:** cambia la telemetría de salida de todos los perfiles; es deliberado y reversible por patch.
+- **Entorno de snapshots:** el escenario PTC-python exige Python ≥ 3.10 en `PATH`; con 3.9.6 falla por validación del intérprete. No es un fallo del árbol.
+
+### 12.5 · Paquete de publicación (pendiente del propietario)
+
+- **Rama:** `feat/ch050-integration`, HEAD `4ff329d144`, **sin push ni PR**; las credenciales y la decisión de publicación son del propietario.
+- **Título de PR propuesto:** `feat(f4): integrate the seven opt-ins and ship the sota preset`.
+- **Cuerpo:** el borrador completo está en el mensaje de publicación de esta sesión; resume integración + remediaciones + preset `sota` + redacción host + gates y enlaza las dos Agent Notes y las siete notas por change.
+- **Después de publicar:** activar por perfil según §11/§12.3, re-grabar snapshots solo si se cambia el comportamiento por defecto (no es el caso), y arrancar la ventana de 30 días para memoria/skills.
